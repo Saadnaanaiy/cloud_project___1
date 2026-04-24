@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Patch,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { EmployeesService } from './employees.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -27,30 +38,44 @@ export class EmployeesController {
   }
 
   @Get('stats')
-  getStats() { return this.service.getStats(); }
+  getStats() {
+    return this.service.getStats();
+  }
 
   @Get(':id')
-  findOne(@Param('id') id: string) { return this.service.findOne(+id); }
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(+id);
+  }
 
   // ── WRITE — Admin & HR only ──────────────────────────────────────────────────
   @Post()
   @Roles(UserRole.ADMIN, UserRole.HR)
-  create(@Body() body: any) { return this.service.create(body); }
+  create(@Body() body: any) {
+    return this.service.create(body);
+  }
 
   @Put(':id')
   @Roles(UserRole.ADMIN, UserRole.HR)
-  update(@Param('id') id: string, @Body() body: any) { return this.service.update(+id, body); }
+  update(@Param('id') id: string, @Body() body: any) {
+    return this.service.update(+id, body);
+  }
 
   // ── DELETE / BLOCK — Admin only ──────────────────────────────────────────────
   @Delete(':id')
   @Roles(UserRole.ADMIN)
-  remove(@Param('id') id: string) { return this.service.remove(+id); }
+  remove(@Param('id') id: string) {
+    return this.service.remove(+id);
+  }
 
   @Patch(':id/block')
   @Roles(UserRole.ADMIN)
-  block(@Param('id') id: string) { return this.service.block(+id); }
+  block(@Param('id') id: string) {
+    return this.service.block(+id);
+  }
 
   @Patch(':id/unblock')
   @Roles(UserRole.ADMIN)
-  unblock(@Param('id') id: string) { return this.service.unblock(+id); }
+  unblock(@Param('id') id: string) {
+    return this.service.unblock(+id);
+  }
 }

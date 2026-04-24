@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Department } from '../departments/department.entity';
 
 export enum EmployeeStatus {
@@ -37,7 +45,11 @@ export class Employee {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   salary: number;
 
-  @Column({ type: 'enum', enum: EmployeeStatus, default: EmployeeStatus.ACTIVE })
+  @Column({
+    type: 'enum',
+    enum: EmployeeStatus,
+    default: EmployeeStatus.ACTIVE,
+  })
   status: EmployeeStatus;
 
   @Column({ nullable: true })

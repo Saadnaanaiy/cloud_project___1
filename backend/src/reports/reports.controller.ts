@@ -21,7 +21,8 @@ export class ReportsController {
     const buffer = await this.service.generateExcel();
     const filename = `rapport_employes_${new Date().toISOString().split('T')[0]}.xlsx`;
     res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': `attachment; filename="${filename}"`,
       'Content-Length': buffer.length,
     });

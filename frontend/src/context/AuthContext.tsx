@@ -10,6 +10,7 @@ interface AuthContextType {
   logout: () => void;
   refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
+  isInitializing: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -17,17 +18,24 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const t = localStorage.getItem('token');
     const u = localStorage.getItem('user');
-    if (t && u) { setToken(t); setUser(JSON.parse(u)); }
+    if (t && u) { 
+      setToken(t); 
+      setUser(JSON.parse(u));
+      api.defaults.headers.common['Authorization'] = `Bearer ${t}`;
+    }
+    setIsInitializing(false);
   }, []);
 
   const login = async (email: string, password: string) => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.access_token);
     localStorage.setItem('user', JSON.stringify(data.user));
+    api.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
     setToken(data.access_token);
     setUser(data.user);
   };
@@ -36,6 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data } = await api.post('/auth/register', { name, email, password, role });
     localStorage.setItem('token', data.access_token);
     localStorage.setItem('user', JSON.stringify(data.user));
+    api.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
     setToken(data.access_token);
     setUser(data.user);
   };
@@ -51,12 +60,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    delete api.defaults.headers.common['Authorization'];
     setToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, isAuthenticated: !!token, isInitializing }}>
       {children}
     </AuthContext.Provider>
   );

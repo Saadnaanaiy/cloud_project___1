@@ -17,9 +17,14 @@ export class AttendanceController {
   @Get()
   @ApiQuery({ name: 'date', required: false })
   @ApiQuery({ name: 'employeeId', required: false })
-  getAttendance(@Query('date') date?: string, @Query('employeeId') employeeId?: number) {
+  getAttendance(
+    @Query('date') date?: string,
+    @Query('employeeId') employeeId?: number,
+  ) {
     if (employeeId) return this.service.getByEmployee(+employeeId);
-    return this.service.getByDate(date || new Date().toISOString().split('T')[0]);
+    return this.service.getByDate(
+      date || new Date().toISOString().split('T')[0],
+    );
   }
 
   @Get('stats/monthly')

@@ -32,31 +32,44 @@ export class ReportsService {
       properties: { tabColor: { argb: '111827' } },
     });
     empSheet.columns = [
-      { header: '#',             key: 'id',         width: 6  },
-      { header: 'First Name',    key: 'firstName',   width: 18 },
-      { header: 'Last Name',     key: 'lastName',    width: 18 },
-      { header: 'Email',         key: 'email',       width: 32 },
-      { header: 'Phone',         key: 'phone',       width: 20 },
-      { header: 'Position',      key: 'position',    width: 25 },
-      { header: 'Department',    key: 'department',  width: 20 },
-      { header: 'Hire Date',     key: 'hireDate',    width: 14 },
-      { header: 'Salary (MAD)',  key: 'salary',      width: 15 },
-      { header: 'Status',        key: 'status',      width: 13 },
+      { header: '#', key: 'id', width: 6 },
+      { header: 'First Name', key: 'firstName', width: 18 },
+      { header: 'Last Name', key: 'lastName', width: 18 },
+      { header: 'Email', key: 'email', width: 32 },
+      { header: 'Phone', key: 'phone', width: 20 },
+      { header: 'Position', key: 'position', width: 25 },
+      { header: 'Department', key: 'department', width: 20 },
+      { header: 'Hire Date', key: 'hireDate', width: 14 },
+      { header: 'Salary (MAD)', key: 'salary', width: 15 },
+      { header: 'Status', key: 'status', width: 13 },
     ];
 
     const headerRow = empSheet.getRow(1);
-    headerRow.fill   = { type: 'pattern', pattern: 'solid', fgColor: { argb: '111827' } };
-    headerRow.font   = { bold: true, color: { argb: 'FFFFFF' }, size: 11, name: 'Calibri' };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '111827' },
+    };
+    headerRow.font = {
+      bold: true,
+      color: { argb: 'FFFFFF' },
+      size: 11,
+      name: 'Calibri',
+    };
     headerRow.height = 26;
     headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
-    headerRow.eachCell(cell => {
+    headerRow.eachCell((cell) => {
       cell.border = { bottom: { style: 'thin', color: { argb: '374151' } } };
     });
 
     employees.forEach((e, i) => {
       const row = empSheet.addRow({
-        id: i + 1, firstName: e.firstName, lastName: e.lastName,
-        email: e.email, phone: e.phone || '—', position: e.position || '—',
+        id: i + 1,
+        firstName: e.firstName,
+        lastName: e.lastName,
+        email: e.email,
+        phone: e.phone || '—',
+        position: e.position || '—',
         department: e.department?.name || '—',
         hireDate: e.hireDate || '—',
         salary: e.salary ? Number(e.salary).toLocaleString() : '—',
@@ -67,13 +80,35 @@ export class ReportsService {
       row.alignment = { vertical: 'middle' };
 
       if (i % 2 === 0) {
-        row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F9FAFB' } };
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'F9FAFB' },
+        };
       }
 
       const statusCell = row.getCell('status');
-      if (e.status === 'active')      statusCell.font = { color: { argb: '059669' }, bold: true, size: 10, name: 'Calibri' };
-      else if (e.status === 'blocked') statusCell.font = { color: { argb: 'DC2626' }, bold: true, size: 10, name: 'Calibri' };
-      else if (e.status === 'on_leave') statusCell.font = { color: { argb: 'D97706' }, bold: true, size: 10, name: 'Calibri' };
+      if (e.status === 'active')
+        statusCell.font = {
+          color: { argb: '059669' },
+          bold: true,
+          size: 10,
+          name: 'Calibri',
+        };
+      else if (e.status === 'blocked')
+        statusCell.font = {
+          color: { argb: 'DC2626' },
+          bold: true,
+          size: 10,
+          name: 'Calibri',
+        };
+      else if (e.status === 'on_leave')
+        statusCell.font = {
+          color: { argb: 'D97706' },
+          bold: true,
+          size: 10,
+          name: 'Calibri',
+        };
     });
 
     // Auto-filter
@@ -84,29 +119,43 @@ export class ReportsService {
       properties: { tabColor: { argb: '059669' } },
     });
     attSheet.columns = [
-      { header: 'Date',        key: 'date',   width: 14 },
-      { header: 'Employee ID', key: 'empId',  width: 13 },
-      { header: 'Full Name',   key: 'name',   width: 26 },
-      { header: 'Department',  key: 'dept',   width: 22 },
-      { header: 'Status',      key: 'status', width: 14 },
+      { header: 'Date', key: 'date', width: 14 },
+      { header: 'Employee ID', key: 'empId', width: 13 },
+      { header: 'Full Name', key: 'name', width: 26 },
+      { header: 'Department', key: 'dept', width: 22 },
+      { header: 'Status', key: 'status', width: 14 },
     ];
     const attHeader = attSheet.getRow(1);
-    attHeader.fill   = { type: 'pattern', pattern: 'solid', fgColor: { argb: '111827' } };
-    attHeader.font   = { bold: true, color: { argb: 'FFFFFF' }, size: 11, name: 'Calibri' };
+    attHeader.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '111827' },
+    };
+    attHeader.font = {
+      bold: true,
+      color: { argb: 'FFFFFF' },
+      size: 11,
+      name: 'Calibri',
+    };
     attHeader.height = 26;
     attHeader.alignment = { vertical: 'middle' };
 
     attendance.forEach((a, i) => {
       const row = attSheet.addRow({
-        date:   a.date,
-        empId:  a.employeeId,
-        name:   `${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.trim(),
-        dept:   a.employee?.department?.name || '—',
+        date: a.date,
+        empId: a.employeeId,
+        name: `${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.trim(),
+        dept: a.employee?.department?.name || '—',
         status: a.status.toUpperCase(),
       });
       row.height = 20;
-      row.font   = { name: 'Calibri', size: 10 };
-      if (i % 2 === 0) row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F9FAFB' } };
+      row.font = { name: 'Calibri', size: 10 };
+      if (i % 2 === 0)
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'F9FAFB' },
+        };
     });
     attSheet.autoFilter = { from: 'A1', to: 'E1' };
 
@@ -118,16 +167,32 @@ export class ReportsService {
     statsSheet.getColumn(2).width = 18;
 
     const titleRow = statsSheet.addRow(['EMPLOYEE STATISTICS']);
-    titleRow.font = { bold: true, size: 16, name: 'Calibri', color: { argb: '111827' } };
+    titleRow.font = {
+      bold: true,
+      size: 16,
+      name: 'Calibri',
+      color: { argb: '111827' },
+    };
     titleRow.height = 32;
 
-    const subRow = statsSheet.addRow([`Generated: ${new Date().toLocaleString('en-GB')}`]);
-    subRow.font = { italic: true, color: { argb: '6B7280' }, size: 10, name: 'Calibri' };
+    const subRow = statsSheet.addRow([
+      `Generated: ${new Date().toLocaleString('en-GB')}`,
+    ]);
+    subRow.font = {
+      italic: true,
+      color: { argb: '6B7280' },
+      size: 10,
+      name: 'Calibri',
+    };
     statsSheet.addRow([]);
 
     const hRow = statsSheet.addRow(['Metric', 'Value']);
     hRow.font = { bold: true, size: 11, name: 'Calibri' };
-    hRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F3F4F6' } };
+    hRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'F3F4F6' },
+    };
     hRow.height = 22;
 
     const statsData = [
@@ -135,13 +200,23 @@ export class ReportsService {
       ['Active', stats.active],
       ['Blocked', stats.blocked],
       ['On Leave', stats.onLeave],
-      ['Attendance Rate', stats.total > 0 ? `${Math.round((stats.active / stats.total) * 100)}%` : '—'],
+      [
+        'Attendance Rate',
+        stats.total > 0
+          ? `${Math.round((stats.active / stats.total) * 100)}%`
+          : '—',
+      ],
     ];
     statsData.forEach(([label, value], i) => {
       const r = statsSheet.addRow([label, value]);
       r.font = { size: 10, name: 'Calibri' };
       r.height = 20;
-      if (i % 2 === 0) r.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FAFAFA' } };
+      if (i % 2 === 0)
+        r.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FAFAFA' },
+        };
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
@@ -150,24 +225,33 @@ export class ReportsService {
 
   // ─────────────────────────────────────── PDF ────────────────────────────────
   async generatePDF(): Promise<Buffer> {
-    const employees = await this.empRepo.find({ relations: ['department'], order: { firstName: 'ASC' } });
+    const employees = await this.empRepo.find({
+      relations: ['department'],
+      order: { firstName: 'ASC' },
+    });
     const stats = await this.getStats();
 
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const PW = doc.internal.pageSize.getWidth();   // 297
-    const PH = doc.internal.pageSize.getHeight();  // 210
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
+    });
+    const PW = doc.internal.pageSize.getWidth(); // 297
+    const PH = doc.internal.pageSize.getHeight(); // 210
 
     // ── Colour palette ──────────────────────────────────────────────────────
-    const INK  : [number,number,number] = [15,  23,  42];   // Slate 900
-    const MUTED: [number,number,number] = [100, 116, 139];  // Slate 500
-    const LINE : [number,number,number] = [226, 232, 240];  // Slate 200
-    const PRIMARY: [number,number,number] = [99, 102, 241]; // Indigo 500
-    const GREEN: [number,number,number] = [16, 185, 129];
-    const RED  : [number,number,number] = [239, 68, 68];
-    const AMBER: [number,number,number] = [245, 158, 11];
+    const INK: [number, number, number] = [15, 23, 42]; // Slate 900
+    const MUTED: [number, number, number] = [100, 116, 139]; // Slate 500
+    const LINE: [number, number, number] = [226, 232, 240]; // Slate 200
+    const PRIMARY: [number, number, number] = [99, 102, 241]; // Indigo 500
+    const GREEN: [number, number, number] = [16, 185, 129];
+    const RED: [number, number, number] = [239, 68, 68];
+    const AMBER: [number, number, number] = [245, 158, 11];
 
     const genDate = new Date().toLocaleDateString('en-GB', {
-      day: 'numeric', month: 'long', year: 'numeric',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
 
     // ══════════════════════════════════ PAGE 1 ════════════════════════════════
@@ -188,8 +272,8 @@ export class ReportsService {
 
     // KPI row (shifted down below banner)
     const kpis = [
-      { label: 'Total Employees', value: String(stats.total)  },
-      { label: 'Active Personnel', value: String(stats.active)  },
+      { label: 'Total Employees', value: String(stats.total) },
+      { label: 'Active Personnel', value: String(stats.active) },
       { label: 'Currently On Leave', value: String(stats.onLeave) },
       { label: 'Account Blocked', value: String(stats.blocked) },
     ];
@@ -197,7 +281,7 @@ export class ReportsService {
     const kpiW = 55;
     const kpiH = 24;
     const kpiY = 48;
-    const gap = (PW - 40 - (kpis.length * kpiW)) / (kpis.length - 1); // 40 is total margin
+    const gap = (PW - 40 - kpis.length * kpiW) / (kpis.length - 1); // 40 is total margin
 
     kpis.forEach((k, i) => {
       const x = 20 + i * (kpiW + gap);
@@ -218,7 +302,9 @@ export class ReportsService {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...MUTED);
-      doc.text(k.label.toUpperCase(), x + kpiW / 2, kpiY + 19, { align: 'center' });
+      doc.text(k.label.toUpperCase(), x + kpiW / 2, kpiY + 19, {
+        align: 'center',
+      });
     });
 
     const tableTopY = kpiY + kpiH + 15;
@@ -227,7 +313,18 @@ export class ReportsService {
     autoTable(doc, {
       startY: tableTopY,
       margin: { left: 20, right: 20 },
-      head: [['ID', 'Full Name', 'Email Address', 'Department', 'Position', 'Hire Date', 'Salary', 'Status']],
+      head: [
+        [
+          'ID',
+          'Full Name',
+          'Email Address',
+          'Department',
+          'Position',
+          'Hire Date',
+          'Salary',
+          'Status',
+        ],
+      ],
       body: employees.map((e, i) => [
         `EMP-${String(e.id).padStart(4, '0')}`,
         `${e.firstName} ${e.lastName}`,
@@ -253,7 +350,7 @@ export class ReportsService {
         fontSize: 9,
         halign: 'left',
         lineWidth: { bottom: 0.5, top: 0, left: 0, right: 0 },
-        lineColor: [148, 163, 184]
+        lineColor: [148, 163, 184],
       },
       alternateRowStyles: {
         fillColor: [255, 255, 255],
@@ -271,7 +368,7 @@ export class ReportsService {
       didParseCell: (data) => {
         if (data.column.index === 7 && data.section === 'body') {
           const val = String(data.cell.raw).toLowerCase();
-          if (val === 'active')   data.cell.styles.textColor = GREEN;
+          if (val === 'active') data.cell.styles.textColor = GREEN;
           else if (val === 'blocked') data.cell.styles.textColor = RED;
           else if (val === 'on leave') data.cell.styles.textColor = AMBER;
           data.cell.styles.fontStyle = 'bold';
@@ -286,8 +383,14 @@ export class ReportsService {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...MUTED);
-      doc.text('Employee Management System - Generated automatically', 20, PH - 10);
-      doc.text(`Page ${p} of ${totalPages}`, PW - 20, PH - 10, { align: 'right' });
+      doc.text(
+        'Employee Management System - Generated automatically',
+        20,
+        PH - 10,
+      );
+      doc.text(`Page ${p} of ${totalPages}`, PW - 20, PH - 10, {
+        align: 'right',
+      });
     }
 
     return Buffer.from(doc.output('arraybuffer'));
@@ -295,10 +398,16 @@ export class ReportsService {
 
   // ─────────────────────────────── helpers ────────────────────────────────────
   private async getStats() {
-    const total   = await this.empRepo.count();
-    const active  = await this.empRepo.count({ where: { status: 'active'   as any } });
-    const blocked = await this.empRepo.count({ where: { status: 'blocked'  as any } });
-    const onLeave = await this.empRepo.count({ where: { status: 'on_leave' as any } });
+    const total = await this.empRepo.count();
+    const active = await this.empRepo.count({
+      where: { status: 'active' as any },
+    });
+    const blocked = await this.empRepo.count({
+      where: { status: 'blocked' as any },
+    });
+    const onLeave = await this.empRepo.count({
+      where: { status: 'on_leave' as any },
+    });
     return { total, active, blocked, onLeave };
   }
 }

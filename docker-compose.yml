@@ -21,7 +21,7 @@ services:
     ports:
       - '${PORT:-3001}:${PORT:-3001}'
     environment:
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=db
       - DB_PORT=${DB_PORT}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}

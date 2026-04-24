@@ -14,30 +14,30 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
 
+  const formatDateOnly = (dateValue?: string) => {
+    if (!dateValue) return '';
+    const rawDate = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+    const match = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return rawDate;
+    return `${match[3]}/${match[2]}`;
+  };
+
   useEffect(() => {
     Promise.all([
       api.get('/employees/stats'),
       api.get(`/attendance/stats/monthly?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}`),
     ]).then(([statsRes, monthlyRes]) => {
       setStats(statsRes.data);
-      setMonthlyData(monthlyRes.data.map((d: any) => {
-        let formattedDate = d.date;
-        if (d.date) {
-          try {
-            // Re-parse it properly to include the H:M:S
-            const dateObj = new Date(d.date);
-            const dateStr = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-            const timeStr = dateObj.toLocaleTimeString(undefined, { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            formattedDate = `${dateStr} ${timeStr}`;
-          } catch {
-            formattedDate = d.date; // Fallback
-          }
-        }
+      const attendanceData = Array.isArray(monthlyRes.data) ? monthlyRes.data : [];
+      setMonthlyData(attendanceData.map((d: any) => {
+        const present = Number(d.present) || 0;
+        const absent = Number(d.absent) || 0;
+        const late = Number(d.late) || 0;
         return {
-          date: formattedDate,
-          present: parseInt(d.present) || 0,
-          absent: parseInt(d.absent) || 0,
-          late: parseInt(d.late) || 0,
+          date: formatDateOnly(d.date),
+          present,
+          absent,
+          late,
         };
       }));
     }).catch(() => toast.error('Failed to load dashboard data'))
@@ -131,8 +131,12 @@ const DashboardPage: React.FC = () => {
               <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={14}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} dy={10} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: 'var(--shadow-md)' }} cursor={{ fill: 'var(--border)', opacity: 0.4 }} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip
+                  labelFormatter={(value) => `Date: ${value}`}
+                  contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: 'var(--shadow-md)' }}
+                  cursor={{ fill: 'var(--border)', opacity: 0.4 }}
+                />
                 <Legend wrapperStyle={{ color: 'var(--text-primary)', fontSize: '12px', paddingTop: '10px' }} />
                 <Bar dataKey="present" stackId="a" fill="var(--brand)" name={t('present')} />
                 <Bar dataKey="late" stackId="a" fill="var(--amber)" name={t('late')} />

@@ -1,4 +1,10 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -19,13 +25,30 @@ export class AuthService implements OnModuleInit {
   }
 
   async seedAdminUser() {
-    const exists = await this.userRepo.findOne({ where: { email: 'admin@company.com' } });
+    const exists = await this.userRepo.findOne({
+      where: { email: 'admin@company.com' },
+    });
     if (!exists) {
       const hashed = await bcrypt.hash('admin123', 10);
       await this.userRepo.save([
-        { name: 'Super Admin', email: 'admin@company.com', password: hashed, role: UserRole.ADMIN },
-        { name: 'HR Manager', email: 'hr@company.com', password: await bcrypt.hash('hr123', 10), role: UserRole.HR },
-        { name: 'Department Manager', email: 'manager@company.com', password: await bcrypt.hash('manager123', 10), role: UserRole.MANAGER },
+        {
+          name: 'Super Admin',
+          email: 'admin@company.com',
+          password: hashed,
+          role: UserRole.ADMIN,
+        },
+        {
+          name: 'HR Manager',
+          email: 'hr@company.com',
+          password: await bcrypt.hash('hr123', 10),
+          role: UserRole.HR,
+        },
+        {
+          name: 'Department Manager',
+          email: 'manager@company.com',
+          password: await bcrypt.hash('manager123', 10),
+          role: UserRole.MANAGER,
+        },
       ]);
       console.log('✅ Default users seeded: admin@company.com / admin123');
     }
@@ -38,10 +61,20 @@ export class AuthService implements OnModuleInit {
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
 
-    const payload = { sub: user.id, email: user.email, role: user.role, name: user.name };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     };
   }
 
@@ -57,10 +90,20 @@ export class AuthService implements OnModuleInit {
       role: dto.role ?? UserRole.HR,
     });
 
-    const payload = { sub: user.id, email: user.email, role: user.role, name: user.name };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     };
   }
 
@@ -73,12 +116,17 @@ export class AuthService implements OnModuleInit {
     return user;
   }
 
-  async updateProfile(userId: number, data: { name?: string; email?: string; password?: string }) {
+  async updateProfile(
+    userId: number,
+    data: { name?: string; email?: string; password?: string },
+  ) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
     if (data.email && data.email !== user.email) {
-      const exists = await this.userRepo.findOne({ where: { email: data.email } });
+      const exists = await this.userRepo.findOne({
+        where: { email: data.email },
+      });
       if (exists) throw new ConflictException('Email already in use');
       user.email = data.email;
     }
@@ -86,6 +134,11 @@ export class AuthService implements OnModuleInit {
     if (data.password) user.password = await bcrypt.hash(data.password, 10);
 
     const saved = await this.userRepo.save(user);
-    return { id: saved.id, name: saved.name, email: saved.email, role: saved.role };
+    return {
+      id: saved.id,
+      name: saved.name,
+      email: saved.email,
+      role: saved.role,
+    };
   }
 }
