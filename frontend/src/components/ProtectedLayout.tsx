@@ -4,12 +4,15 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
+import { ChatProvider } from '../context/ChatContext';
+import ChatDrawer from '../components/chat/ChatDrawer';
 
 const ProtectedLayout: React.FC = () => {
   const { isAuthenticated, isInitializing } = useAuth();
   const { t } = useLang();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [chatOpen, setChatOpen] = React.useState(false);
 
   const pageTitles: Record<string, string> = {
     '/': t('dashboard'),
@@ -32,15 +35,18 @@ const ProtectedLayout: React.FC = () => {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return (
-    <div className="page-layout">
-      <Sidebar mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
-      <div className="main-content">
-        <Topbar title={title} setMobileMenuOpen={setMobileMenuOpen} />
-        <div className="page-inner animate-fade">
-          <Outlet />
+    <ChatProvider>
+      <div className="page-layout">
+        <Sidebar mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
+        <div className="main-content">
+          <Topbar title={title} setMobileMenuOpen={setMobileMenuOpen} setChatOpen={setChatOpen} />
+          <div className="page-inner animate-fade">
+            <Outlet />
+          </div>
         </div>
       </div>
-    </div>
+      <ChatDrawer isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+    </ChatProvider>
   );
 };
 

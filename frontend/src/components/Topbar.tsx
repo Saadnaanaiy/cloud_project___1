@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { Bell, Sun, Moon, User, LogOut, Settings, Menu } from 'lucide-react';
+import { useChat } from '../context/ChatContext';
+import { Bell, Sun, Moon, User, LogOut, Settings, Menu, MessageCircle } from 'lucide-react';
 
-const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => void }> = ({ title, setMobileMenuOpen }) => {
+const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => void, setChatOpen?: (open: boolean) => void }> = ({ title, setMobileMenuOpen, setChatOpen }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { lang, setLang, dir } = useLang();
+  const { unreadTotal } = useChat();
   const navigate = useNavigate();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -116,10 +118,18 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
-        {/* Notifications */}
-        <button className="btn btn-ghost btn-icon" style={{ position: 'relative', color: 'var(--text-secondary)' }}>
+        {/* Notifications & Chat */}
+        <button className="btn btn-ghost btn-icon" onClick={() => setChatOpen && setChatOpen(true)} style={{ position: 'relative', color: 'var(--text-secondary)' }} title="Messages">
+          <MessageCircle size={18} />
+          {unreadTotal > 0 && (
+            <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '16px', height: '16px', borderRadius: '10px', background: 'var(--red)', color: '#fff', fontSize: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg-surface)' }}>
+              {unreadTotal}
+            </span>
+          )}
+        </button>
+
+        <button className="btn btn-ghost btn-icon" style={{ position: 'relative', color: 'var(--text-secondary)' }} title="Notifications">
           <Bell size={18} />
-          <span style={{ position: 'absolute', top: '6px', right: '6px', width: '7px', height: '7px', borderRadius: '50%', background: 'var(--red)', border: '2px solid var(--bg-surface)' }} />
         </button>
 
         {/* Profile dropdown */}
