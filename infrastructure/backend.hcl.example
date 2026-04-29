@@ -1,2 +1,5 @@
-bucket = "your-terraform-state-bucket"
-prefix = "employee-platform/dev"
+# infrastructure/backend.hcl
+# Copy this file to backend.hcl and fill in your values.
+# backend.hcl is gitignored — never commit it!
+bucket = "cloudappproject-494314-tf-state"
+prefix = "terraform/state"

@@ -1,0 +1,21 @@
+# Ansible Inventory — Employee Platform Infrastructure
+# 
+# Usage:
+#   ansible -i ansible/inventory.yml all -m ping
+#   ansible-playbook -i ansible/inventory.yml ansible/configure-bastion.yml
+
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  children:
+    # Bastion host — jump server to access the private GKE cluster
+    bastion:
+      hosts:
+        bastion-gcp:
+          ansible_host: "REPLACE_WITH_BASTION_PUBLIC_IP"   # Set after Terraform creates it
+          ansible_user: "your-gcp-username"                 # Your GCP SSH username
+          ansible_ssh_private_key_file: "~/.ssh/google_compute_engine"
+          gcp_project: "cloudappproject-494314"
+          gke_cluster: "dev-employee-gke"
+          gke_region: "europe-west1"

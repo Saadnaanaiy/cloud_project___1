@@ -1,0 +1,106 @@
+---
+# ============================================================
+# Ansible Playbook — Install Core Kubernetes Add-ons
+# Installs: NGINX Ingress, cert-manager, Prometheus+Grafana
+# ============================================================
+# Usage:
+#   ansible-playbook -i ansible/inventory.yml ansible/install-k8s-addons.yml
+# ============================================================
+
+- name: Install Kubernetes Add-ons via Helm
+  hosts: bastion
+  become: false
+  vars:
+    cert_manager_version: "v1.16.0"
+    nginx_ingress_version: "4.11.0"
+    prometheus_stack_version: "65.0.0"
+
+  tasks:
+    # ── cert-manager (SSL automation) ────────────────────────
+    - name: Install cert-manager
+      ansible.builtin.command: >
+        helm upgrade --install cert-manager jetstack/cert-manager
+        --namespace cert-manager
+        --create-namespace
+        --version {{ cert_manager_version }}
+        --set crds.enabled=true
+        --wait
+      register: cert_manager_result
+      changed_when: "'deployed' in cert_manager_result.stdout"
+
+    - name: Wait for cert-manager webhooks to be ready
+      ansible.builtin.command: >
+        kubectl rollout status deployment/cert-manager-webhook
+        -n cert-manager --timeout=120s
+      changed_when: false
+
+    # ── NGINX Ingress Controller ─────────────────────────────
+    - name: Install NGINX Ingress Controller
+      ansible.builtin.command: >
+        helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx
+        --namespace ingress-nginx
+        --create-namespace
+        --version {{ nginx_ingress_version }}
+        --set controller.service.type=LoadBalancer
+        --set controller.service.externalTrafficPolicy=Local
+        --wait
+      register: nginx_result
+      changed_when: "'deployed' in nginx_result.stdout"
+
+    - name: Get NGINX Ingress LoadBalancer IP
+      ansible.builtin.command: >
+        kubectl get svc nginx-ingress-ingress-nginx-controller
+        -n ingress-nginx
+        -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+      register: lb_ip
+      changed_when: false
+      retries: 12
+      delay: 10
+      until: lb_ip.stdout != ""
+
+    - name: Print LoadBalancer IP (use this for DuckDNS!)
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          ✅ NGINX Ingress LoadBalancer IP: {{ lb_ip.stdout }}
+          ============================================
+          👉 Go to https://www.duckdns.org and set:
+             Domain: empmanager
+             IP:     {{ lb_ip.stdout }}
+          ============================================
+
+    # ── Apply App Manifests ──────────────────────────────────
+    - name: Apply cert-manager ClusterIssuers
+      ansible.builtin.command: kubectl apply -f k8s/07-cert-manager-issuer.yaml
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      changed_when: false
+
+    # ── kube-prometheus-stack (Monitoring) ───────────────────
+    - name: Install kube-prometheus-stack (Prometheus + Grafana)
+      ansible.builtin.command: >
+        helm upgrade --install kube-prometheus-stack
+        prometheus-community/kube-prometheus-stack
+        --namespace monitoring
+        --create-namespace
+        --version {{ prometheus_stack_version }}
+        --set grafana.adminPassword=Admin123!
+        --set prometheus.prometheusSpec.retention=15d
+        --wait --timeout=10m
+      register: prom_result
+      changed_when: "'deployed' in prom_result.stdout"
+
+    - name: Show Grafana access info
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          📊 Grafana is now installed!
+          
+          To access Grafana locally, run:
+            kubectl port-forward svc/kube-prometheus-stack-grafana \
+              3000:80 -n monitoring
+          
+          Then open: http://localhost:3000
+          Username: admin
+          Password: Admin123!
+          ============================================

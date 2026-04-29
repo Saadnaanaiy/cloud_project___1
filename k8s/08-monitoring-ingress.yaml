@@ -1,0 +1,29 @@
+---
+# Ingress for Grafana monitoring dashboard
+# Access Grafana at: https://empmanager.duckdns.org/grafana
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Grafana is configured to handle the sub-path natively
+spec:
+  tls:
+    - hosts:
+        - empmanager.duckdns.org
+      secretName: monitoring-tls
+  rules:
+    - host: empmanager.duckdns.org
+      http:
+        paths:
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: kube-prometheus-stack-grafana
+                port:
+                  number: 80

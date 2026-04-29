@@ -4,4 +4,13 @@ metadata:
   name: employee-platform
   labels:
     name: employee-platform
-    environment: dev
+---
+# ConfigMap for NGINX proxy headers (WebSocket support for Socket.IO)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: websocket-headers
+  namespace: employee-platform
+data:
+  Upgrade: "$http_upgrade"
+  Connection: "upgrade"

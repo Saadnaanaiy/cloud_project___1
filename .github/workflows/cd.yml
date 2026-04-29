@@ -1,0 +1,148 @@
+name: CD — Deploy to GKE
+
+on:
+  # Trigger automatically after CI succeeds on main
+  workflow_run:
+    workflows: ["CI — Build & Push Docker Images"]
+    types: [completed]
+    branches: [main]
+  # Also allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy (default: latest)'
+        required: false
+        default: 'latest'
+
+env:
+  PROJECT_ID: cloudappproject-494314
+  REGION: europe-west1
+  GKE_CLUSTER: dev-employee-gke
+  REGISTRY: europe-west1-docker.pkg.dev
+  REPO: dev-employee-platform
+  NAMESPACE: employee-platform
+
+jobs:
+  deploy:
+    name: 🚀 Deploy to GKE
+    runs-on: ubuntu-latest
+    # Only deploy if CI succeeded (or if manually triggered)
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: gke-gcloud-auth-plugin
+
+      - name: Get GKE credentials
+        run: |
+          gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }}
+
+      # Download image tag from CI (or use input from manual trigger)
+      - name: Download image tag
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: image-tag
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Set image tag
+        id: tag
+        run: |
+          if [ -f image-tag.txt ]; then
+            echo "TAG=$(cat image-tag.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=${{ github.event.inputs.image_tag || 'latest' }}" >> $GITHUB_OUTPUT
+          fi
+
+      # ─────────────────────────────────────────────
+      # STEP 1 — Apply core infrastructure manifests
+      # ─────────────────────────────────────────────
+      - name: Apply namespace & config
+        run: |
+          kubectl apply -f k8s/00-namespace.yaml
+          kubectl apply -f k8s/01-secrets.yaml
+          kubectl apply -f k8s/02-configmap.yaml
+
+      - name: Deploy MySQL (StatefulSet)
+        run: kubectl apply -f k8s/03-mysql.yaml
+
+      - name: Wait for MySQL to be ready
+        run: |
+          kubectl rollout status statefulset/mysql \
+            -n ${{ env.NAMESPACE }} --timeout=180s
+
+      # ─────────────────────────────────────────────
+      # STEP 2 — Update image tags & deploy services
+      # ─────────────────────────────────────────────
+      - name: Update backend image tag in manifest
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:${{ steps.tag.outputs.TAG }}"
+          kubectl set image deployment/backend backend=$IMAGE \
+            -n ${{ env.NAMESPACE }} || kubectl apply -f k8s/04-backend.yaml
+
+      - name: Update frontend image tag in manifest
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:${{ steps.tag.outputs.TAG }}"
+          kubectl set image deployment/frontend frontend=$IMAGE \
+            -n ${{ env.NAMESPACE }} || kubectl apply -f k8s/05-frontend.yaml
+
+      - name: Apply HPA configs
+        run: |
+          kubectl apply -f k8s/04-backend.yaml
+          kubectl apply -f k8s/05-frontend.yaml
+
+      # ─────────────────────────────────────────────
+      # STEP 3 — Apply SSL cert-manager + Ingress
+      # ─────────────────────────────────────────────
+      - name: Apply cert-manager ClusterIssuers
+        run: kubectl apply -f k8s/07-cert-manager-issuer.yaml
+
+      - name: Apply Ingress with TLS
+        run: kubectl apply -f k8s/06-ingress.yaml
+
+      # ─────────────────────────────────────────────
+      # STEP 4 — Verify deployment
+      # ─────────────────────────────────────────────
+      - name: Wait for backend rollout
+        run: |
+          kubectl rollout status deployment/backend \
+            -n ${{ env.NAMESPACE }} --timeout=180s
+
+      - name: Wait for frontend rollout
+        run: |
+          kubectl rollout status deployment/frontend \
+            -n ${{ env.NAMESPACE }} --timeout=120s
+
+      - name: Show deployed pods
+        run: kubectl get pods -n ${{ env.NAMESPACE }}
+
+      - name: Show Ingress & SSL certificate status
+        run: |
+          echo "=== Ingress ==="
+          kubectl get ingress -n ${{ env.NAMESPACE }}
+          echo "=== TLS Certificates ==="
+          kubectl get certificate -n ${{ env.NAMESPACE }} || true
+
+      - name: Deployment summary
+        run: |
+          echo "✅ Deployment complete!"
+          echo "🌐 App URL: https://empmanager.duckdns.org"
+          echo "📦 Image tag: ${{ steps.tag.outputs.TAG }}"

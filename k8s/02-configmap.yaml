@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: employee-platform
+data:
+  NODE_ENV: "production"
+  DB_HOST: "mysql-service"
+  DB_PORT: "3306"
+  DB_NAME: "employee_db"
+  DB_USERNAME: "employee_user"
+  PORT: "3001"
+  # Public HTTPS URL — used for backend CORS and frontend API calls
+  FRONTEND_URL: "https://empmanager.duckdns.org"

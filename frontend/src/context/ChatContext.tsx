@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useAuth } from './AuthContext';
 import api from '../api/axios';
+import { useAuth } from './AuthContext';
 
 export interface Message {
   id: number;
@@ -74,7 +74,9 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const markAsRead = async (contactId: number) => {
     try {
       await api.post(`/messages/read/${contactId}`);
-      setContacts(prev => prev.map(c => c.user.id === contactId ? { ...c, unreadCount: 0 } : c));
+      setContacts((prev) =>
+        prev.map((c) => (c.user.id === contactId ? { ...c, unreadCount: 0 } : c))
+      );
     } catch (error) {
       console.error('Failed to mark as read', error);
     }
@@ -95,43 +97,41 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('token');
-      const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000', {
-        auth: { token }
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const wsUrl = apiUrl.replace('/api', '');
+
+      const newSocket = io(wsUrl, {
+        auth: { token },
       });
 
       setSocket(newSocket);
       fetchContacts();
 
       newSocket.on('newMessage', (message: Message) => {
-        // If we are currently chatting with the sender/receiver
         setActiveContactId((currentActiveId) => {
-          if (
-            currentActiveId === message.senderId ||
-            currentActiveId === message.receiverId
-          ) {
-            setMessages(prev => [...prev, message]);
+          if (currentActiveId === message.senderId || currentActiveId === message.receiverId) {
+            setMessages((prev) => [...prev, message]);
             if (message.receiverId === user.id && message.senderId === currentActiveId) {
-              // Automatically mark as read if chat is open
               markAsRead(currentActiveId);
             }
           }
           return currentActiveId;
         });
-
-        // Always update contacts list with latest message
         fetchContacts();
       });
 
-      newSocket.on('userTyping', ({ senderId, isTyping }) => {
-        setTypingStatus(prev => ({ ...prev, [senderId]: isTyping }));
-        
-        if (isTyping) {
-          // Fallback to clear typing indicator if we don't receive the false event
-          setTimeout(() => {
-            setTypingStatus(prev => ({ ...prev, [senderId]: false }));
-          }, 3000);
+      newSocket.on(
+        'userTyping',
+        ({ senderId, isTyping }: { senderId: number; isTyping: boolean }) => {
+          setTypingStatus((prev) => ({ ...prev, [senderId]: isTyping }));
+
+          if (isTyping) {
+            setTimeout(() => {
+              setTypingStatus((prev) => ({ ...prev, [senderId]: false }));
+            }, 3000);
+          }
         }
-      });
+      );
 
       return () => {
         newSocket.disconnect();

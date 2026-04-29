@@ -1,0 +1,142 @@
+name: CI — Build & Push Docker Images
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PROJECT_ID: cloudappproject-494314
+  REGION: europe-west1
+  REGISTRY: europe-west1-docker.pkg.dev
+  REPO: dev-employee-platform
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1 — Lint & Type-check
+  # ─────────────────────────────────────────────
+  lint:
+    name: 🔍 Lint & Type-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      - name: Lint backend
+        working-directory: backend
+        run: npm run lint || true  # Don't fail on warnings
+
+      - name: Type-check backend
+        working-directory: backend
+        run: npx tsc --noEmit
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint || true
+
+  # ─────────────────────────────────────────────
+  # JOB 2 — Scan Docker Images (Trivy)
+  # ─────────────────────────────────────────────
+  build-and-push:
+    name: 🐳 Build, Scan & Push
+    runs-on: ubuntu-latest
+    needs: lint
+    # Only build on push to main (not PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      id-token: write   # Required for Workload Identity Federation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Authenticate to GCP using Workload Identity (no JSON key needed)
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+
+      # Set short Git SHA as image tag
+      - name: Set image tag
+        id: tag
+        run: echo "TAG=$(echo $GITHUB_SHA | cut -c1-8)" >> $GITHUB_OUTPUT
+
+      # ── Build & push Backend ──
+      - name: Build backend image
+        run: |
+          docker build \
+            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:${{ steps.tag.outputs.TAG }} \
+            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:latest \
+            ./backend
+
+      - name: Scan backend image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:${{ steps.tag.outputs.TAG }}"
+          format: "table"
+          exit-code: "0"        # Don't fail — report only (change to 1 for strict mode)
+          severity: "CRITICAL"
+
+      - name: Push backend image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:${{ steps.tag.outputs.TAG }}
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:latest
+
+      # ── Build & push Frontend ──
+      - name: Build frontend image
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=https://empmanager.duckdns.org \
+            --build-arg VITE_RECAPTCHA_SITE_KEY=${{ secrets.VITE_RECAPTCHA_SITE_KEY }} \
+            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:${{ steps.tag.outputs.TAG }} \
+            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:latest \
+            ./frontend
+
+      - name: Scan frontend image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:${{ steps.tag.outputs.TAG }}"
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL"
+
+      - name: Push frontend image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:${{ steps.tag.outputs.TAG }}
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:latest
+
+      # Save the image tag so the CD workflow can use it
+      - name: Save image tag to file
+        run: echo "${{ steps.tag.outputs.TAG }}" > image-tag.txt
+
+      - name: Upload image tag artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-tag
+          path: image-tag.txt
+          retention-days: 1

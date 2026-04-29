@@ -1,0 +1,10 @@
+grafana:
+  adminPassword: "Admin123!"
+  grafana.ini:
+    server:
+      domain: empmanager.duckdns.org
+      root_url: "https://%(domain)s/grafana/"
+      serve_from_sub_path: true
+prometheus:
+  prometheusSpec:
+    retention: 15d
