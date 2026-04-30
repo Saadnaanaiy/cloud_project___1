@@ -51,14 +51,15 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [activeContactId, setActiveContactId] = useState<number | null>(null);
   const [typingStatus, setTypingStatus] = useState<Record<number, boolean>>({});
 
-  const unreadTotal = contacts.reduce((sum, contact) => sum + contact.unreadCount, 0);
+  const unreadTotal = Array.isArray(contacts) ? contacts.reduce((sum, contact) => sum + contact.unreadCount, 0) : 0;
 
   const fetchContacts = async () => {
     try {
       const res = await api.get('/messages/contacts');
-      setContacts(res.data);
+      setContacts(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Failed to fetch contacts', error);
+      setContacts([]);
     }
   };
 
