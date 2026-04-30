@@ -13,8 +13,22 @@ import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // In production, replace with frontend URL
+    origin: (origin, callback) => {
+      // Allow requests from the frontend domain (production) or localhost (development)
+      const allowedOrigins = [
+        'https://empmanager.duckdns.org',
+        'http://localhost:5173',
+        'http://localhost:3000',
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
   },
+  path: '/socket.io/',
 })
 export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
