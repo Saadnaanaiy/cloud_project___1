@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
-import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Download, Loader2 } from 'lucide-react';
+import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Message } from '../../context/ChatContext';
 
@@ -89,32 +89,84 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const renderAttachment = (msg: Message) => {
     if (!msg.attachmentUrl) return null;
 
-    const fullUrl = `${window.location.origin}${msg.attachmentUrl}`;
+    // Use /api prefix to route through the Nginx proxy to the backend
+    const fullUrl = `/api${msg.attachmentUrl}`;
     
     if (msg.attachmentType?.startsWith('image/')) {
       return (
-        <div className="message-attachment image">
-          <img src={fullUrl} alt={msg.attachmentName} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', cursor: 'pointer' }} onClick={() => window.open(fullUrl, '_blank')} />
+        <div className="message-attachment image" style={{ marginTop: '8px', position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+          <img 
+            src={fullUrl} 
+            alt={msg.attachmentName} 
+            style={{ maxWidth: '100%', display: 'block', cursor: 'pointer', transition: 'transform 0.2s' }} 
+            onClick={() => window.open(fullUrl, '_blank')}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          />
         </div>
       );
     }
     
     if (msg.attachmentType?.startsWith('audio/')) {
       return (
-        <div className="message-attachment audio" style={{ marginTop: '8px' }}>
-          <audio controls src={fullUrl} style={{ width: '200px', height: '32px' }} />
+        <div className="message-attachment audio" style={{ marginTop: '10px', background: 'var(--bg-main)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Play size={16} color="white" fill="white" />
+            </div>
+            <span style={{ fontSize: '13px', fontWeight: 600 }}>Audio Message</span>
+          </div>
+          <audio controls src={fullUrl} style={{ width: '100%', height: '36px' }} />
         </div>
       );
     }
 
     return (
-      <div className="message-attachment file" style={{ marginTop: '8px', background: 'rgba(0,0,0,0.05)', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <File size={20} />
-        <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px' }}>
-          {msg.attachmentName}
+      <div className="message-attachment file" style={{ 
+        marginTop: '8px', 
+        background: 'var(--bg-surface)', 
+        padding: '12px', 
+        borderRadius: '12px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '12px',
+        border: '1px solid var(--border)',
+        boxShadow: 'var(--shadow-sm)'
+      }}>
+        <div style={{ 
+          width: '40px', 
+          height: '40px', 
+          borderRadius: '10px', 
+          background: 'rgba(59, 130, 246, 0.1)', 
+          color: '#3b82f6',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <File size={22} />
         </div>
-        <a href={fullUrl} download={msg.attachmentName} className="btn-icon sm">
-          <Download size={14} />
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div style={{ 
+            fontSize: '13px', 
+            fontWeight: 600, 
+            color: 'var(--text-primary)',
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis', 
+            whiteSpace: 'nowrap' 
+          }}>
+            {msg.attachmentName}
+          </div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+            {msg.attachmentType?.split('/')[1].toUpperCase() || 'FILE'}
+          </div>
+        </div>
+        <a 
+          href={fullUrl} 
+          download={msg.attachmentName} 
+          className="btn-icon"
+          style={{ background: 'var(--bg-main)', border: '1px solid var(--border)' }}
+        >
+          <Download size={16} />
         </a>
       </div>
     );
