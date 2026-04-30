@@ -86,96 +86,97 @@ const SignupPage: React.FC = () => {
         </div>
       ) : (
         <div style={{ width: '100%', maxWidth: '480px' }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '16px', background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-md)' }}>
-            <Users size={36} color="var(--brand-text)" />
-          </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, marginBottom: '6px', color: 'var(--text-primary)' }}>Create Account</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Register to manage your organization</p>
-        </div>
-
-        {/* Card */}
-        <div className="auth-card" style={{ padding: '40px' }}>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            {/* Name */}
-            <Field id="name" label="Full Name" error={errors.name}>
-              <div style={{ position: 'relative' }}>
-                <User size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input id="name" type="text" className="form-control auth-input"
-                  value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                  style={{ borderColor: errors.name ? 'var(--red)' : undefined }}
-                  placeholder="John Doe" />
-              </div>
-            </Field>
-
-            {/* Email */}
-            <Field id="email" label={t('emailLabel')} error={errors.email}>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input id="email" type="email" className="form-control auth-input"
-                  value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                  style={{ borderColor: errors.email ? 'var(--red)' : undefined }}
-                  placeholder="john@company.com" />
-              </div>
-            </Field>
-
-            {/* Role */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="role">Role</label>
-              <div style={{ position: 'relative' }}>
-                <select id="role" className="form-control auth-input"
-                  value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}
-                  style={{ paddingRight: '36px', appearance: 'none', paddingLeft: '14px' }}>
-                  {roleOptions.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-                </select>
-                <ChevronDown size={15} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-              </div>
+          {/* Logo */}
+          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+            <div style={{ width: '72px', height: '72px', borderRadius: '16px', background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-md)' }}>
+              <Users size={36} color="var(--brand-text)" />
             </div>
+            <h1 style={{ fontSize: '26px', fontWeight: 800, marginBottom: '6px', color: 'var(--text-primary)' }}>Create Account</h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Register to manage your organization</p>
+          </div>
 
-            {/* Password */}
-            <Field id="password" label={t('passwordLabel')} error={errors.password}>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input id="password" type={showPass ? 'text' : 'password'} className="form-control auth-input"
-                  value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                  style={{ paddingRight: '44px', borderColor: errors.password ? 'var(--red)' : undefined }}
-                  placeholder="Min. 6 characters" />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+          {/* Card */}
+          <div className="auth-card" style={{ padding: '40px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              {/* Name */}
+              <Field id="name" label="Full Name" error={errors.name}>
+                <div style={{ position: 'relative' }}>
+                  <User size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input id="name" type="text" className="form-control auth-input"
+                    value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+                    style={{ borderColor: errors.name ? 'var(--red)' : undefined }}
+                    placeholder="John Doe" />
+                </div>
+              </Field>
+
+              {/* Email */}
+              <Field id="email" label={t('emailLabel')} error={errors.email}>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input id="email" type="email" className="form-control auth-input"
+                    value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+                    style={{ borderColor: errors.email ? 'var(--red)' : undefined }}
+                    placeholder="john@company.com" />
+                </div>
+              </Field>
+
+              {/* Role */}
+              <div className="form-group">
+                <label className="form-label" htmlFor="role">Role</label>
+                <div style={{ position: 'relative' }}>
+                  <select id="role" className="form-control auth-input"
+                    value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}
+                    style={{ paddingRight: '36px', appearance: 'none', paddingLeft: '14px' }}>
+                    {roleOptions.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                  </select>
+                  <ChevronDown size={15} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                </div>
               </div>
-            </Field>
 
-            {/* Confirm password */}
-            <Field id="confirmPassword" label="Confirm Password" error={errors.confirmPassword}>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input id="confirmPassword" type={showConfirm ? 'text' : 'password'} className="form-control auth-input"
-                  value={form.confirmPassword} onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
-                  style={{ paddingRight: '44px', borderColor: errors.confirmPassword ? 'var(--red)' : undefined }}
-                  placeholder="Repeat password" />
-                <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                  {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </Field>
+              {/* Password */}
+              <Field id="password" label={t('passwordLabel')} error={errors.password}>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input id="password" type={showPass ? 'text' : 'password'} className="form-control auth-input"
+                    value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+                    style={{ paddingRight: '44px', borderColor: errors.password ? 'var(--red)' : undefined }}
+                    placeholder="Min. 6 characters" />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </Field>
 
-            <button type="submit" className="btn btn-primary auth-btn" disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}>
-              {loading
-                ? <><div className="spinner" style={{ width: '18px', height: '18px', borderTopColor: 'var(--brand-text)' }} /> Creating account...</>
-                : 'Create Account'}
-            </button>
-          </form>
+              {/* Confirm password */}
+              <Field id="confirmPassword" label="Confirm Password" error={errors.confirmPassword}>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input id="confirmPassword" type={showConfirm ? 'text' : 'password'} className="form-control auth-input"
+                    value={form.confirmPassword} onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
+                    style={{ paddingRight: '44px', borderColor: errors.confirmPassword ? 'var(--red)' : undefined }}
+                    placeholder="Repeat password" />
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </Field>
 
-          <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
-            Already have an account?{' '}
-            <Link to="/login" style={{ color: 'var(--purple)', fontWeight: 600, textDecoration: 'none' }}>
-              Sign In
-            </Link>
+              <button type="submit" className="btn btn-primary auth-btn" disabled={loading}
+                style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}>
+                {loading
+                  ? <><div className="spinner" style={{ width: '18px', height: '18px', borderTopColor: 'var(--brand-text)' }} /> Creating account...</>
+                  : 'Create Account'}
+              </button>
+            </form>
+
+            <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
+              Already have an account?{' '}
+              <Link to="/login" style={{ color: 'var(--purple)', fontWeight: 600, textDecoration: 'none' }}>
+                Sign In
+              </Link>
+            </div>
           </div>
         </div>
       )}
