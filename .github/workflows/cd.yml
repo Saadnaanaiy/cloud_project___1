@@ -17,7 +17,7 @@ on:
 env:
   PROJECT_ID: cloudappproject-494314
   REGION: europe-west1
-  GKE_CLUSTER: dev-employee-gke
+  GKE_CLUSTER: dev-cloud-native-employee-gke
   REGISTRY: europe-west1-docker.pkg.dev
   REPO: dev-employee-platform
   NAMESPACE: employee-platform
