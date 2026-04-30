@@ -111,7 +111,7 @@ jobs:
       - name: Build frontend image
         run: |
           docker build \
-            --build-arg VITE_API_URL=https://empmanager.duckdns.org \
+            --build-arg VITE_API_URL=/api \
             --build-arg VITE_RECAPTCHA_SITE_KEY=${{ secrets.VITE_RECAPTCHA_SITE_KEY }} \
             -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:${{ steps.tag.outputs.TAG }} \
             -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:latest \
