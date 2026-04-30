@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
-import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2 } from 'lucide-react';
+import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Download, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Message } from '../../context/ChatContext';
 
@@ -20,7 +20,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     sendMessage,
     markAsRead,
     typingStatus,
-    sendTyping
+    sendTyping,
+    uploadFile
   } = useChat();
   const { user } = useAuth();
 

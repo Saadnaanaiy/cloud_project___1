@@ -191,6 +191,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         fetchConversation,
         typingStatus,
         sendTyping,
+        uploadFile,
       }}
     >
       {children}
