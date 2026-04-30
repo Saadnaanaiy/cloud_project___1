@@ -76,7 +76,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     setIsUploading(true);
     try {
       const attachment = await uploadFile(file);
-      sendMessage(activeContactId, `Sent a file: ${file.name}`, replyingToMessage?.id, attachment);
+      sendMessage(activeContactId, '', replyingToMessage?.id, attachment);
       setReplyingToMessage(null);
     } catch (err) {
       console.error('Upload failed', err);
@@ -88,6 +88,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
   const getFileIcon = (type: string | undefined) => {
     const mime = type?.toLowerCase() || '';
+    if (mime.includes('image')) return { icon: <FileImage size={22} />, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)', label: 'IMAGE' };
     if (mime.includes('pdf')) return { icon: <FileText size={22} />, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)', label: 'PDF DOCUMENT' };
     if (mime.includes('excel') || mime.includes('spreadsheet') || mime.includes('csv')) 
       return { icon: <FileSpreadsheet size={22} />, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', label: 'EXCEL SHEET' };
@@ -107,20 +108,6 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     // Use /api prefix to route through the Nginx proxy to the backend
     const fullUrl = `/api${msg.attachmentUrl}`;
     
-    if (msg.attachmentType?.startsWith('image/')) {
-      return (
-        <div className="message-attachment image" style={{ marginTop: '8px', position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
-          <img 
-            src={fullUrl} 
-            alt={msg.attachmentName} 
-            style={{ maxWidth: '100%', display: 'block', cursor: 'pointer', transition: 'transform 0.2s' }} 
-            onClick={() => window.open(fullUrl, '_blank')}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          />
-        </div>
-      );
-    }
     
     if (msg.attachmentType?.startsWith('audio/')) {
       return (
@@ -292,7 +279,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                       </div>
                     )}
                     {msg.attachmentUrl && renderAttachment(msg)}
-                    <div className="bubble-content">{msg.content}</div>
+                    {msg.content && <div className="bubble-content">{msg.content}</div>}
                     <div className="bubble-time">
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
