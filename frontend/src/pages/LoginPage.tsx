@@ -1,10 +1,10 @@
+import { Turnstile } from '@marsidev/react-turnstile';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
-import toast from 'react-hot-toast';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
-import { Turnstile } from '@marsidev/react-turnstile';
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -38,56 +38,69 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="auth-container">
-      {/* Subtle background glow — theme-aware opacity */}
       <div className="auth-glow-1" />
       <div className="auth-glow-2" />
 
-      <div style={{ width: '100%', maxWidth: '440px' }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{
-            width: '72px', height: '72px', borderRadius: '20px',
-            background: 'var(--brand)', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-lg)',
-            overflow: 'hidden'
-          }}>
-            <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '6px', color: 'var(--text-primary)' }}>
-            {t('loginTitle')}
+      <div style={{ width: '100%', maxWidth: '480px' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 700, marginBottom: '8px', color: 'var(--text-primary)' }}>
+            Welcome back
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>{t('loginSubtitle')}</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: '1.5' }}>
+            Login to your employee manager dashboard
+          </p>
         </div>
 
-        {/* Card */}
-        <div className="auth-card" style={{ padding: '40px' }}>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="auth-card" style={{ padding: '32px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div className="form-group">
-              <label className="form-label">{t('emailLabel')}</label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input type="email" className="form-control auth-input" value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="admin@company.com" required />
-              </div>
+              <label className="form-label" style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                className="form-control auth-input"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@company.com"
+                required
+              />
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t('passwordLabel')}</label>
+              <label className="form-label" style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Password
+              </label>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input type={showPass ? 'text' : 'password'} className="form-control auth-input"
-                  value={password} onChange={e => setPassword(e.target.value)}
+                <input
+                  type={showPass ? 'text' : 'password'}
+                  className="form-control auth-input"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
                   style={{ paddingRight: '44px' }}
-                  placeholder="••••••••" required />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                  }}
+                >
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
                 onSuccess={(token) => setCaptchaToken(token)}
@@ -95,16 +108,26 @@ const LoginPage: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary auth-btn" disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}>
-              {loading
-                ? <><div className="spinner" style={{ width: '18px', height: '18px', borderTopColor: 'var(--brand-text)' }} /> {t('signingIn')}</>
-                : t('signIn')}
+            <button
+              type="submit"
+              className="btn btn-primary auth-btn"
+              disabled={loading}
+              style={{ width: '100%', justifyContent: 'center', marginTop: '4px' }}
+            >
+              {loading ? (
+                <>
+                  <div className="spinner" style={{ width: '18px', height: '18px', borderTopColor: 'var(--brand-text)' }} />
+                  {t('signingIn')}
+                </>
+              ) : (
+                <>
+                  {t('signIn')} <ArrowRight size={18} style={{ marginLeft: '6px' }} />
+                </>
+              )}
             </button>
           </form>
 
-          {/* Sign up link */}
-          <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
+          <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
             Don't have an account?{' '}
             <Link to="/signup" style={{ color: 'var(--purple)', fontWeight: 600, textDecoration: 'none' }}>
               Create account
