@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
-import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2, FileText, FileSpreadsheet, FileArchive } from 'lucide-react';
+import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2, FileText, FileSpreadsheet, FileArchive, FileImage } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Message } from '../../context/ChatContext';
 
