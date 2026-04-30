@@ -66,16 +66,8 @@ export class AuthService implements OnModuleInit {
   }
 
   async login(dto: LoginDto) {
-    // 1. Verify CAPTCHA
-    const secretKey =
-      process.env.RECAPTCHA_SECRET_KEY ||
-      '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${dto.captchaToken}`;
-    const captchaRes = await fetch(verifyUrl, { method: 'POST' });
-    const captchaData = await captchaRes.json();
-    if (!captchaData.success) {
-      throw new BadRequestException('Invalid CAPTCHA token');
-    }
+    // Verify CAPTCHA
+    await this.verifyCaptcha(dto.captchaToken);
 
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -107,6 +99,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async register(dto: RegisterDto) {
+    // Verify CAPTCHA
+    await this.verifyCaptcha(dto.captchaToken);
+
     const exists = await this.userRepo.findOne({ where: { email: dto.email } });
     if (exists) throw new ConflictException('Email already in use');
 
@@ -179,5 +174,22 @@ export class AuthService implements OnModuleInit {
       email: saved.email,
       role: saved.role,
     };
+  }
+
+  private async verifyCaptcha(token: string) {
+    const secretKey =
+      process.env.TURNSTILE_SECRET_KEY ||
+      '1x0000000000000000000000000000000AA';
+    const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
+    const captchaRes = await fetch(verifyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${secretKey}&response=${token}`,
+    });
+    const captchaData = await captchaRes.json();
+    if (!captchaData.success) {
+      throw new BadRequestException('Invalid CAPTCHA token');
+    }
   }
 }

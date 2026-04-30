@@ -19,6 +19,8 @@ const Field = ({ id, label, error, children }: { id: string; label: string; erro
   </div>
 );
 
+import { Turnstile } from '@marsidev/react-turnstile';
+
 const SignupPage: React.FC = () => {
   const { register } = useAuth();
   const { t } = useLang();
@@ -30,6 +32,7 @@ const SignupPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -44,13 +47,18 @@ const SignupPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    if (!captchaToken) {
+      toast.error('Please complete the CAPTCHA');
+      return;
+    }
     setLoading(true);
     try {
-      await register(form.name, form.email, form.password, form.role);
+      await register(form.name, form.email, form.password, form.role, captchaToken);
       setShowSuccess(true);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Registration failed';
       toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
+      setCaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -88,8 +96,13 @@ const SignupPage: React.FC = () => {
         <div style={{ width: '100%', maxWidth: '480px' }}>
           {/* Logo */}
           <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <div style={{ width: '72px', height: '72px', borderRadius: '16px', background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-md)' }}>
-              <Users size={36} color="var(--brand-text)" />
+            <div style={{
+              width: '72px', height: '72px', borderRadius: '20px',
+              background: 'var(--brand)', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-lg)',
+              overflow: 'hidden'
+            }}>
+              <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h1 style={{ fontSize: '26px', fontWeight: 800, marginBottom: '6px', color: 'var(--text-primary)' }}>Create Account</h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Register to manage your organization</p>
@@ -162,6 +175,14 @@ const SignupPage: React.FC = () => {
                   </button>
                 </div>
               </Field>
+
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
+                <Turnstile
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                  onSuccess={(token) => setCaptchaToken(token)}
+                  theme="dark"
+                />
+              </div>
 
               <button type="submit" className="btn btn-primary auth-btn" disabled={loading}
                 style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}>

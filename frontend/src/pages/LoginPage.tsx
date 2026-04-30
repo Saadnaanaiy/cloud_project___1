@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
 import { Lock, Mail, Eye, EyeOff, Users } from 'lucide-react';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -15,7 +15,6 @@ const LoginPage: React.FC = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +30,6 @@ const LoginPage: React.FC = () => {
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Invalid credentials. Please try again.';
       toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
-      if (recaptchaRef.current) recaptchaRef.current.reset();
       setCaptchaToken(null);
     } finally {
       setLoading(false);
@@ -48,11 +46,12 @@ const LoginPage: React.FC = () => {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{
-            width: '72px', height: '72px', borderRadius: '16px',
+            width: '72px', height: '72px', borderRadius: '20px',
             background: 'var(--brand)', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-md)',
+            justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-lg)',
+            overflow: 'hidden'
           }}>
-            <Users size={36} color="var(--brand-text)" />
+            <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '6px', color: 'var(--text-primary)' }}>
             {t('loginTitle')}
@@ -89,10 +88,9 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
-                onChange={(token) => setCaptchaToken(token)}
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                onSuccess={(token) => setCaptchaToken(token)}
                 theme="dark"
               />
             </div>

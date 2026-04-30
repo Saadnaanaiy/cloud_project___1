@@ -29,4 +29,9 @@ export class RegisterDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @ApiProperty({ description: 'Cloudflare Turnstile token' })
+  @IsNotEmpty()
+  @IsString()
+  captchaToken: string;
 }
