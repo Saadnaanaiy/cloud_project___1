@@ -1,21 +1,23 @@
-import { Turnstile } from '@marsidev/react-turnstile';
-import { ArrowRight, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
-import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
+import toast from 'react-hot-toast';
+import { ArrowRight, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Turnstile } from '@marsidev/react-turnstile';
+
+const roleOptions = [
+  { value: 'hr', label: 'HR Manager' },
+  { value: 'manager', label: 'Department Manager' },
+  { value: 'admin', label: 'Administrator' },
+];
 
 const SignupPage: React.FC = () => {
   const { register } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'hr' });
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,8 +27,7 @@ const SignupPage: React.FC = () => {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.firstName.trim()) e.firstName = 'First name is required';
-    if (!form.lastName.trim()) e.lastName = 'Last name is required';
+    if (!form.name.trim()) e.name = 'Full name is required';
     if (!form.email.trim()) e.email = 'Email is required';
     if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
     if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
@@ -43,8 +44,7 @@ const SignupPage: React.FC = () => {
     }
     setLoading(true);
     try {
-      const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`;
-      await register(fullName, form.email, form.password, undefined, captchaToken);
+      await register(form.name, form.email, form.password, form.role, captchaToken);
       setShowSuccess(true);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Registration failed';
@@ -56,331 +56,161 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      {showSuccess ? (
-        <div style={{ width: '100%', maxWidth: '420px', animation: 'fadeIn 0.4s ease' }}>
-          <div className="auth-card" style={{ padding: '40px 32px', textAlign: 'center' }}>
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: 'rgba(16, 185, 129, 0.08)',
-                color: 'var(--teal)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 20px',
-              }}
-            >
-              <CheckCircle size={32} />
-            </div>
-            <h1
-              style={{
-                fontSize: '24px',
-                fontWeight: 700,
-                marginBottom: '10px',
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              Registration Sent
-            </h1>
-            <p
-              style={{
-                color: 'var(--text-muted)',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                marginBottom: '28px',
-              }}
-            >
-              Thank you for signing up, <strong>{form.firstName}</strong>. Your account is{' '}
-              <span style={{ color: 'var(--teal)', fontWeight: 600 }}>pending approval</span> by an administrator.
-              We'll notify you once you're cleared to log in.
-            </p>
-
-            <div
-              style={{
-                padding: '14px',
-                borderRadius: '10px',
-                background: 'var(--bg-main)',
-                border: '1px solid var(--border)',
-                marginBottom: '28px',
-                textAlign: 'left',
-              }}
-            >
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                Account Email
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                {form.email}
-              </div>
-            </div>
-
-            <button
-              onClick={() => navigate('/login')}
-              className="btn btn-primary auth-btn"
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              Back to Login <ArrowRight size={16} style={{ marginLeft: '6px' }} />
-            </button>
-          </div>
+    <div className="auth-container-v2">
+      {/* Left Side: Hero */}
+      <div className="auth-hero-side">
+        <img src="/auth-hero.png" alt="EmpManager Hero" className="auth-hero-image" />
+        <div className="auth-hero-content">
+          <h2 className="auth-hero-title">
+            Your Organization,<br />Perfectly Managed
+          </h2>
+          <p className="auth-hero-subtitle">
+            Join thousands of managers who trust EmpManager for their daily operations.
+          </p>
         </div>
-      ) : (
-        <div style={{ width: '100%', maxWidth: '420px' }}>
-          <div style={{ marginBottom: '28px' }}>
-            <h1
-              style={{
-                fontSize: '28px',
-                fontWeight: 700,
-                letterSpacing: '-0.02em',
-                marginBottom: '6px',
-                color: 'var(--text-primary)',
-              }}
-            >
-              Create Account
-            </h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.5' }}>
-              Fill in your details to get started
-            </p>
-          </div>
+      </div>
 
-          <div className="auth-card" style={{ padding: '28px' }}>
-            <form
-              onSubmit={handleSubmit}
-              style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-            >
-              {/* First + Last name */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label
-                    htmlFor="firstName"
-                    style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}
-                  >
-                    First name
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    className="form-control auth-input"
-                    value={form.firstName}
-                    onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                    placeholder="Tyler"
-                    autoComplete="given-name"
-                    style={{ borderColor: errors.firstName ? 'var(--red)' : undefined }}
-                  />
-                  {errors.firstName && (
-                    <span style={{ fontSize: '12px', color: 'var(--red)' }}>{errors.firstName}</span>
-                  )}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label
-                    htmlFor="lastName"
-                    style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}
-                  >
-                    Last name
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    className="form-control auth-input"
-                    value={form.lastName}
-                    onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                    placeholder="Durden"
-                    autoComplete="family-name"
-                    style={{ borderColor: errors.lastName ? 'var(--red)' : undefined }}
-                  />
-                  {errors.lastName && (
-                    <span style={{ fontSize: '12px', color: 'var(--red)' }}>{errors.lastName}</span>
-                  )}
-                </div>
+      {/* Right Side: Form */}
+      <div className="auth-form-side">
+        <div className="auth-form-container">
+          {showSuccess ? (
+            <div style={{ textAlign: 'center', animation: 'fadeIn 0.5s ease' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                <CheckCircle size={40} />
               </div>
-
-              {/* Email */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label
-                  htmlFor="email"
-                  style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}
-                >
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  className="form-control auth-input"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="you@company.com"
-                  autoComplete="email"
-                  style={{ borderColor: errors.email ? 'var(--red)' : undefined }}
-                />
-                {errors.email && (
-                  <span style={{ fontSize: '12px', color: 'var(--red)' }}>{errors.email}</span>
-                )}
-              </div>
-
-              {/* Password */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label
-                  htmlFor="password"
-                  style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}
-                >
-                  Password
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    id="password"
-                    type={showPass ? 'text' : 'password'}
-                    className="form-control auth-input"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    style={{
-                      paddingRight: '42px',
-                      borderColor: errors.password ? 'var(--red)' : undefined,
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPass(!showPass)}
-                    tabIndex={-1}
-                    style={{
-                      position: 'absolute',
-                      right: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--text-muted)',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '6px',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
-                    }}
-                  >
-                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <span style={{ fontSize: '12px', color: 'var(--red)' }}>{errors.password}</span>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label
-                  htmlFor="confirmPassword"
-                  style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}
-                >
-                  Confirm Password
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    id="confirmPassword"
-                    type={showConfirm ? 'text' : 'password'}
-                    className="form-control auth-input"
-                    value={form.confirmPassword}
-                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    style={{
-                      paddingRight: '42px',
-                      borderColor: errors.confirmPassword ? 'var(--red)' : undefined,
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    tabIndex={-1}
-                    style={{
-                      position: 'absolute',
-                      right: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--text-muted)',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '6px',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
-                    }}
-                  >
-                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-                {errors.confirmPassword && (
-                  <span style={{ fontSize: '12px', color: 'var(--red)' }}>
-                    {errors.confirmPassword}
-                  </span>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
-                <Turnstile
-                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
-                  onSuccess={(token) => setCaptchaToken(token)}
-                  options={{ theme: 'dark', size: 'normal' }}
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary auth-btn"
-                disabled={loading}
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                {loading ? (
-                  <>
-                    <div
-                      className="spinner"
-                      style={{ width: '16px', height: '16px', borderTopColor: 'var(--brand-text)' }}
-                    />
-                    Creating account...
-                  </>
-                ) : (
-                  <>
-                    Sign up <ArrowRight size={16} style={{ marginLeft: '6px' }} />
-                  </>
-                )}
+              <h1 className="auth-v2-title">Registration Sent!</h1>
+              <p className="auth-v2-subtitle" style={{ marginBottom: '32px' }}>
+                Thank you for signing up. Your account is currently pending approval by an administrator.
+              </p>
+              <button onClick={() => navigate('/login')} className="auth-v2-btn">
+                Back to Login <ArrowRight size={18} />
               </button>
-            </form>
-
-            <div
-              style={{
-                marginTop: '20px',
-                paddingTop: '20px',
-                borderTop: '1px solid var(--border)',
-                textAlign: 'center',
-                fontSize: '14px',
-                color: 'var(--text-muted)',
-              }}
-            >
-              Already have an account?{' '}
-              <Link to="/login" className="auth-link">
-                Sign in
-              </Link>
             </div>
-          </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: '40px' }}>
+                <h1 className="auth-v2-title">Create an account</h1>
+                <p className="auth-v2-subtitle">
+                  Already have an account? <Link to="/login" className="auth-v2-link">Log in</Link>
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div className="auth-v2-input-group">
+                  <label className="auth-v2-label">Full Name</label>
+                  <div className="auth-v2-input-wrapper">
+                    <input 
+                      type="text" 
+                      className="auth-v2-input" 
+                      value={form.name}
+                      onChange={e => setForm({ ...form, name: e.target.value })}
+                      placeholder="John Doe" 
+                      required 
+                    />
+                  </div>
+                  {errors.name && <span style={{ fontSize: '12px', color: '#ef4444' }}>{errors.name}</span>}
+                </div>
+
+                <div className="auth-v2-input-group">
+                  <label className="auth-v2-label">Email Address</label>
+                  <div className="auth-v2-input-wrapper">
+                    <input 
+                      type="email" 
+                      className="auth-v2-input" 
+                      value={form.email}
+                      onChange={e => setForm({ ...form, email: e.target.value })}
+                      placeholder="name@company.com" 
+                      required 
+                    />
+                  </div>
+                  {errors.email && <span style={{ fontSize: '12px', color: '#ef4444' }}>{errors.email}</span>}
+                </div>
+
+                <div className="auth-v2-input-group">
+                  <label className="auth-v2-label">Role</label>
+                  <div className="auth-v2-input-wrapper">
+                    <select 
+                      className="auth-v2-input"
+                      value={form.role}
+                      onChange={e => setForm({ ...form, role: e.target.value })}
+                      style={{ appearance: 'none' }}
+                    >
+                      {roleOptions.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="auth-v2-input-group">
+                  <label className="auth-v2-label">Password</label>
+                  <div className="auth-v2-input-wrapper">
+                    <input 
+                      type={showPass ? 'text' : 'password'} 
+                      className="auth-v2-input"
+                      value={form.password} 
+                      onChange={e => setForm({ ...form, password: e.target.value })}
+                      placeholder="Min. 6 characters" 
+                      required 
+                      style={{ paddingRight: '48px' }}
+                    />
+                    <button 
+                      type="button" 
+                      className="auth-v2-eye"
+                      onClick={() => setShowPass(!showPass)}
+                    >
+                      {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {errors.password && <span style={{ fontSize: '12px', color: '#ef4444' }}>{errors.password}</span>}
+                </div>
+
+                <div className="auth-v2-input-group">
+                  <label className="auth-v2-label">Confirm Password</label>
+                  <div className="auth-v2-input-wrapper">
+                    <input 
+                      type={showConfirm ? 'text' : 'password'} 
+                      className="auth-v2-input"
+                      value={form.confirmPassword} 
+                      onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
+                      placeholder="Repeat password" 
+                      required 
+                      style={{ paddingRight: '48px' }}
+                    />
+                    <button 
+                      type="button" 
+                      className="auth-v2-eye"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                    >
+                      {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && <span style={{ fontSize: '12px', color: '#ef4444' }}>{errors.confirmPassword}</span>}
+                </div>
+
+                <div className="auth-v2-checkbox-group">
+                  <input type="checkbox" className="auth-v2-checkbox" required id="terms" />
+                  <label htmlFor="terms">I agree to the <span className="auth-v2-link" style={{ cursor: 'pointer' }}>Terms & Conditions</span></label>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
+                  <Turnstile
+                    siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                    onSuccess={(token) => setCaptchaToken(token)}
+                    options={{ theme: 'dark' }}
+                  />
+                </div>
+
+                <button type="submit" className="auth-v2-btn" disabled={loading}>
+                  {loading ? (
+                    <><div className="spinner" style={{ width: '18px', height: '18px', borderTopColor: '#fff' }} /> Creating account...</>
+                  ) : (
+                    <>Create account <ArrowRight size={18} /></>
+                  )}
+                </button>
+              </form>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
