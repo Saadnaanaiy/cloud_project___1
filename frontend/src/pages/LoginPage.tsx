@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
-import { Lock, Mail, Eye, EyeOff, Users } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { Turnstile } from '@marsidev/react-turnstile';
 
 const LoginPage: React.FC = () => {
@@ -91,7 +91,7 @@ const LoginPage: React.FC = () => {
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
                 onSuccess={(token) => setCaptchaToken(token)}
-                theme="dark"
+                options={{ theme: 'dark' }}
               />
             </div>
 

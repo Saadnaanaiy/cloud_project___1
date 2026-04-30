@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
-import { Lock, Mail, Eye, EyeOff, Users, User, ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, User, ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
 
 const roleOptions = [
   { value: 'hr', label: 'HR Manager' },
@@ -180,7 +180,7 @@ const SignupPage: React.FC = () => {
                 <Turnstile
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
                   onSuccess={(token) => setCaptchaToken(token)}
-                  theme="dark"
+                  options={{ theme: 'dark' }}
                 />
               </div>
 
