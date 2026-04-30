@@ -60,7 +60,9 @@ export class AuthService implements OnModuleInit {
 
   async login(dto: LoginDto) {
     // 1. Verify CAPTCHA
-    const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+    const secretKey =
+      process.env.RECAPTCHA_SECRET_KEY ||
+      '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${dto.captchaToken}`;
     const captchaRes = await fetch(verifyUrl, { method: 'POST' });
     const captchaData = await captchaRes.json();
@@ -75,7 +77,9 @@ export class AuthService implements OnModuleInit {
     if (!valid) throw new UnauthorizedException('Invalid credentials');
 
     if (!user.isApproved) {
-      throw new UnauthorizedException('Your account is pending approval by an administrator.');
+      throw new UnauthorizedException(
+        'Your account is pending approval by an administrator.',
+      );
     }
 
     const payload = {
@@ -109,7 +113,8 @@ export class AuthService implements OnModuleInit {
     });
 
     return {
-      message: 'Registration successful. Please wait for an administrator to approve your account.',
+      message:
+        'Registration successful. Please wait for an administrator to approve your account.',
       user: {
         id: user.id,
         name: user.name,

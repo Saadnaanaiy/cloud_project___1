@@ -13,7 +13,12 @@ export class MessagesService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async saveMessage(senderId: number, receiverId: number, content: string, replyToId?: number): Promise<Message> {
+  async saveMessage(
+    senderId: number,
+    receiverId: number,
+    content: string,
+    replyToId?: number,
+  ): Promise<Message> {
     const message = this.messagesRepository.create({
       senderId,
       receiverId,
@@ -23,10 +28,12 @@ export class MessagesService {
     });
     const saved = await this.messagesRepository.save(message);
     if (replyToId) {
-      return await this.messagesRepository.findOne({
-        where: { id: saved.id },
-        relations: ['replyTo'],
-      }) || saved;
+      return (
+        (await this.messagesRepository.findOne({
+          where: { id: saved.id },
+          relations: ['replyTo'],
+        })) || saved
+      );
     }
     return saved;
   }
@@ -46,10 +53,7 @@ export class MessagesService {
     // This is a simplified query. In a real app, you'd want the latest message per contact.
     // We'll fetch all messages for the user, then group by contact to find unique contacts.
     const messages = await this.messagesRepository.find({
-      where: [
-        { senderId: userId },
-        { receiverId: userId },
-      ],
+      where: [{ senderId: userId }, { receiverId: userId }],
       relations: ['sender', 'receiver'],
       order: { createdAt: 'DESC' },
     });
@@ -73,7 +77,7 @@ export class MessagesService {
           });
         }
       }
-      
+
       // Calculate unread count (if the message was sent TO the current user and is unread)
       if (msg.receiverId === userId && !msg.isRead) {
         const contactData = contactsMap.get(contactId);
@@ -84,7 +88,12 @@ export class MessagesService {
     }
 
     // If the user is admin or HR, they should see everyone in the system so they can start a chat
-    if (role === 'ADMIN' || role === 'HR' || role === 'admin' || role === 'hr') {
+    if (
+      role === 'ADMIN' ||
+      role === 'HR' ||
+      role === 'admin' ||
+      role === 'hr'
+    ) {
       const allUsers = await this.usersRepository.find();
       for (const u of allUsers) {
         if (u.id !== userId && !contactsMap.has(u.id)) {
@@ -109,7 +118,7 @@ export class MessagesService {
     // Mark all messages sent by senderId to receiverId as read
     await this.messagesRepository.update(
       { senderId, receiverId, isRead: false },
-      { isRead: true }
+      { isRead: true },
     );
   }
 }

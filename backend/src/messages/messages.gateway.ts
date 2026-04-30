@@ -30,7 +30,9 @@ import { JwtService } from '@nestjs/jwt';
   },
   path: '/socket.io/',
 })
-export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class MessagesGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -44,17 +46,21 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.auth.token || client.handshake.headers['authorization']?.split(' ')[1];
+      const token =
+        client.handshake.auth.token ||
+        client.handshake.headers['authorization']?.split(' ')[1];
       if (!token) {
         client.disconnect();
         return;
       }
-      const payload = this.jwtService.verify(token, { secret: process.env.JWT_SECRET || 'super-secret' });
+      const payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET || 'super-secret',
+      });
       const userId = payload.sub;
       client.data = { userId, role: payload.role };
-      
+
       this.connectedUsers.set(userId, client.id);
-      
+
       // Optionally broadcast that user is online
       this.server.emit('userStatus', { userId, status: 'online' });
     } catch (error) {
@@ -71,16 +77,20 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
         break;
       }
     }
-    
+
     if (disconnectedUserId) {
-      this.server.emit('userStatus', { userId: disconnectedUserId, status: 'offline' });
+      this.server.emit('userStatus', {
+        userId: disconnectedUserId,
+        status: 'offline',
+      });
     }
   }
 
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { receiverId: number; content: string; replyToId?: number },
+    @MessageBody()
+    payload: { receiverId: number; content: string; replyToId?: number },
   ) {
     let senderId: number | undefined;
     // Find senderId from socket id
@@ -95,7 +105,12 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     // Restrict sending to admin and hr only
     const role = client.data.role;
-    if (role !== 'admin' && role !== 'hr' && role !== 'ADMIN' && role !== 'HR') {
+    if (
+      role !== 'admin' &&
+      role !== 'hr' &&
+      role !== 'ADMIN' &&
+      role !== 'HR'
+    ) {
       return;
     }
 
@@ -133,7 +148,12 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     // Restrict typing indicator to admin and hr only
     const role = client.data.role;
-    if (role !== 'admin' && role !== 'hr' && role !== 'ADMIN' && role !== 'HR') {
+    if (
+      role !== 'admin' &&
+      role !== 'hr' &&
+      role !== 'ADMIN' &&
+      role !== 'HR'
+    ) {
       return;
     }
 

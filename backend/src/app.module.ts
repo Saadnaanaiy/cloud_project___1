@@ -29,7 +29,8 @@ import { ReportsModule } from './reports/reports.module';
         database: config.get<string>('DB_NAME', 'employee_db'),
         entities: [User, Employee, Department, Attendance, Message],
         // Only auto-sync schema in development — in production use migrations
-        synchronize: config.get<string>('NODE_ENV', 'development') !== 'production',
+        synchronize:
+          config.get<string>('NODE_ENV', 'development') !== 'production',
         logging: false,
       }),
     }),

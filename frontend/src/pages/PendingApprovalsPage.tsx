@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
-import { UserCheck, UserX, Clock, Mail, Shield, Search, RefreshCw } from 'lucide-react';
+import { UserCheck, Clock, Mail, Shield, Search, RefreshCw } from 'lucide-react';
 
 interface PendingUser {
   id: number;

@@ -1,4 +1,12 @@
-import { Controller, Get, Param, UseGuards, Request, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  UseGuards,
+  Request,
+  Post,
+  Body,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MessagesService } from './messages.service';
 
@@ -14,7 +22,10 @@ export class MessagesController {
 
   @Get('history/:contactId')
   async getConversation(@Request() req, @Param('contactId') contactId: string) {
-    return this.messagesService.getConversation(req.user.id, parseInt(contactId));
+    return this.messagesService.getConversation(
+      req.user.id,
+      parseInt(contactId),
+    );
   }
 
   @Post('read/:contactId')
