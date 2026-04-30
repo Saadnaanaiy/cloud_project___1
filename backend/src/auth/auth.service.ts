@@ -26,35 +26,42 @@ export class AuthService implements OnModuleInit {
   }
 
   async seedAdminUser() {
-    const exists = await this.userRepo.findOne({
-      where: { email: 'admin@company.com' },
-    });
-    if (!exists) {
-      const hashed = await bcrypt.hash('admin123', 10);
-      await this.userRepo.save([
-        {
-          name: 'Super Admin',
-          email: 'admin@company.com',
+    const defaultUsers = [
+      {
+        name: 'Super Admin',
+        email: 'admin@company.com',
+        password: 'admin123',
+        role: UserRole.ADMIN,
+      },
+      {
+        name: 'HR Manager',
+        email: 'hr@company.com',
+        password: 'hr123',
+        role: UserRole.HR,
+      },
+      {
+        name: 'Department Manager',
+        email: 'manager@company.com',
+        password: 'manager123',
+        role: UserRole.MANAGER,
+      },
+    ];
+
+    for (const u of defaultUsers) {
+      const user = await this.userRepo.findOne({ where: { email: u.email } });
+      if (!user) {
+        const hashed = await bcrypt.hash(u.password, 10);
+        await this.userRepo.save({
+          ...u,
           password: hashed,
-          role: UserRole.ADMIN,
           isApproved: true,
-        },
-        {
-          name: 'HR Manager',
-          email: 'hr@company.com',
-          password: await bcrypt.hash('hr123', 10),
-          role: UserRole.HR,
-          isApproved: true,
-        },
-        {
-          name: 'Department Manager',
-          email: 'manager@company.com',
-          password: await bcrypt.hash('manager123', 10),
-          role: UserRole.MANAGER,
-          isApproved: true,
-        },
-      ]);
-      console.log('✅ Default users seeded: admin@company.com / admin123');
+        });
+        console.log(`✅ Default user created: ${u.email}`);
+      } else if (!user.isApproved) {
+        user.isApproved = true;
+        await this.userRepo.save(user);
+        console.log(`✅ Default user approved: ${u.email}`);
+      }
     }
   }
 
