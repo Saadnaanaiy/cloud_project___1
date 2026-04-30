@@ -61,7 +61,7 @@ const ProtectedLayout: React.FC = () => {
               <div style={{ flex: 1 }}>
                 <strong>System Maintenance Tomorrow</strong>
                 <p style={{ fontSize: '13px', margin: '4px 0 0 0', opacity: 0.95 }}>
-                  We will be performing system diagnostics tomorrow. If you experience any issues, our team will work on fixing them immediately.
+                  We will be performing system diagnostics tomorrow. If you experience any issues, our team will work on fixing them immediately!
                 </p>
               </div>
               <button
