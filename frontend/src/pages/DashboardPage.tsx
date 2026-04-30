@@ -66,7 +66,7 @@ const DashboardPage: React.FC = () => {
     { label: t('onLeave'), value: stats?.onLeave ?? '—', icon: Clock, color: 'var(--amber)', sub: t('temporarilyAbsent') },
   ];
 
-  const deptData = (stats?.byDepartment || []).map((d: any) => ({ name: d.department || 'Unknown', value: parseInt(d.count) }));
+  const deptData = Array.isArray(stats?.byDepartment) ? stats.byDepartment.map((d: any) => ({ name: d.department || 'Unknown', value: parseInt(d.count) })) : [];
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', gap: '16px' }}>

@@ -20,7 +20,7 @@ const DepartmentsPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    try { const r = await api.get('/departments'); setDepts(r.data); }
+    try { const r = await api.get('/departments'); setDepts(Array.isArray(r.data) ? r.data : []); }
     catch { toast.error('Failed to load departments'); }
     finally { setLoading(false); }
   };

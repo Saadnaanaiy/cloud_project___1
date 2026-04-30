@@ -30,9 +30,11 @@ const AttendancePage: React.FC = () => {
       api.get('/employees', { params: { status: 'active' } }),
       api.get('/attendance', { params: { date } }),
     ]).then(([empRes, attRes]) => {
-      setEmployees(empRes.data);
+      setEmployees(Array.isArray(empRes.data) ? empRes.data : []);
       const existing: Record<number, string> = {};
-      attRes.data.forEach((a: any) => { existing[a.employeeId] = a.status; });
+      if (Array.isArray(attRes.data)) {
+        attRes.data.forEach((a: any) => { existing[a.employeeId] = a.status; });
+      }
       setRecords(existing);
     }).catch(() => toast.error('Failed to load attendance data'))
       .finally(() => setLoading(false));

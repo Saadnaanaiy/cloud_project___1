@@ -99,10 +99,17 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (user) {
       const token = localStorage.getItem('token');
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const wsUrl = apiUrl.replace('/api', '');
+      // Ensure proper WebSocket URL format
+      const wsUrl = apiUrl.replace('https://', '').replace('http://', '').replace('/api', '');
+      const protocol = apiUrl.includes('https') ? 'wss' : 'ws';
+      const fullWsUrl = `${protocol}://${wsUrl}`;
 
-      const newSocket = io(wsUrl, {
+      const newSocket = io(fullWsUrl, {
         auth: { token },
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 5,
       });
 
       setSocket(newSocket);

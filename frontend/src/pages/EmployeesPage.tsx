@@ -42,8 +42,8 @@ const EmployeesPage: React.FC = () => {
       if (filterStatus) params.status = filterStatus;
       if (filterDept) params.departmentId = filterDept;
       const [empRes, deptRes] = await Promise.all([api.get('/employees', { params }), api.get('/departments')]);
-      setEmployees(empRes.data);
-      setDepartments(deptRes.data);
+      setEmployees(Array.isArray(empRes.data) ? empRes.data : []);
+      setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
     } catch { toast.error('Failed to load employees'); }
     finally { setLoading(false); }
   };
