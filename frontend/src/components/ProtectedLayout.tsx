@@ -42,7 +42,7 @@ const ProtectedLayout: React.FC = () => {
         <Sidebar mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
         <div className="main-content">
           <Topbar title={title} setMobileMenuOpen={setMobileMenuOpen} setChatOpen={setChatOpen} />
-          
+
           {/* System Maintenance Alert */}
           {showAlert && (
             <div style={{
@@ -85,7 +85,7 @@ const ProtectedLayout: React.FC = () => {
               </button>
             </div>
           )}
-          
+
           <div className="page-inner animate-fade">
             <Outlet />
           </div>

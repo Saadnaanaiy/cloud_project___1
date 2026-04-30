@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import {
   LayoutDashboard, Users, CalendarCheck, FileText,
-  LogOut, ChevronRight, Building2, Menu, X
+  LogOut, ChevronRight, Building2, Menu, X, UserCheck
 } from 'lucide-react';
 
 const roleColors: Record<string, string> = { admin: '#6c5ce7', hr: '#00b894', manager: '#f59e0b' };
@@ -22,6 +22,10 @@ const Sidebar: React.FC<{ mobileMenuOpen: boolean, setMobileMenuOpen: (o: boolea
     { to: '/reports', icon: FileText, label: t('reports') },
     { to: '/departments', icon: Building2, label: t('departments') },
   ];
+
+  if (user?.role === 'admin') {
+    navItems.push({ to: '/pending-approvals', icon: UserCheck, label: 'Pending Approvals' });
+  }
 
   const handleLogout = () => { logout(); navigate('/login'); };
 

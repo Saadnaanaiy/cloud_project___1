@@ -42,11 +42,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string, role?: string) => {
     const { data } = await api.post('/auth/register', { name, email, password, role });
-    localStorage.setItem('token', data.access_token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
-    setToken(data.access_token);
-    setUser(data.user);
+    if (data.access_token) {
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
+      setToken(data.access_token);
+      setUser(data.user);
+    }
+    return data;
   };
 
   const refreshUser = async () => {

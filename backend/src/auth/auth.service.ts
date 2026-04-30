@@ -37,18 +37,21 @@ export class AuthService implements OnModuleInit {
           email: 'admin@company.com',
           password: hashed,
           role: UserRole.ADMIN,
+          isApproved: true,
         },
         {
           name: 'HR Manager',
           email: 'hr@company.com',
           password: await bcrypt.hash('hr123', 10),
           role: UserRole.HR,
+          isApproved: true,
         },
         {
           name: 'Department Manager',
           email: 'manager@company.com',
           password: await bcrypt.hash('manager123', 10),
           role: UserRole.MANAGER,
+          isApproved: true,
         },
       ]);
       console.log('✅ Default users seeded: admin@company.com / admin123');
@@ -70,6 +73,10 @@ export class AuthService implements OnModuleInit {
 
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
+
+    if (!user.isApproved) {
+      throw new UnauthorizedException('Your account is pending approval by an administrator.');
+    }
 
     const payload = {
       sub: user.id,
@@ -98,16 +105,11 @@ export class AuthService implements OnModuleInit {
       email: dto.email,
       password: hashed,
       role: dto.role ?? UserRole.HR,
+      isApproved: false,
     });
 
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-    };
     return {
-      access_token: this.jwtService.sign(payload),
+      message: 'Registration successful. Please wait for an administrator to approve your account.',
       user: {
         id: user.id,
         name: user.name,
@@ -115,6 +117,21 @@ export class AuthService implements OnModuleInit {
         role: user.role,
       },
     };
+  }
+
+  async getPendingUsers() {
+    return this.userRepo.find({
+      where: { isApproved: false },
+      select: ['id', 'name', 'email', 'role', 'createdAt'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async approveUser(userId: number) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    user.isApproved = true;
+    return this.userRepo.save(user);
   }
 
   async getProfile(userId: number) {

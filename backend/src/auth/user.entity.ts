@@ -29,6 +29,9 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.HR })
   role: UserRole;
 
+  @Column({ default: false })
+  isApproved: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

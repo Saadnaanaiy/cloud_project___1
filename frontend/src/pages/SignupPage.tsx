@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
-import { Lock, Mail, Eye, EyeOff, Users, User, ChevronDown } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, Users, User, ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
 
 const roleOptions = [
   { value: 'hr', label: 'HR Manager' },
@@ -28,6 +28,7 @@ const SignupPage: React.FC = () => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -46,8 +47,7 @@ const SignupPage: React.FC = () => {
     setLoading(true);
     try {
       await register(form.name, form.email, form.password, form.role);
-      toast.success('Account created! Welcome 🎉');
-      navigate('/');
+      setShowSuccess(true);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Registration failed';
       toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
@@ -60,8 +60,32 @@ const SignupPage: React.FC = () => {
     <div className="auth-container">
       <div className="auth-glow-1" />
       <div className="auth-glow-2" />
+      
+      {showSuccess ? (
+        <div style={{ width: '100%', maxWidth: '480px', animation: 'fadeIn 0.5s ease' }}>
+          <div className="auth-card" style={{ padding: '48px 40px', textAlign: 'center' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', border: '2px solid rgba(16, 185, 129, 0.2)' }}>
+              <CheckCircle size={40} />
+            </div>
+            <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '12px', color: 'var(--text-primary)' }}>Registration Sent!</h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: '1.6', marginBottom: '32px' }}>
+              Thank you for signing up, <strong>{form.name}</strong>. Your account has been created and is currently <span style={{ color: 'var(--brand)', fontWeight: 600 }}>pending approval</span> by an administrator. 
+              <br /><br />
+              We will notify you once you are cleared to log in.
+            </p>
+            
+            <div style={{ padding: '16px', borderRadius: '12px', background: 'var(--bg-main)', border: '1px solid var(--border)', marginBottom: '32px', textAlign: 'left' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>Account Email</div>
+              <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>{form.email}</div>
+            </div>
 
-      <div style={{ width: '100%', maxWidth: '480px' }}>
+            <button onClick={() => navigate('/login')} className="btn btn-primary auth-btn" style={{ width: '100%', justifyContent: 'center' }}>
+              Back to Login <ArrowRight size={18} style={{ marginLeft: '8px' }} />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ width: '100%', maxWidth: '480px' }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <div style={{ width: '72px', height: '72px', borderRadius: '16px', background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--shadow-md)' }}>
@@ -154,7 +178,7 @@ const SignupPage: React.FC = () => {
             </Link>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
