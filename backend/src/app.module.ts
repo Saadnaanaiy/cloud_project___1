@@ -14,9 +14,15 @@ import { HealthModule } from './health/health.module';
 import { MessagesModule } from './messages/messages.module';
 import { Message } from './messages/message.entity';
 import { ReportsModule } from './reports/reports.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

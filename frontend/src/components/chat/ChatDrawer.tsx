@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
-import { X, Send, Search, MessageSquare, ArrowLeft, Reply } from 'lucide-react';
+import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Message } from '../../context/ChatContext';
 
@@ -28,7 +28,9 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [replyingToMessage, setReplyingToMessage] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const activeContact = contacts.find(c => c.user.id === activeContactId);
 
@@ -64,6 +66,57 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
       sendTyping(activeContactId, false);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeContactId) return;
+
+    setIsUploading(true);
+    try {
+      const attachment = await uploadFile(file);
+      sendMessage(activeContactId, `Sent a file: ${file.name}`, replyingToMessage?.id, attachment);
+      setReplyingToMessage(null);
+    } catch (err) {
+      console.error('Upload failed', err);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const renderAttachment = (msg: Message) => {
+    if (!msg.attachmentUrl) return null;
+
+    const fullUrl = `${window.location.origin}${msg.attachmentUrl}`;
+    
+    if (msg.attachmentType?.startsWith('image/')) {
+      return (
+        <div className="message-attachment image">
+          <img src={fullUrl} alt={msg.attachmentName} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', cursor: 'pointer' }} onClick={() => window.open(fullUrl, '_blank')} />
+        </div>
+      );
+    }
+    
+    if (msg.attachmentType?.startsWith('audio/')) {
+      return (
+        <div className="message-attachment audio" style={{ marginTop: '8px' }}>
+          <audio controls src={fullUrl} style={{ width: '200px', height: '32px' }} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="message-attachment file" style={{ marginTop: '8px', background: 'rgba(0,0,0,0.05)', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <File size={20} />
+        <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px' }}>
+          {msg.attachmentName}
+        </div>
+        <a href={fullUrl} download={msg.attachmentName} className="btn-icon sm">
+          <Download size={14} />
+        </a>
+      </div>
+    );
   };
 
   const filteredContacts = contacts.filter(c =>
@@ -168,6 +221,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                         <p className="reply-content">{msg.replyTo.content}</p>
                       </div>
                     )}
+                    {msg.attachmentUrl && renderAttachment(msg)}
                     <div className="bubble-content">{msg.content}</div>
                     <div className="bubble-time">
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -207,12 +261,27 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                 )}
                 <form className="chat-input-area" onSubmit={handleSend}>
                   <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    style={{ display: 'none' }} 
+                    onChange={handleFileUpload}
+                    accept="image/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+                  />
+                  <button 
+                    type="button" 
+                    className="btn-icon" 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? <Loader2 size={18} className="spin" /> : <Paperclip size={18} />}
+                  </button>
+                  <input 
                     type="text" 
                     placeholder="Type a message..." 
                     value={inputMessage}
                     onChange={handleInputChange}
                   />
-                  <button type="submit" className="btn-send" disabled={!inputMessage.trim()}>
+                  <button type="submit" className="btn-send" disabled={!inputMessage.trim() || isUploading}>
                     <Send size={18} />
                   </button>
                 </form>

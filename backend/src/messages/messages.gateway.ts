@@ -90,7 +90,14 @@ export class MessagesGateway
   async handleSendMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    payload: { receiverId: number; content: string; replyToId?: number },
+    payload: {
+      receiverId: number;
+      content: string;
+      replyToId?: number;
+      attachmentUrl?: string;
+      attachmentType?: string;
+      attachmentName?: string;
+    },
   ) {
     let senderId: number | undefined;
     // Find senderId from socket id
@@ -120,6 +127,9 @@ export class MessagesGateway
       payload.receiverId,
       payload.content,
       payload.replyToId,
+      payload.attachmentUrl,
+      payload.attachmentType,
+      payload.attachmentName,
     );
 
     // Emit back to sender (for confirmation/local update)

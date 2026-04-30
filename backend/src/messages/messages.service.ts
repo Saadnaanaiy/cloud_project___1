@@ -18,6 +18,9 @@ export class MessagesService {
     receiverId: number,
     content: string,
     replyToId?: number,
+    attachmentUrl?: string,
+    attachmentType?: string,
+    attachmentName?: string,
   ): Promise<Message> {
     const message = this.messagesRepository.create({
       senderId,
@@ -25,6 +28,9 @@ export class MessagesService {
       content,
       isRead: false,
       replyToId,
+      attachmentUrl,
+      attachmentType,
+      attachmentName,
     });
     const saved = await this.messagesRepository.save(message);
     if (replyToId) {

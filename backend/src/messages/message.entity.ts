@@ -42,4 +42,13 @@ export class Message {
   @ManyToOne(() => Message, { nullable: true })
   @JoinColumn({ name: 'replyToId' })
   replyTo: Message;
+
+  @Column({ nullable: true })
+  attachmentUrl: string;
+
+  @Column({ nullable: true })
+  attachmentType: string;
+
+  @Column({ nullable: true })
+  attachmentName: string;
 }

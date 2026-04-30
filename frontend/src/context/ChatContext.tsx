@@ -12,6 +12,9 @@ export interface Message {
   createdAt: string;
   replyToId?: number;
   replyTo?: Message;
+  attachmentUrl?: string;
+  attachmentType?: string;
+  attachmentName?: string;
 }
 
 export interface Contact {
@@ -31,7 +34,6 @@ interface ChatContextType {
   unreadTotal: number;
   fetchContacts: () => Promise<void>;
   markAsRead: (contactId: number) => Promise<void>;
-  sendMessage: (receiverId: number, content: string, replyToId?: number) => void;
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   activeContactId: number | null;
@@ -39,6 +41,13 @@ interface ChatContextType {
   fetchConversation: (contactId: number) => Promise<void>;
   typingStatus: Record<number, boolean>;
   sendTyping: (receiverId: number, isTyping: boolean) => void;
+  uploadFile: (file: File) => Promise<{ url: string; name: string; type: string }>;
+  sendMessage: (
+    receiverId: number,
+    content: string,
+    replyToId?: number,
+    attachment?: { url: string; name: string; type: string }
+  ) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -83,10 +92,31 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const sendMessage = (receiverId: number, content: string, replyToId?: number) => {
+  const sendMessage = (
+    receiverId: number,
+    content: string,
+    replyToId?: number,
+    attachment?: { url: string; name: string; type: string }
+  ) => {
     if (socket) {
-      socket.emit('sendMessage', { receiverId, content, replyToId });
+      socket.emit('sendMessage', {
+        receiverId,
+        content,
+        replyToId,
+        attachmentUrl: attachment?.url,
+        attachmentType: attachment?.type,
+        attachmentName: attachment?.name,
+      });
     }
+  };
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post('/messages/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
   };
 
   const sendTyping = (receiverId: number, isTyping: boolean) => {

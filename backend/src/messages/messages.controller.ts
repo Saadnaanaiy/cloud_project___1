@@ -6,7 +6,12 @@ import {
   Request,
   Post,
   Body,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MessagesService } from './messages.service';
 
@@ -30,9 +35,31 @@ export class MessagesController {
 
   @Post('read/:contactId')
   async markAsRead(@Request() req, @Param('contactId') contactId: string) {
-    // The current user (req.user.id) is the receiver.
-    // The contactId is the sender.
     await this.messagesService.markAsRead(parseInt(contactId), req.user.id);
     return { success: true };
+  }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}-${file.originalname}`);
+        },
+      }),
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+    return {
+      url: `/uploads/${file.filename}`,
+      name: file.originalname,
+      type: file.mimetype,
+    };
   }
 }
