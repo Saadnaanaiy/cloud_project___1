@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
-import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2 } from 'lucide-react';
+import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2, FileText, FileSpreadsheet, FileArchive } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Message } from '../../context/ChatContext';
 
@@ -86,6 +86,21 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const getFileIcon = (type: string | undefined) => {
+    const mime = type?.toLowerCase() || '';
+    if (mime.includes('pdf')) return { icon: <FileText size={22} />, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)', label: 'PDF DOCUMENT' };
+    if (mime.includes('excel') || mime.includes('spreadsheet') || mime.includes('csv')) 
+      return { icon: <FileSpreadsheet size={22} />, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', label: 'EXCEL SHEET' };
+    if (mime.includes('word') || mime.includes('officedocument.wordprocessingml')) 
+      return { icon: <FileText size={22} />, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)', label: 'WORD DOC' };
+    if (mime.includes('text/plain')) 
+      return { icon: <FileText size={22} />, color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)', label: 'TEXT FILE' };
+    if (mime.includes('zip') || mime.includes('rar') || mime.includes('archive')) 
+      return { icon: <FileArchive size={22} />, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', label: 'ARCHIVE' };
+    
+    return { icon: <File size={22} />, color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)', label: 'FILE' };
+  };
+
   const renderAttachment = (msg: Message) => {
     if (!msg.attachmentUrl) return null;
 
@@ -121,6 +136,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
       );
     }
 
+    const fileInfo = getFileIcon(msg.attachmentType);
+
     return (
       <div className="message-attachment file" style={{ 
         marginTop: '8px', 
@@ -137,13 +154,13 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           width: '40px', 
           height: '40px', 
           borderRadius: '10px', 
-          background: 'rgba(59, 130, 246, 0.1)', 
-          color: '#3b82f6',
+          background: fileInfo.bg, 
+          color: fileInfo.color,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <File size={22} />
+          {fileInfo.icon}
         </div>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <div style={{ 
@@ -156,8 +173,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           }}>
             {msg.attachmentName}
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-            {msg.attachmentType?.split('/')[1].toUpperCase() || 'FILE'}
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            {fileInfo.label}
           </div>
         </div>
         <a 
