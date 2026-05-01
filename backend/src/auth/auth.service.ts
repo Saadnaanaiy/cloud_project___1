@@ -177,19 +177,30 @@ export class AuthService implements OnModuleInit {
   }
 
   private async verifyCaptcha(token: string) {
+    if (!token) {
+      throw new BadRequestException('CAPTCHA token is missing from the request');
+    }
+
     const secretKey =
       process.env.TURNSTILE_SECRET_KEY ||
       '1x0000000000000000000000000000000AA';
     const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
-    const captchaRes = await fetch(verifyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${secretKey}&response=${token}`,
-    });
-    const captchaData = await captchaRes.json();
-    if (!captchaData.success) {
-      throw new BadRequestException('Invalid CAPTCHA token');
+    try {
+      const captchaRes = await fetch(verifyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `secret=${secretKey}&response=${token}`,
+      });
+      const captchaData = await captchaRes.json();
+      if (!captchaData.success) {
+        console.error('Turnstile verification failed:', captchaData);
+        throw new BadRequestException(`Verification failed: ${captchaData['error-codes']?.join(', ') || 'unknown error'}`);
+      }
+    } catch (err: any) {
+      if (err instanceof BadRequestException) throw err;
+      console.error('Error during Turnstile verification:', err);
+      throw new BadRequestException('Security verification service is temporarily unavailable');
     }
   }
 }

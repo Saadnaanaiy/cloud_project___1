@@ -31,7 +31,7 @@ export class RegisterDto {
   role?: UserRole;
 
   @ApiProperty({ description: 'Cloudflare Turnstile token' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  captchaToken: string;
+  captchaToken?: string;
 }

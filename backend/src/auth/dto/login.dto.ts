@@ -12,7 +12,7 @@ export class LoginDto {
   password: string;
 
   @ApiProperty({ example: 'long-captcha-token' })
-  @IsNotEmpty({ message: 'Please complete the CAPTCHA' })
+  @IsOptional()
   @IsString()
-  captchaToken: string;
+  captchaToken?: string;
 }
