@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Language = 'en' | 'fr' | 'ar';
 
@@ -19,6 +19,8 @@ export const translations = {
     accessSuspended: 'Access suspended', temporarilyAbsent: 'Temporarily absent',
     exportExcel: 'Export Excel', exportPdf: 'Export PDF', generating: 'Generating...',
     noData: 'No data',
+    monthlyPresence: 'Monthly Presence', monthlyAttOverview: 'Monthly Attendance Overview',
+    totalPresent: 'Total Present', past6Months: 'Past 6 Months', trendingUp: 'Trending up by', thisMonth: 'this month',
     // Attendance
     attTracker: 'Attendance Tracker', markDaily: 'Mark daily attendance for all active employees',
     saveAtt: 'Save Attendance', present: 'Present', absent: 'Absent', late: 'Late',
@@ -74,6 +76,8 @@ export const translations = {
     accessSuspended: 'Accès suspendu', temporarilyAbsent: 'Absent temporairement',
     exportExcel: 'Exporter Excel', exportPdf: 'Exporter PDF', generating: 'Génération...',
     noData: 'Aucune donnée',
+    monthlyPresence: 'Présence Mensuelle', monthlyAttOverview: 'Vue d\'ensemble mensuelle',
+    totalPresent: 'Total Présents', past6Months: '6 derniers mois', trendingUp: 'En hausse de', thisMonth: 'ce mois-ci',
     // Attendance
     attTracker: 'Suivi de Présence', markDaily: 'Marquez la présence de tous les employés actifs',
     saveAtt: 'Enregistrer', present: 'Présent', absent: 'Absent', late: 'En retard',
@@ -129,6 +133,8 @@ export const translations = {
     accessSuspended: 'الوصول معلق', temporarilyAbsent: 'غائب مؤقتًا',
     exportExcel: 'تصدير إكسل', exportPdf: 'تصدير PDF', generating: 'جارٍ الإنشاء...',
     noData: 'لا توجد بيانات',
+    monthlyPresence: 'الحضور الشهري', monthlyAttOverview: 'نظرة عامة على الحضور',
+    totalPresent: 'إجمالي الحاضرين', past6Months: 'آخر 6 أشهر', trendingUp: 'في ارتفاع بنسبة', thisMonth: 'هذا الشهر',
     // Attendance
     attTracker: 'تتبع الحضور', markDaily: 'سجّل الحضور اليومي لجميع الموظفين النشطين',
     saveAtt: 'حفظ الحضور', present: 'حاضر', absent: 'غائب', late: 'متأخر',

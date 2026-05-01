@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { AttendanceService } from './attendance.service';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { UserRole } from '../auth/user.entity';
+import { AttendanceService } from './attendance.service';
 
 @ApiTags('Attendance')
 @ApiBearerAuth()
@@ -32,6 +32,12 @@ export class AttendanceController {
   @ApiQuery({ name: 'month', required: true })
   monthly(@Query('year') year: number, @Query('month') month: number) {
     return this.service.getMonthlyStats(+year, +month);
+  }
+
+  @Get('stats/yearly')
+  @ApiQuery({ name: 'year', required: true })
+  yearly(@Query('year') year: number) {
+    return this.service.getYearlyStats(+year);
   }
 
   // ── MARK — Admin, HR & Manager ───────────────────────────────────────────────

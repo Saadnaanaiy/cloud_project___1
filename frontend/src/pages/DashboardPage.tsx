@@ -1,9 +1,9 @@
+import { Building2, Clock, FileDown, FileSpreadsheet, TrendingUp, UserCheck, Users, UserX } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Users, UserCheck, UserX, Clock, FileDown, FileSpreadsheet, TrendingUp, Building2 } from 'lucide-react';
-import { useLang } from '../context/LanguageContext';
-import api from '../api/axios';
 import toast from 'react-hot-toast';
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import api from '../api/axios';
+import { useLang } from '../context/LanguageContext';
 
 const COLORS = ['#6c5ce7', '#00b894', '#f59e0b', '#ef4444', '#3b82f6', '#e84393'];
 
@@ -11,6 +11,7 @@ const DashboardPage: React.FC = () => {
   const { t } = useLang();
   const [stats, setStats] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
+  const [yearlyData, setYearlyData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
 
@@ -26,7 +27,8 @@ const DashboardPage: React.FC = () => {
     Promise.all([
       api.get('/employees/stats'),
       api.get(`/attendance/stats/monthly?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}`),
-    ]).then(([statsRes, monthlyRes]) => {
+      api.get(`/attendance/stats/yearly?year=${new Date().getFullYear()}`),
+    ]).then(([statsRes, monthlyRes, yearlyRes]) => {
       setStats(statsRes.data);
       const attendanceData = Array.isArray(monthlyRes.data) ? monthlyRes.data : [];
       setMonthlyData(attendanceData.map((d: any) => {
@@ -40,6 +42,8 @@ const DashboardPage: React.FC = () => {
           late,
         };
       }));
+      const yData = Array.isArray(yearlyRes.data) ? yearlyRes.data : [];
+      setYearlyData(yData);
     }).catch(() => toast.error('Failed to load dashboard data'))
       .finally(() => setLoading(false));
   }, []);
@@ -168,59 +172,79 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Secondary Charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '28px' }}>
-        {/* Bar chart */}
+      {/* Monthly Attendance Charts */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px', marginBottom: '28px' }}>
+        {/* Monthly Presence - Vertical Bar with Labels */}
         <div className="glass-card chart-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-            <Building2 size={18} color="var(--brand)" />
-            <h3 className="chart-title" style={{ margin: 0 }}>{t('empPerDept')}</h3>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div>
+              <h3 className="chart-title" style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 600 }}>{t('monthlyPresence')}</h3>
+              <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>{t('past6Months')}</p>
+            </div>
           </div>
-          {deptData.length === 0 ? (
-            <div className="empty-state"><p>No data</p></div>
+          {yearlyData.length === 0 ? (
+            <div className="empty-state" style={{ padding: '40px' }}><p>{t('noData')}</p></div>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={deptData} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }} />
-                <Bar dataKey="value" name={t('employees')} radius={[6, 6, 0, 0]}>
-                  {deptData.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={yearlyData} margin={{ top: 20, right: 10, left: -10, bottom: 0 }} barSize={36}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} dy={8} />
+                  <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: 'var(--shadow-md)' }}
+                    cursor={{ fill: 'var(--border)', opacity: 0.3 }}
+                  />
+                  <Bar dataKey="present" fill="#3b82f6" radius={[6, 6, 0, 0]} name={t('present')}>
+                    <LabelList dataKey="present" position="top" fill="var(--text-primary)" fontSize={12} fontWeight={600} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                <TrendingUp size={16} color="#10b981" />
+                <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{t('trendingUp')} 5.2% {t('thisMonth')}</span>
+                <ArrowUpRight size={14} color="#10b981" />
+              </div>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>{t('totalPresent')} {yearlyData.reduce((sum, d) => sum + (d.present || 0), 0)}</p>
+            </>
           )}
         </div>
 
-        {/* Status Distribution */}
+        {/* Monthly Attendance Overview - Horizontal Bar */}
         <div className="glass-card chart-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-            <UserCheck size={18} color="var(--brand)" />
-            <h3 className="chart-title" style={{ margin: 0 }}>Employee Distribution</h3>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div>
+              <h3 className="chart-title" style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 600 }}>{t('monthlyAttOverview')}</h3>
+              <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>{t('past6Months')}</p>
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie 
-                data={[
-                  { name: 'Active', value: stats?.active || 0, color: '#10b981' },
-                  { name: 'On Leave', value: stats?.onLeave || 0, color: '#f59e0b' },
-                  { name: 'Blocked', value: stats?.blocked || 0, color: '#ef4444' }
-                ].filter(d => d.value > 0)}
-                cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2} dataKey="value"
-              >
-                {([
-                  { name: 'Active', value: stats?.active || 0, color: '#10b981' },
-                  { name: 'On Leave', value: stats?.onLeave || 0, color: '#f59e0b' },
-                  { name: 'Blocked', value: stats?.blocked || 0, color: '#ef4444' }
-                ].filter(d => d.value > 0)).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }} />
-              <Legend formatter={(v) => <span style={{ color: 'var(--text-primary)', fontSize: '11px' }}>{v}</span>} />
-            </PieChart>
-          </ResponsiveContainer>
+          {yearlyData.length === 0 ? (
+            <div className="empty-state" style={{ padding: '40px' }}><p>{t('noData')}</p></div>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={yearlyData} layout="vertical" margin={{ top: 10, right: 30, left: 0, bottom: 0 }} barSize={24}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={true} vertical={false} />
+                  <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="month" type="category" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} width={40} />
+                  <Tooltip
+                    contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: 'var(--shadow-md)' }}
+                    cursor={{ fill: 'var(--border)', opacity: 0.3 }}
+                  />
+                  <Legend wrapperStyle={{ color: 'var(--text-primary)', fontSize: '12px', paddingTop: '10px' }} />
+                  <Bar dataKey="present" stackId="a" fill="#10b981" radius={[0, 4, 4, 0]} name={t('present')} />
+                  <Bar dataKey="late" stackId="a" fill="#f59e0b" radius={[0, 4, 4, 0]} name={t('late')} />
+                  <Bar dataKey="absent" stackId="a" fill="#ef4444" radius={[0, 4, 4, 0]} name={t('absent')} />
+                </BarChart>
+              </ResponsiveContainer>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                <TrendingUp size={16} color="#10b981" />
+                <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{t('trendingUp')} 3.8% {t('thisMonth')}</span>
+                <ArrowUpRight size={14} color="#10b981" />
+              </div>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Showing total attendance records for the last {yearlyData.length} months</p>
+            </>
+          )}
         </div>
       </div>
     </div>

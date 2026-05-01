@@ -79,6 +79,34 @@ export class AttendanceService {
     }));
   }
 
+  async getYearlyStats(year: number) {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const start = `${year}-01-01`;
+    const end = `${year}-12-31`;
+    const rows = await this.repo
+      .createQueryBuilder('a')
+      .select('SUBSTR(a.date, 1, 7)', 'month')
+      .addSelect('COUNT(CASE WHEN a.status = "present" THEN 1 END)', 'present')
+      .addSelect('COUNT(CASE WHEN a.status = "absent" THEN 1 END)', 'absent')
+      .addSelect('COUNT(CASE WHEN a.status = "late" THEN 1 END)', 'late')
+      .where('a.date BETWEEN :start AND :end', { start, end })
+      .groupBy('SUBSTR(a.date, 1, 7)')
+      .orderBy('SUBSTR(a.date, 1, 7)', 'ASC')
+      .getRawMany();
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return rows.map((row) => {
+      const monthIndex = parseInt(row.month.split('-')[1], 10) - 1;
+      return {
+        month: monthNames[monthIndex],
+        fullMonth: row.month,
+        present: Number(row.present) || 0,
+        absent: Number(row.absent) || 0,
+        late: Number(row.late) || 0,
+      };
+    });
+  }
+
   async getAllForReport(filters?: { month?: number; year?: number }) {
     const query = this.repo
       .createQueryBuilder('a')
