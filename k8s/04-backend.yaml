@@ -17,8 +17,6 @@ spec:
     spec:
       containers:
         - name: backend
-          # TODO: replace with your Artifact Registry image after CI/CD push
-          # europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:latest
           image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:latest
           ports:
             - containerPort: 3001
