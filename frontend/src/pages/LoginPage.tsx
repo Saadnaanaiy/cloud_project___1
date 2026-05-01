@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
 
             <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
               <Turnstile
-                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                siteKey="0x4AAAAAADG-4POjTmBW5JTG"
                 onSuccess={(token) => setCaptchaToken(token)}
                 options={{ theme: 'dark' }}
               />
