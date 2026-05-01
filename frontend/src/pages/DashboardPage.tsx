@@ -12,6 +12,7 @@ const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [yearlyData, setYearlyData] = useState<any[]>([]);
+  const [yearlyRawData, setYearlyRawData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
 
@@ -43,7 +44,18 @@ const DashboardPage: React.FC = () => {
         };
       }));
       const yData = Array.isArray(yearlyRes.data) ? yearlyRes.data : [];
-      setYearlyData(yData);
+      setYearlyRawData(yData);
+      const normalized = yData.slice(-6).map((d: any) => {
+        const total = (Number(d.present) || 0) + (Number(d.absent) || 0) + (Number(d.late) || 0);
+        const t = total === 0 ? 1 : total;
+        return {
+          month: d.month,
+          present: (Number(d.present) || 0) / t,
+          absent: (Number(d.absent) || 0) / t,
+          late: (Number(d.late) || 0) / t,
+        };
+      });
+      setYearlyData(normalized);
     }).catch(() => toast.error('Failed to load dashboard data'))
       .finally(() => setLoading(false));
   }, []);
@@ -182,12 +194,12 @@ const DashboardPage: React.FC = () => {
               <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>{t('past6Months')}</p>
             </div>
           </div>
-          {yearlyData.length === 0 ? (
+          {yearlyRawData.length === 0 ? (
             <div className="empty-state" style={{ padding: '40px' }}><p>{t('noData')}</p></div>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={yearlyData} margin={{ top: 20, right: 10, left: -10, bottom: 0 }} barSize={36}>
+                <BarChart data={yearlyRawData} margin={{ top: 20, right: 10, left: -10, bottom: 0 }} barSize={36}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} dy={8} />
                   <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
@@ -205,7 +217,7 @@ const DashboardPage: React.FC = () => {
                 <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{t('trendingUp')} 5.2% {t('thisMonth')}</span>
                 <ArrowUpRight size={14} color="#10b981" />
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>{t('totalPresent')} {yearlyData.reduce((sum, d) => sum + (d.present || 0), 0)}</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>{t('totalPresent')} {yearlyRawData.reduce((sum, d) => sum + (d.present || 0), 0)}</p>
             </>
           )}
         </div>
@@ -218,12 +230,12 @@ const DashboardPage: React.FC = () => {
               <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>{t('past6Months')}</p>
             </div>
           </div>
-          {yearlyData.length === 0 ? (
+          {yearlyRawData.length === 0 ? (
             <div className="empty-state" style={{ padding: '40px' }}><p>{t('noData')}</p></div>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={yearlyData} layout="vertical" margin={{ top: 10, right: 30, left: 0, bottom: 0 }} barSize={24}>
+                <BarChart data={yearlyRawData} layout="vertical" margin={{ top: 10, right: 30, left: 0, bottom: 0 }} barSize={24}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={true} vertical={false} />
                   <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis dataKey="month" type="category" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} width={40} />
@@ -242,7 +254,7 @@ const DashboardPage: React.FC = () => {
                 <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{t('trendingUp')} 3.8% {t('thisMonth')}</span>
                 <ArrowUpRight size={14} color="#10b981" />
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Showing total attendance records for the last {yearlyData.length} months</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Showing total attendance records for the last {yearlyRawData.length} months</p>
             </>
           )}
         </div>
@@ -278,7 +290,7 @@ const DashboardPage: React.FC = () => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} dy={8} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 1]} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} />
                 <Tooltip
                   contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: 'var(--shadow-md)' }}
                   formatter={(value: any) => `${(Number(value) * 100).toFixed(1)}%`}
