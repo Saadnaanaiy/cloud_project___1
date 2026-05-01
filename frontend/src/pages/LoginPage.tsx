@@ -1,9 +1,9 @@
+import { Turnstile } from '@marsidev/react-turnstile';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import toast from 'react-hot-toast';
-import { ArrowRight, Eye, EyeOff } from 'lucide-react';
-import { Turnstile } from '@marsidev/react-turnstile';
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
 
             <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
               <Turnstile
-                siteKey="0x4AAAAAADG-4POjTmBW5JTG"
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
                 onSuccess={(token) => setCaptchaToken(token)}
                 options={{ theme: 'dark' }}
               />

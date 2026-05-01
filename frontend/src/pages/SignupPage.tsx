@@ -211,7 +211,7 @@ const SignupPage: React.FC = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
                   <Turnstile
-                    siteKey="0x4AAAAAADG-4POjTmBW5JTG"
+                    siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
                     onSuccess={(token) => setCaptchaToken(token)}
                     options={{ theme: 'dark' }}
                   />

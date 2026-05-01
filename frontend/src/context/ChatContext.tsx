@@ -75,9 +75,10 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const fetchConversation = async (contactId: number) => {
     try {
       const res = await api.get(`/messages/history/${contactId}`);
-      setMessages(res.data);
+      setMessages(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Failed to fetch conversation', error);
+      setMessages([]);
     }
   };
 
@@ -85,7 +86,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await api.post(`/messages/read/${contactId}`);
       setContacts((prev) =>
-        prev.map((c) => (c.user.id === contactId ? { ...c, unreadCount: 0 } : c))
+        Array.isArray(prev) ? prev.map((c) => (c.user.id === contactId ? { ...c, unreadCount: 0 } : c)) : []
       );
     } catch (error) {
       console.error('Failed to mark as read', error);
@@ -128,7 +129,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('token');
-      
+
       // Use window.location.origin to automatically get the correct protocol (https:// or http://)
       // Socket.IO will automatically handle ws:// vs wss://
       const newSocket = io(window.location.origin, {
@@ -146,7 +147,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       newSocket.on('newMessage', (message: Message) => {
         setActiveContactId((currentActiveId) => {
           if (currentActiveId === message.senderId || currentActiveId === message.receiverId) {
-            setMessages((prev) => [...prev, message]);
+            setMessages((prev) => Array.isArray(prev) ? [...prev, message] : [message]);
             if (message.receiverId === user.id && message.senderId === currentActiveId) {
               markAsRead(currentActiveId);
             }

@@ -1,7 +1,7 @@
+import { AlertCircle, CalendarCheck, Check, Clock, Save, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { CalendarCheck, Save, Check, X, Clock, AlertCircle } from 'lucide-react';
-import api from '../api/axios';
 import toast from 'react-hot-toast';
+import api from '../api/axios';
 import { useLang } from '../context/LanguageContext';
 
 interface Employee { id: number; firstName: string; lastName: string; position: string; department?: { name: string }; status: string; }
@@ -53,18 +53,20 @@ const AttendancePage: React.FC = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const recordsArr = employees.map(e => ({ employeeId: e.id, status: (records[e.id] || 'absent') as any }));
+      const safeEmployees = Array.isArray(employees) ? employees : [];
+      const recordsArr = safeEmployees.map(e => ({ employeeId: e.id, status: (records[e.id] || 'absent') as any }));
       await api.post('/attendance', { date, records: recordsArr });
       toast.success(`Attendance saved for ${recordsArr.length} employees!`);
     } catch { toast.error('Failed to save attendance'); }
     finally { setSaving(false); }
   };
 
+  const safeEmployees = Array.isArray(employees) ? employees : [];
   const stats = {
-    present: employees.filter(e => records[e.id] === 'present').length,
-    absent: employees.filter(e => !records[e.id] || records[e.id] === 'absent').length,
-    late: employees.filter(e => records[e.id] === 'late').length,
-    on_leave: employees.filter(e => records[e.id] === 'on_leave').length,
+    present: safeEmployees.filter(e => records[e.id] === 'present').length,
+    absent: safeEmployees.filter(e => !records[e.id] || records[e.id] === 'absent').length,
+    late: safeEmployees.filter(e => records[e.id] === 'late').length,
+    on_leave: safeEmployees.filter(e => records[e.id] === 'on_leave').length,
   };
 
   return (
