@@ -1,7 +1,7 @@
-import { Building2, Clock, FileDown, FileSpreadsheet, TrendingUp, UserCheck, Users, UserX } from 'lucide-react';
+import { ArrowUpRight, Building2, Clock, FileDown, FileSpreadsheet, TrendingUp, UserCheck, Users, UserX } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import api from '../api/axios';
 import { useLang } from '../context/LanguageContext';
 
