@@ -67,7 +67,7 @@ export class AuthService implements OnModuleInit {
 
   async login(dto: LoginDto) {
     // Verify CAPTCHA
-    await this.verifyCaptcha(dto.captchaToken);
+    await this.verifyCaptcha(dto.captchaToken || '');
 
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -100,7 +100,7 @@ export class AuthService implements OnModuleInit {
 
   async register(dto: RegisterDto) {
     // Verify CAPTCHA
-    await this.verifyCaptcha(dto.captchaToken);
+    await this.verifyCaptcha(dto.captchaToken || '');
 
     const exists = await this.userRepo.findOne({ where: { email: dto.email } });
     if (exists) throw new ConflictException('Email already in use');
