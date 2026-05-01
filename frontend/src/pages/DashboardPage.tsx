@@ -247,6 +247,51 @@ const DashboardPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 100% Stacked Area — Attendance Pattern Distribution */}
+      <div style={{ marginBottom: '28px' }}>
+        <div className="glass-card chart-card">
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div>
+              <h3 className="chart-title" style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 600 }}>{t('attPattern')}</h3>
+              <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>{t('past6Months')} — {t('propDist')}</p>
+            </div>
+          </div>
+          {yearlyData.length === 0 ? (
+            <div className="empty-state" style={{ padding: '40px' }}><p>{t('noData')}</p></div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={yearlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.2}/>
+                  </linearGradient>
+                  <linearGradient id="colorLate" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.2}/>
+                  </linearGradient>
+                  <linearGradient id="colorAbsent" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} dy={8} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} />
+                <Tooltip
+                  contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: 'var(--shadow-md)' }}
+                  formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+                />
+                <Legend wrapperStyle={{ color: 'var(--text-primary)', fontSize: '12px', paddingTop: '10px' }} />
+                <Area type="monotone" dataKey="present" stackId="1" stroke="#10b981" fill="url(#colorPresent)" name={t('present')} />
+                <Area type="monotone" dataKey="late" stackId="1" stroke="#f59e0b" fill="url(#colorLate)" name={t('late')} />
+                <Area type="monotone" dataKey="absent" stackId="1" stroke="#ef4444" fill="url(#colorAbsent)" name={t('absent')} />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

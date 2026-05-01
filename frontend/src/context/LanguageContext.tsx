@@ -21,6 +21,7 @@ export const translations = {
     noData: 'No data',
     monthlyPresence: 'Monthly Presence', monthlyAttOverview: 'Monthly Attendance Overview',
     totalPresent: 'Total Present', past6Months: 'Past 6 Months', trendingUp: 'Trending up by', thisMonth: 'this month',
+    attPattern: 'Attendance Pattern', propDist: 'Proportional Distribution',
     // Attendance
     attTracker: 'Attendance Tracker', markDaily: 'Mark daily attendance for all active employees',
     saveAtt: 'Save Attendance', present: 'Present', absent: 'Absent', late: 'Late',
@@ -78,6 +79,7 @@ export const translations = {
     noData: 'Aucune donnée',
     monthlyPresence: 'Présence Mensuelle', monthlyAttOverview: 'Vue d\'ensemble mensuelle',
     totalPresent: 'Total Présents', past6Months: '6 derniers mois', trendingUp: 'En hausse de', thisMonth: 'ce mois-ci',
+    attPattern: 'Tendance de Présence', propDist: 'Distribution Proportionnelle',
     // Attendance
     attTracker: 'Suivi de Présence', markDaily: 'Marquez la présence de tous les employés actifs',
     saveAtt: 'Enregistrer', present: 'Présent', absent: 'Absent', late: 'En retard',
@@ -135,6 +137,7 @@ export const translations = {
     noData: 'لا توجد بيانات',
     monthlyPresence: 'الحضور الشهري', monthlyAttOverview: 'نظرة عامة على الحضور',
     totalPresent: 'إجمالي الحاضرين', past6Months: 'آخر 6 أشهر', trendingUp: 'في ارتفاع بنسبة', thisMonth: 'هذا الشهر',
+    attPattern: 'نمط الحضور', propDist: 'التوزيع النسبي',
     // Attendance
     attTracker: 'تتبع الحضور', markDaily: 'سجّل الحضور اليومي لجميع الموظفين النشطين',
     saveAtt: 'حفظ الحضور', present: 'حاضر', absent: 'غائب', late: 'متأخر',
