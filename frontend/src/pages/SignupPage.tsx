@@ -1,9 +1,9 @@
+import { Turnstile } from '@marsidev/react-turnstile';
+import { ArrowRight, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import toast from 'react-hot-toast';
-import { ArrowRight, Eye, EyeOff, CheckCircle } from 'lucide-react';
-import { Turnstile } from '@marsidev/react-turnstile';
 
 const roleOptions = [
   { value: 'hr', label: 'HR Manager' },
@@ -73,7 +73,7 @@ const SignupPage: React.FC = () => {
         <div className="auth-form-container">
           {showSuccess ? (
             <div style={{ textAlign: 'center', animation: 'fadeIn 0.5s ease' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.06)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <CheckCircle size={40} />
               </div>
               <h1 className="auth-v2-title">Registration Sent!</h1>
@@ -97,13 +97,13 @@ const SignupPage: React.FC = () => {
                 <div className="auth-v2-input-group">
                   <label className="auth-v2-label">Full Name</label>
                   <div className="auth-v2-input-wrapper">
-                    <input 
-                      type="text" 
-                      className="auth-v2-input" 
+                    <input
+                      type="text"
+                      className="auth-v2-input"
                       value={form.name}
                       onChange={e => setForm({ ...form, name: e.target.value })}
-                      placeholder="John Doe" 
-                      required 
+                      placeholder="John Doe"
+                      required
                     />
                   </div>
                   {errors.name && <span style={{ fontSize: '12px', color: '#ef4444' }}>{errors.name}</span>}
@@ -112,13 +112,13 @@ const SignupPage: React.FC = () => {
                 <div className="auth-v2-input-group">
                   <label className="auth-v2-label">Email Address</label>
                   <div className="auth-v2-input-wrapper">
-                    <input 
-                      type="email" 
-                      className="auth-v2-input" 
+                    <input
+                      type="email"
+                      className="auth-v2-input"
                       value={form.email}
                       onChange={e => setForm({ ...form, email: e.target.value })}
-                      placeholder="name@company.com" 
-                      required 
+                      placeholder="name@company.com"
+                      required
                     />
                   </div>
                   {errors.email && <span style={{ fontSize: '12px', color: '#ef4444' }}>{errors.email}</span>}
@@ -127,7 +127,7 @@ const SignupPage: React.FC = () => {
                 <div className="auth-v2-input-group">
                   <label className="auth-v2-label">Role</label>
                   <div className="auth-v2-input-wrapper">
-                    <select 
+                    <select
                       className="auth-v2-input"
                       value={form.role}
                       onChange={e => setForm({ ...form, role: e.target.value })}
@@ -141,17 +141,17 @@ const SignupPage: React.FC = () => {
                 <div className="auth-v2-input-group">
                   <label className="auth-v2-label">Password</label>
                   <div className="auth-v2-input-wrapper">
-                    <input 
-                      type={showPass ? 'text' : 'password'} 
+                    <input
+                      type={showPass ? 'text' : 'password'}
                       className="auth-v2-input"
-                      value={form.password} 
+                      value={form.password}
                       onChange={e => setForm({ ...form, password: e.target.value })}
-                      placeholder="Min. 6 characters" 
-                      required 
+                      placeholder="Min. 6 characters"
+                      required
                       style={{ paddingRight: '48px' }}
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="auth-v2-eye"
                       onClick={() => setShowPass(!showPass)}
                     >
@@ -164,17 +164,17 @@ const SignupPage: React.FC = () => {
                 <div className="auth-v2-input-group">
                   <label className="auth-v2-label">Confirm Password</label>
                   <div className="auth-v2-input-wrapper">
-                    <input 
-                      type={showConfirm ? 'text' : 'password'} 
+                    <input
+                      type={showConfirm ? 'text' : 'password'}
                       className="auth-v2-input"
-                      value={form.confirmPassword} 
+                      value={form.confirmPassword}
                       onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
-                      placeholder="Repeat password" 
-                      required 
+                      placeholder="Repeat password"
+                      required
                       style={{ paddingRight: '48px' }}
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="auth-v2-eye"
                       onClick={() => setShowConfirm(!showConfirm)}
                     >

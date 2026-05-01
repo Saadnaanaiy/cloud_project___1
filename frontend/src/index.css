@@ -360,7 +360,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 .auth-container-v2 {
   min-height: 100vh;
   display: flex;
-  background-color: #0c0a09;
+  background-color: #000000;
   color: #fff;
   font-family: 'Inter', sans-serif;
 }
@@ -373,7 +373,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
   flex-direction: column;
   justify-content: flex-end;
   padding: 60px;
-  background: #1c1917;
+  background: #0a0a0a;
 }
 
 .auth-hero-image {
@@ -382,7 +382,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .auth-hero-content {
@@ -396,11 +396,12 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
   line-height: 1.2;
   margin-bottom: 12px;
   letter-spacing: -0.02em;
+  color: #fff;
 }
 
 .auth-hero-subtitle {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
+  color: #a1a1aa;
   max-width: 400px;
 }
 
@@ -410,7 +411,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
   align-items: center;
   justify-content: center;
   padding: 40px;
-  background-color: #121214;
+  background-color: #000000;
 }
 
 .auth-form-container {
@@ -423,6 +424,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
   font-weight: 700;
   margin-bottom: 8px;
   letter-spacing: -0.03em;
+  color: #fff;
 }
 
 .auth-v2-subtitle {
@@ -432,12 +434,14 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 }
 
 .auth-v2-link {
-  color: #8b5cf6;
+  color: #fff;
   text-decoration: none;
   font-weight: 600;
+  transition: opacity 0.2s;
 }
 
 .auth-v2-link:hover {
+  opacity: 0.8;
   text-decoration: underline;
 }
 
@@ -449,7 +453,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: #d4d4d8;
+  color: #e4e4e7;
   margin-bottom: 8px;
 }
 
@@ -462,7 +466,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 .auth-v2-input {
   width: 100%;
   padding: 12px 16px;
-  background: #1c1c1f;
+  background: #18181b;
   border: 1px solid #27272a;
   border-radius: 10px;
   color: #fff;
@@ -472,9 +476,9 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
 .auth-v2-input:focus {
   outline: none;
-  border-color: #8b5cf6;
-  background: #151518;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  border-color: #3f3f46;
+  background: #18181b;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
 }
 
 .auth-v2-input::placeholder {
@@ -511,15 +515,15 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 .auth-v2-checkbox {
   width: 18px;
   height: 18px;
-  accent-color: #8b5cf6;
+  accent-color: #fff;
   cursor: pointer;
 }
 
 .auth-v2-btn {
   width: 100%;
   padding: 14px;
-  background: #8b5cf6;
-  color: white;
+  background: #fff;
+  color: #000;
   border: none;
   border-radius: 10px;
   font-size: 16px;
@@ -533,61 +537,20 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 }
 
 .auth-v2-btn:hover:not(:disabled) {
-  background: #7c3aed;
+  background: #e4e4e7;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .auth-v2-btn:active {
   transform: translateY(0);
 }
 
-.auth-v2-divider {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 32px 0;
-  color: #3f3f46;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.auth-v2-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.auth-v2-divider::before,
-.auth-v2-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #27272a;
-}
 
-.auth-v2-social-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.auth-v2-social-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 12px;
-  background: #1c1c1f;
-  border: 1px solid #27272a;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.auth-v2-social-btn:hover {
-  background: #27272a;
-  border-color: #3f3f46;
-}
 
 @media (max-width: 1024px) {
   .auth-hero-side { display: none; }
