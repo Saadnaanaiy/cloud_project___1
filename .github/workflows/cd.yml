@@ -1,5 +1,5 @@
 name: CD — Deploy to GKE
-# Trigger fresh build with updated Turnstile keys (v2)
+# Trigger fresh build with updated Turnstile keys (v3 - new widget)
 
 on:
   workflow_run:
