@@ -1,18 +1,18 @@
 import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  NotFoundException,
-  OnModuleInit,
-  BadRequestException,
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+    OnModuleInit,
+    UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { User, UserRole } from './user.entity';
+import { Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { User, UserRole } from './user.entity';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -183,15 +183,20 @@ export class AuthService implements OnModuleInit {
 
     const secretKey = process.env.TURNSTILE_SECRET_KEY;
     const isDev = process.env.NODE_ENV === 'development';
+    const disableTurnstile = process.env.DISABLE_TURNSTILE === 'true';
 
-    // If no secret key is provided and we are in development, 
-    // we use the 'Always Passes' test key from Cloudflare.
-    const effectiveSecretKey = secretKey || '1x0000000000000000000000000000000AA';
-    
-    // If we're in dev and specifically using the test site key '1x000...', 
-    // we can assume the developer wants a pass.
-    if (isDev && !secretKey) {
-      console.log('🛡️ Turnstile: Development mode detected. Using test secret key.');
+    // Explicit local development bypass ONLY.
+    // Must set DISABLE_TURNSTILE=true in your local .env to skip verification.
+    // Never bypass in production — always fail closed.
+    if (isDev && disableTurnstile) {
+      console.warn('⚠️  Turnstile verification is DISABLED for local development.');
+      return;
+    }
+
+    if (!secretKey) {
+      throw new BadRequestException(
+        'Turnstile secret key is not configured. Set TURNSTILE_SECRET_KEY or DISABLE_TURNSTILE=true (dev only).',
+      );
     }
 
     const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
@@ -200,30 +205,16 @@ export class AuthService implements OnModuleInit {
       const captchaRes = await fetch(verifyUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `secret=${effectiveSecretKey}&response=${token}`,
+        body: `secret=${secretKey}&response=${token}`,
       });
       const captchaData = await captchaRes.json();
 
       if (!captchaData.success) {
-        // In development, if verification fails but we don't have a real secret key, 
-        // we'll log it but allow the request to proceed to help with testing.
-        if (isDev && !secretKey) {
-          console.warn('⚠️ Turnstile verification failed in DEV (ignoring):', captchaData);
-          return;
-        }
-
         console.error('Turnstile verification failed:', captchaData);
         throw new BadRequestException(`Verification failed: ${captchaData['error-codes']?.join(', ') || 'unknown error'}`);
       }
     } catch (err: any) {
       if (err instanceof BadRequestException) throw err;
-      
-      // If service is down or network error occurs in dev, let it pass
-      if (isDev) {
-        console.warn('⚠️ Turnstile service unreachable in DEV (ignoring):', err.message);
-        return;
-      }
-
       console.error('Error during Turnstile verification:', err);
       throw new BadRequestException('Security verification service is temporarily unavailable');
     }
