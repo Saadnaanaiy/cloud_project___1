@@ -94,19 +94,39 @@ const SignupPage: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmit}>
-                <div className="auth-v2-input-group">
-                  <label className="auth-v2-label">Full Name</label>
-                  <div className="auth-v2-input-wrapper">
-                    <input
-                      type="text"
-                      className="auth-v2-input"
-                      value={form.name}
-                      onChange={e => setForm({ ...form, name: e.target.value })}
-                      placeholder="John Doe"
-                      required
-                    />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                  <div className="auth-v2-input-group" style={{ marginBottom: 0 }}>
+                    <label className="auth-v2-label">First Name</label>
+                    <div className="auth-v2-input-wrapper">
+                      <input
+                        type="text"
+                        className="auth-v2-input"
+                        placeholder="John"
+                        required
+                        onChange={e => {
+                          const parts = form.name.split(' ');
+                          const last = parts.slice(1).join(' ');
+                          setForm({ ...form, name: `${e.target.value} ${last}`.trim() });
+                        }}
+                      />
+                    </div>
                   </div>
-                  {errors.name && <span style={{ fontSize: '12px', color: '#ef4444' }}>{errors.name}</span>}
+                  <div className="auth-v2-input-group" style={{ marginBottom: 0 }}>
+                    <label className="auth-v2-label">Last Name</label>
+                    <div className="auth-v2-input-wrapper">
+                      <input
+                        type="text"
+                        className="auth-v2-input"
+                        placeholder="Doe"
+                        required
+                        onChange={e => {
+                          const parts = form.name.split(' ');
+                          const first = parts[0] || '';
+                          setForm({ ...form, name: `${first} ${e.target.value}`.trim() });
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="auth-v2-input-group">
