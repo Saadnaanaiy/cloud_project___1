@@ -1,7 +1,7 @@
 import { ArrowUpRight, Building2, Clock, FileDown, FileSpreadsheet, TrendingUp, UserCheck, Users, UserX } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import api from '../api/axios';
 import { useLang } from '../context/LanguageContext';
 
@@ -281,7 +281,7 @@ const DashboardPage: React.FC = () => {
                 <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} />
                 <Tooltip
                   contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: 'var(--shadow-md)' }}
-                  formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+                  formatter={(value: any) => `${(Number(value) * 100).toFixed(1)}%`}
                 />
                 <Legend wrapperStyle={{ color: 'var(--text-primary)', fontSize: '12px', paddingTop: '10px' }} />
                 <Area type="monotone" dataKey="present" stackId="1" stroke="#10b981" fill="url(#colorPresent)" name={t('present')} />
