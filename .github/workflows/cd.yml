@@ -74,6 +74,8 @@ jobs:
       - name: Apply namespace & config
         run: |
           kubectl apply -f k8s/00-namespace.yaml
+          # Inject Turnstile Secret Key from GitHub Secrets
+          sed -i "s/TURNSTILE_SECRET_KEY_PLACEHOLDER/${{ secrets.TURNSTILE_SECRET_KEY }}/g" k8s/01-secrets.yaml
           kubectl apply -f k8s/01-secrets.yaml
           kubectl apply -f k8s/02-configmap.yaml
 
