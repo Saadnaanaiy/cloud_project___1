@@ -14,7 +14,6 @@ const roleOptions = [
 
 const SignupPage: React.FC = () => {
   const { register } = useAuth();
-  const { t } = useLang();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'hr' });
