@@ -1,4 +1,5 @@
 # 🚀 Employee Management Platform — Cloud Native on GCP
+<!-- Deployment Version: 1.0.2-turnstile-fix -->
 
 > **Plateforme Cloud Native** déployée sur Google Kubernetes Engine (GKE) avec CI/CD automatique, SSL gratuit, et monitoring Prometheus/Grafana.
 
