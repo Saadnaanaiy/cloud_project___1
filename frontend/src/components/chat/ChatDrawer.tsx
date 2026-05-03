@@ -35,6 +35,11 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
   const activeContact = contacts.find(c => c.user.id === activeContactId);
 
+  // ── FIX: explicit boolean so the optional chain never leaks a falsy value ──
+  const canSendMessages = Boolean(
+    user?.role && ['admin', 'hr', 'ADMIN', 'HR'].includes(user.role)
+  );
+
   useEffect(() => {
     if (activeContactId) {
       fetchConversation(activeContactId);
@@ -105,9 +110,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const renderAttachment = (msg: Message) => {
     if (!msg.attachmentUrl) return null;
 
-    // Use /api prefix to route through the Nginx proxy to the backend
     const fullUrl = `/api${msg.attachmentUrl}`;
-
 
     if (msg.attachmentType?.startsWith('audio/')) {
       return (
@@ -307,7 +310,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
               <div ref={messagesEndRef} />
             </div>
 
-            {(user?.role === 'admin' || user?.role === 'hr' || user?.role === 'ADMIN' || user?.role === 'HR') ? (
+            {/* ── FIX: use canSendMessages boolean instead of inline optional chain ── */}
+            {canSendMessages ? (
               <div className="chat-input-wrapper" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                 {replyingToMessage && (
                   <div className="chat-reply-context">
