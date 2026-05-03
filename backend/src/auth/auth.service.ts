@@ -30,19 +30,19 @@ export class AuthService implements OnModuleInit {
       {
         name: 'Super Admin',
         email: 'admin@company.com',
-        password: process.env.DEFAULT_ADMIN_PASSWORD || 'admin123',
+        password: process.env.DEFAULT_ADMIN_PASSWORD ?? (() => { throw new Error('DEFAULT_ADMIN_PASSWORD env var is not set'); })(),
         role: UserRole.ADMIN,
       },
       {
         name: 'HR Manager',
         email: 'hr@company.com',
-        password: process.env.DEFAULT_HR_PASSWORD || 'hr123',
+        password: process.env.DEFAULT_HR_PASSWORD ?? (() => { throw new Error('DEFAULT_HR_PASSWORD env var is not set'); })(),
         role: UserRole.HR,
       },
       {
         name: 'Department Manager',
         email: 'manager@company.com',
-        password: process.env.DEFAULT_MANAGER_PASSWORD || 'manager123',
+        password: process.env.DEFAULT_MANAGER_PASSWORD ?? (() => { throw new Error('DEFAULT_MANAGER_PASSWORD env var is not set'); })(),
         role: UserRole.MANAGER,
       },
     ];

@@ -63,7 +63,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputMessage.trim() && activeContactId) {
       sendMessage(activeContactId, inputMessage.trim(), replyingToMessage?.id);

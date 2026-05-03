@@ -1,11 +1,16 @@
 import { ArrowUpRight, Building2, Clock, FileDown, FileSpreadsheet, TrendingUp, UserCheck, Users, UserX } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, LabelList, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import api from '../api/axios';
 import { useLang } from '../context/LanguageContext';
 
 const COLORS = ['#6c5ce7', '#00b894', '#f59e0b', '#ef4444', '#3b82f6', '#e84393'];
+
+// Moved outside DashboardPage to avoid defining a component inside a component (maintainability)
+const renderLegendLabel = (v: string) => (
+  <span style={{ color: 'var(--text-primary)', fontSize: '11px' }}>{v}</span>
+);
 
 const DashboardPage: React.FC = () => {
   const { t } = useLang();
@@ -82,7 +87,13 @@ const DashboardPage: React.FC = () => {
     { label: t('onLeave'), value: stats?.onLeave ?? '—', icon: Clock, color: 'var(--amber)', sub: t('temporarilyAbsent') },
   ];
 
-  const deptData = Array.isArray(stats?.byDepartment) ? stats.byDepartment.map((d: any) => ({ name: d.department || 'Unknown', value: Number.parseInt(d.count, 10) })) : [];
+  const deptData = Array.isArray(stats?.byDepartment)
+    ? stats.byDepartment.map((d: any, i: number) => ({
+        name: d.department || 'Unknown',
+        value: Number.parseInt(d.count, 10),
+        fill: COLORS[i % COLORS.length],
+      }))
+    : [];
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', gap: '16px' }}>
@@ -173,11 +184,9 @@ const DashboardPage: React.FC = () => {
           ) : (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie data={deptData} cx="50%" cy="50%" innerRadius={60} outerRadius={95} paddingAngle={3} dataKey="value">
-                  {deptData.map((d: any, i: number) => <Cell key={d.name} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
+                <Pie data={deptData} cx="50%" cy="50%" innerRadius={60} outerRadius={95} paddingAngle={3} dataKey="value" />
                 <Tooltip contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }} />
-                <Legend formatter={(v) => <span style={{ color: 'var(--text-primary)', fontSize: '11px' }}>{v}</span>} />
+                <Legend formatter={renderLegendLabel} />
               </PieChart>
             </ResponsiveContainer>
           )}

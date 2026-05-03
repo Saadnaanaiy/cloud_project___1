@@ -45,6 +45,11 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
   const avatarBg = user ? avatarColors[user.id % avatarColors.length] : '#6c5ce7';
   const initials = user ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U';
 
+  // Extract flag code to avoid nested ternary in JSX
+  let flagCode = 'gb';
+  if (lang === 'fr') flagCode = 'fr';
+  else if (lang === 'ar') flagCode = 'ma';
+
   return (
     <header className="topbar-header">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -75,7 +80,7 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
             onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface-hover)'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-surface)'}
           >
-            <img src={`https://flagcdn.com/w20/${lang === 'fr' ? 'fr' : (lang === 'ar' ? 'ma' : 'gb')}.png`} alt="flag" style={{ width: '16px', borderRadius: '2px', objectFit: 'cover', height: '12px' }} />
+            <img src={`https://flagcdn.com/w20/${flagCode}.png`} alt="flag" style={{ width: '16px', borderRadius: '2px', objectFit: 'cover', height: '12px' }} />
             {lang.toUpperCase()}
           </button>
 

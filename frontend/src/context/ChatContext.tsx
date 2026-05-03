@@ -126,6 +126,15 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Helper: append an incoming message to the messages list (avoids deep nesting)
+  const appendMessage = (message: Message) => (prev: Message[]) =>
+    Array.isArray(prev) ? [...prev, message] : [message];
+
+  // Helper: clear typing indicator for a sender (avoids nested setTimeout callback)
+  const clearTypingForSender = (senderId: number) => {
+    setTypingStatus((prev) => ({ ...prev, [senderId]: false }));
+  };
+
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('token');
@@ -147,7 +156,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const handleNewMessage = (message: Message) => {
         setActiveContactId((currentActiveId) => {
           if (currentActiveId === message.senderId || currentActiveId === message.receiverId) {
-            setMessages((prev) => Array.isArray(prev) ? [...prev, message] : [message]);
+            setMessages(appendMessage(message));
             if (message.receiverId === user.id && message.senderId === currentActiveId) {
               markAsRead(currentActiveId);
             }
@@ -159,11 +168,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const handleUserTyping = ({ senderId, isTyping }: { senderId: number; isTyping: boolean }) => {
         setTypingStatus((prev) => ({ ...prev, [senderId]: isTyping }));
-
         if (isTyping) {
-          setTimeout(() => {
-            setTypingStatus((prev) => ({ ...prev, [senderId]: false }));
-          }, 3000);
+          setTimeout(() => clearTypingForSender(senderId), 3000);
         }
       };
 

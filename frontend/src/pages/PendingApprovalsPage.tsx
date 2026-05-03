@@ -80,12 +80,13 @@ const PendingApprovalsPage: React.FC = () => {
           </div>
         </div>
 
-        {loading ? (
+        {loading && (
           <div style={{ padding: '60px', textAlign: 'center' }}>
             <div className="spinner" style={{ margin: '0 auto 16px' }} />
             <p style={{ color: 'var(--text-muted)' }}>Loading pending requests...</p>
           </div>
-        ) : filteredUsers.length === 0 ? (
+        )}
+        {!loading && filteredUsers.length === 0 && (
           <div style={{ padding: '80px 20px', textAlign: 'center' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--bg-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <UserCheck size={32} color="var(--text-muted)" />
@@ -93,7 +94,8 @@ const PendingApprovalsPage: React.FC = () => {
             <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>No Pending Approvals</h3>
             <p style={{ color: 'var(--text-muted)' }}>{searchTerm ? 'No users match your search' : 'All caught up! No new users waiting for approval.'}</p>
           </div>
-        ) : (
+        )}
+        {!loading && filteredUsers.length > 0 && (
           <div style={{ overflowX: 'auto' }}>
             <table className="table">
               <thead>
