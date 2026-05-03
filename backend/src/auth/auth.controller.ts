@@ -7,6 +7,7 @@ import {
     Put,
     Request,
     UseGuards,
+    UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
 import { UserRole } from './user.entity';
+import { LoginAuditInterceptor } from '../audit/audit.interceptor';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -24,6 +26,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(ThrottlerGuard)
+  @UseInterceptors(LoginAuditInterceptor)
   @Post('login')
   @ApiOperation({ summary: 'Login and get JWT token' })
   login(@Body() dto: LoginDto) {

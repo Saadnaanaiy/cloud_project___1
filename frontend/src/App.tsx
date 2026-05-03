@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage';
 import PendingApprovalsPage from './pages/PendingApprovalsPage';
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
+import SecurityLogsPage from './pages/SecurityLogsPage';
 import './index.css';
 
 const App: React.FC = () => {
@@ -61,6 +62,7 @@ const App: React.FC = () => {
                 <Route path="/departments" element={<DepartmentsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
+                <Route path="/security-logs" element={<SecurityLogsPage />} />
               </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

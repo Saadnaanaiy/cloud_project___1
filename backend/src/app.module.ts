@@ -16,6 +16,8 @@ import { HealthModule } from './health/health.module';
 import { Message } from './messages/message.entity';
 import { MessagesModule } from './messages/messages.module';
 import { ReportsModule } from './reports/reports.module';
+import { AuditLog } from './audit/audit-log.entity';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { ReportsModule } from './reports/reports.module';
         username: config.get<string>('DB_USERNAME', 'root'),
         password: config.get<string>('DB_PASSWORD', ''),
         database: config.get<string>('DB_NAME', 'employee_db'),
-        entities: [User, Employee, Department, Attendance, Message],
+        entities: [User, Employee, Department, Attendance, Message, AuditLog],
         // Only auto-sync schema in development — in production use migrations
         synchronize: true,
         logging: false,
@@ -52,6 +54,7 @@ import { ReportsModule } from './reports/reports.module';
     ReportsModule,
     HealthModule,
     MessagesModule,
+    AuditModule,
   ],
 })
 export class AppModule {}

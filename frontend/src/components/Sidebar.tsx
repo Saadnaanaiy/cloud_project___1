@@ -9,7 +9,8 @@ import {
     UserCheck,
     Users,
     X,
-    Home
+    Home,
+    Shield
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -35,6 +36,7 @@ const Sidebar: React.FC<{ mobileMenuOpen: boolean, setMobileMenuOpen: (o: boolea
 
   if (user?.role === 'admin') {
     navItems.push({ to: '/pending-approvals', icon: UserCheck, label: 'Pending Approvals' });
+    navItems.push({ to: '/security-logs', icon: Shield, label: t('securityLogs') });
   }
 
   const handleLogout = () => { logout(); navigate('/login'); };

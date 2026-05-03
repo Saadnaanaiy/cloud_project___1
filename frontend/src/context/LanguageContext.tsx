@@ -6,7 +6,7 @@ export const translations = {
   en: {
     // Nav / Menu
     dashboard: 'Dashboard', employees: 'Employees', attendance: 'Attendance',
-    reports: 'Reports', departments: 'Departments', logout: 'Logout', home: 'Home',
+    reports: 'Reports', departments: 'Departments', logout: 'Logout', home: 'Home', securityLogs: 'Security Logs',
     // Topbar
     toggleTheme: 'Toggle Theme', selectLang: 'Select Language',
     // Dashboard
@@ -64,7 +64,7 @@ export const translations = {
   fr: {
     // Nav / Menu
     dashboard: 'Tableau de bord', employees: 'Employés', attendance: 'Présence',
-    reports: 'Rapports', departments: 'Départements', logout: 'Déconnexion', home: 'Accueil',
+    reports: 'Rapports', departments: 'Départements', logout: 'Déconnexion', home: 'Accueil', securityLogs: 'Sécurité',
     // Topbar
     toggleTheme: 'Changer le thème', selectLang: 'Choisir la langue',
     // Dashboard
@@ -122,7 +122,7 @@ export const translations = {
   ar: {
     // Nav / Menu
     dashboard: 'لوحة القيادة', employees: 'الموظفين', attendance: 'الحضور',
-    reports: 'التقارير', departments: 'الأقسام', logout: 'تسجيل خروج', home: 'الرئيسية',
+    reports: 'التقارير', departments: 'الأقسام', logout: 'تسجيل خروج', home: 'الرئيسية', securityLogs: 'السجلات الأمنية',
     // Topbar
     toggleTheme: 'تغيير المظهر', selectLang: 'اختر اللغة',
     // Dashboard
