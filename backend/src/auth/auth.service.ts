@@ -25,24 +25,30 @@ export class AuthService implements OnModuleInit {
     await this.seedAdminUser();
   }
 
+  private requireEnv(name: string): string {
+    const value = process.env[name];
+    if (!value) throw new Error(`Required environment variable "${name}" is not set`);
+    return value;
+  }
+
   async seedAdminUser() {
     const defaultUsers = [
       {
         name: 'Super Admin',
         email: 'admin@company.com',
-        password: process.env.DEFAULT_ADMIN_PASSWORD ?? (() => { throw new Error('DEFAULT_ADMIN_PASSWORD env var is not set'); })(),
+        password: this.requireEnv('DEFAULT_ADMIN_PASSWORD'),
         role: UserRole.ADMIN,
       },
       {
         name: 'HR Manager',
         email: 'hr@company.com',
-        password: process.env.DEFAULT_HR_PASSWORD ?? (() => { throw new Error('DEFAULT_HR_PASSWORD env var is not set'); })(),
+        password: this.requireEnv('DEFAULT_HR_PASSWORD'),
         role: UserRole.HR,
       },
       {
         name: 'Department Manager',
         email: 'manager@company.com',
-        password: process.env.DEFAULT_MANAGER_PASSWORD ?? (() => { throw new Error('DEFAULT_MANAGER_PASSWORD env var is not set'); })(),
+        password: this.requireEnv('DEFAULT_MANAGER_PASSWORD'),
         role: UserRole.MANAGER,
       },
     ];
