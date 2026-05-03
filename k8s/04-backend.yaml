@@ -45,6 +45,21 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: TURNSTILE_SECRET_KEY
+            - name: DEFAULT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DEFAULT_ADMIN_PASSWORD
+            - name: DEFAULT_HR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DEFAULT_HR_PASSWORD
+            - name: DEFAULT_MANAGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DEFAULT_MANAGER_PASSWORD
           readinessProbe:
             httpGet:
               path: /api/health
