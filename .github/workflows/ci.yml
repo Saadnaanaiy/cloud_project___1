@@ -54,8 +54,6 @@ jobs:
 
   # ─────────────────────────────────────────────
   # JOB 2 — SonarCloud Scan
-  # Runs after lint passes.
-  # Quality Gate failure blocks build-and-push.
   # ─────────────────────────────────────────────
   sonarcloud:
     name: 🔬 SonarCloud Scan
@@ -83,15 +81,21 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # Backend has Jest but no test files yet — passWithNoTests avoids exit code 1
       - name: Run backend tests with coverage
         working-directory: backend
-        run: npm test -- --coverage --watchAll=false --ci
+        run: npx jest --coverage --watchAll=false --ci --passWithNoTests
         continue-on-error: true
 
+      # Frontend has no test script at all — check first before running
       - name: Run frontend tests with coverage
         working-directory: frontend
-        run: npm test -- --coverage --watchAll=false --ci
-        continue-on-error: true
+        run: |
+          if npm run | grep -q " test"; then
+            npm test -- --coverage --watchAll=false --ci --passWithNoTests || true
+          else
+            echo "No test script found in frontend — skipping coverage"
+          fi
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -119,7 +123,7 @@ jobs:
 
   # ─────────────────────────────────────────────
   # JOB 3 — Build, Scan & Push Docker Images
-  # Only runs when SonarCloud Quality Gate passes.
+  # Only runs when Quality Gate passes
   # ─────────────────────────────────────────────
   build-and-push:
     name: 🐳 Build, Scan & Push
