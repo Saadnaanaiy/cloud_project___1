@@ -1,15 +1,15 @@
+import { JwtService } from '@nestjs/jwt';
 import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  ConnectedSocket,
-  MessageBody,
+    ConnectedSocket,
+    MessageBody,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    SubscribeMessage,
+    WebSocketGateway,
+    WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessagesService } from './messages.service';
-import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
   cors: {
@@ -37,11 +37,11 @@ export class MessagesGateway
   server: Server;
 
   // Map to keep track of connected users: userId -> socketId
-  private connectedUsers = new Map<number, string>();
+  private readonly connectedUsers = new Map<number, string>();
 
   constructor(
-    private messagesService: MessagesService,
-    private jwtService: JwtService,
+    private readonly messagesService: MessagesService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -64,6 +64,7 @@ export class MessagesGateway
       // Optionally broadcast that user is online
       this.server.emit('userStatus', { userId, status: 'online' });
     } catch (error) {
+      console.warn('Socket connection failed:', error?.message);
       client.disconnect();
     }
   }

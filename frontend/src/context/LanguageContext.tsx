@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 
 type Language = 'en' | 'fr' | 'ar';
 
@@ -204,15 +204,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const t = (key: keyof typeof translations['en']): string =>
     translations[lang][key] || translations['en'][key] || key;
 
-  const dir = lang === 'ar' ? 'rtl' : 'ltr';
+  const dir: 'ltr' | 'rtl' = lang === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {
     document.documentElement.dir = dir;
     document.documentElement.lang = lang;
   }, [lang, dir]);
 
+  const value = useMemo(() => ({ lang, setLang: changeLang, t, dir }), [lang, dir]);
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang: changeLang, t, dir }}>
+    <LanguageContext.Provider value={value}>
       <div dir={dir} style={{ width: '100vw', minHeight: '100vh' }}>
         {children}
       </div>

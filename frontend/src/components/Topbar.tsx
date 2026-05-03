@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { Bell, LogOut, Menu, MessageCircle, Moon, Settings, Sun, User } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import { useLang } from '../context/LanguageContext';
 import { useChat } from '../context/ChatContext';
-import { Bell, Sun, Moon, User, LogOut, Settings, Menu, MessageCircle } from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => void, setChatOpen?: (open: boolean) => void }> = ({ title, setMobileMenuOpen, setChatOpen }) => {
   const { user, logout } = useAuth();
@@ -48,7 +48,7 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
   return (
     <header className="topbar-header">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <button 
+        <button
           onClick={() => setMobileMenuOpen(true)}
           style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', display: window.innerWidth > 768 ? 'none' : 'block' }}
         >
@@ -78,7 +78,7 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
             <img src={`https://flagcdn.com/w20/${lang === 'fr' ? 'fr' : lang === 'ar' ? 'ma' : 'gb'}.png`} alt="flag" style={{ width: '16px', borderRadius: '2px', objectFit: 'cover', height: '12px' }} />
             {lang.toUpperCase()}
           </button>
-          
+
           {langOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)',

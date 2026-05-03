@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Employee } from '../employees/employee.entity';
-import { Attendance } from '../attendance/attendance.entity';
 import * as ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Repository } from 'typeorm';
+import { Attendance } from '../attendance/attendance.entity';
+import { Employee } from '../employees/employee.entity';
 
 @Injectable()
 export class ReportsService {
   constructor(
-    @InjectRepository(Employee) private empRepo: Repository<Employee>,
-    @InjectRepository(Attendance) private attRepo: Repository<Attendance>,
+    @InjectRepository(Employee) private readonly empRepo: Repository<Employee>,
+    @InjectRepository(Attendance) private readonly attRepo: Repository<Attendance>,
   ) {}
 
   // ─────────────────────────────────────── EXCEL ──────────────────────────────
@@ -231,35 +231,59 @@ export class ReportsService {
     });
     const stats = await this.getStats();
 
-    const doc = new jsPDF({
+    const doc = this.initPDF();
+    const PW = doc.internal.pageSize.getWidth();
+    const PH = doc.internal.pageSize.getHeight();
+
+    const colors = this.getPDFColors();
+    const genDate = this.getFormattedDate();
+
+    // ══════════════════════════════════ PAGE 1 ════════════════════════════════
+    this.drawPDFHeader(doc, PW, colors.PRIMARY, genDate);
+    this.drawPDFKPIs(doc, PW, stats, colors, PH);
+    const tableTopY = 87; // Adjusted after KPI block
+
+    // ── Employee table ───────────────────────────────────────────────────────
+    this.drawPDFTable(doc, employees, colors, tableTopY);
+
+    // ── Footer every page ────────────────────────────────────────────────────
+    this.drawPDFFooter(doc, PW, PH, colors.MUTED);
+
+    return Buffer.from(doc.output('arraybuffer'));
+  }
+
+  private initPDF(): jsPDF {
+    return new jsPDF({
       orientation: 'landscape',
       unit: 'mm',
       format: 'a4',
     });
-    const PW = doc.internal.pageSize.getWidth(); // 297
-    const PH = doc.internal.pageSize.getHeight(); // 210
+  }
 
-    // ── Colour palette ──────────────────────────────────────────────────────
-    const INK: [number, number, number] = [15, 23, 42]; // Slate 900
-    const MUTED: [number, number, number] = [100, 116, 139]; // Slate 500
-    const LINE: [number, number, number] = [226, 232, 240]; // Slate 200
-    const PRIMARY: [number, number, number] = [99, 102, 241]; // Indigo 500
-    const GREEN: [number, number, number] = [16, 185, 129];
-    const RED: [number, number, number] = [239, 68, 68];
-    const AMBER: [number, number, number] = [245, 158, 11];
+  private getPDFColors() {
+    return {
+      INK: [15, 23, 42] as [number, number, number],
+      MUTED: [100, 116, 139] as [number, number, number],
+      LINE: [226, 232, 240] as [number, number, number],
+      PRIMARY: [99, 102, 241] as [number, number, number],
+      GREEN: [16, 185, 129] as [number, number, number],
+      RED: [239, 68, 68] as [number, number, number],
+      AMBER: [245, 158, 11] as [number, number, number],
+    };
+  }
 
-    const genDate = new Date().toLocaleDateString('en-GB', {
+  private getFormattedDate(): string {
+    return new Date().toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
+  }
 
-    // ══════════════════════════════════ PAGE 1 ════════════════════════════════
-    // Top banner
+  private drawPDFHeader(doc: jsPDF, PW: number, PRIMARY: [number, number, number], genDate: string) {
     doc.setFillColor(...PRIMARY);
     doc.rect(0, 0, PW, 40, 'F');
 
-    // Title
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(26);
     doc.setFont('helvetica', 'bold');
@@ -267,10 +291,11 @@ export class ReportsService {
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(226, 232, 240); // light gray
+    doc.setTextColor(226, 232, 240);
     doc.text(`Generated on ${genDate}  |  Strictly Confidential`, 20, 28);
+  }
 
-    // KPI row (shifted down below banner)
+  private drawPDFKPIs(doc: jsPDF, PW: number, stats: any, colors: any, PH: number) {
     const kpis = [
       { label: 'Total Employees', value: String(stats.total) },
       { label: 'Active Personnel', value: String(stats.active) },
@@ -281,51 +306,34 @@ export class ReportsService {
     const kpiW = 55;
     const kpiH = 24;
     const kpiY = 48;
-    const gap = (PW - 40 - kpis.length * kpiW) / (kpis.length - 1); // 40 is total margin
+    const gap = (PW - 40 - kpis.length * kpiW) / (kpis.length - 1);
 
     kpis.forEach((k, i) => {
       const x = 20 + i * (kpiW + gap);
-      // Card bg
       doc.setFillColor(248, 250, 252);
       doc.roundedRect(x, kpiY, kpiW, kpiH, 3, 3, 'F');
-      doc.setDrawColor(...LINE);
+      doc.setDrawColor(...(colors.LINE as [number, number, number]));
       doc.setLineWidth(0.5);
       doc.roundedRect(x, kpiY, kpiW, kpiH, 3, 3, 'S');
 
-      // Value
-      doc.setTextColor(...INK);
+      doc.setTextColor(...(colors.INK as [number, number, number]));
       doc.setFontSize(22);
       doc.setFont('helvetica', 'bold');
       doc.text(k.value, x + kpiW / 2, kpiY + 12, { align: 'center' });
 
-      // Label
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...MUTED);
-      doc.text(k.label.toUpperCase(), x + kpiW / 2, kpiY + 19, {
-        align: 'center',
-      });
+      doc.setTextColor(...(colors.MUTED as [number, number, number]));
+      doc.text(k.label.toUpperCase(), x + kpiW / 2, kpiY + 19, { align: 'center' });
     });
+  }
 
-    const tableTopY = kpiY + kpiH + 15;
-
-    // ── Employee table ───────────────────────────────────────────────────────
+  private drawPDFTable(doc: jsPDF, employees: Employee[], colors: any, startY: number) {
     autoTable(doc, {
-      startY: tableTopY,
+      startY,
       margin: { left: 20, right: 20 },
-      head: [
-        [
-          'ID',
-          'Full Name',
-          'Email Address',
-          'Department',
-          'Position',
-          'Hire Date',
-          'Salary',
-          'Status',
-        ],
-      ],
-      body: employees.map((e, i) => [
+      head: [['ID', 'Full Name', 'Email Address', 'Department', 'Position', 'Hire Date', 'Salary', 'Status']],
+      body: employees.map((e) => [
         `EMP-${String(e.id).padStart(4, '0')}`,
         `${e.firstName} ${e.lastName}`,
         e.email || '—',
@@ -339,22 +347,20 @@ export class ReportsService {
         font: 'helvetica',
         fontSize: 9,
         cellPadding: { top: 6, bottom: 6, left: 5, right: 5 },
-        textColor: INK,
-        lineColor: LINE,
+        textColor: colors.INK,
+        lineColor: colors.LINE,
         lineWidth: { bottom: 0.2, top: 0, left: 0, right: 0 },
       },
       headStyles: {
         fillColor: [241, 245, 249],
-        textColor: INK,
+        textColor: colors.INK,
         fontStyle: 'bold',
         fontSize: 9,
         halign: 'left',
         lineWidth: { bottom: 0.5, top: 0, left: 0, right: 0 },
         lineColor: [148, 163, 184],
       },
-      alternateRowStyles: {
-        fillColor: [255, 255, 255],
-      },
+      alternateRowStyles: { fillColor: [255, 255, 255] },
       columnStyles: {
         0: { cellWidth: 20 },
         1: { cellWidth: 40, fontStyle: 'bold' },
@@ -368,32 +374,25 @@ export class ReportsService {
       didParseCell: (data) => {
         if (data.column.index === 7 && data.section === 'body') {
           const val = String(data.cell.raw).toLowerCase();
-          if (val === 'active') data.cell.styles.textColor = GREEN;
-          else if (val === 'blocked') data.cell.styles.textColor = RED;
-          else if (val === 'on leave') data.cell.styles.textColor = AMBER;
+          if (val === 'active') data.cell.styles.textColor = colors.GREEN;
+          else if (val === 'blocked') data.cell.styles.textColor = colors.RED;
+          else if (val === 'on leave') data.cell.styles.textColor = colors.AMBER;
           data.cell.styles.fontStyle = 'bold';
         }
       },
     });
+  }
 
-    // ── Footer every page ────────────────────────────────────────────────────
+  private drawPDFFooter(doc: jsPDF, PW: number, PH: number, MUTED: [number, number, number]) {
     const totalPages = (doc as any).internal.getNumberOfPages();
     for (let p = 1; p <= totalPages; p++) {
       doc.setPage(p);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...MUTED);
-      doc.text(
-        'Employee Management System - Generated automatically',
-        20,
-        PH - 10,
-      );
-      doc.text(`Page ${p} of ${totalPages}`, PW - 20, PH - 10, {
-        align: 'right',
-      });
+      doc.text('Employee Management System - Generated automatically', 20, PH - 10);
+      doc.text(`Page ${p} of ${totalPages}`, PW - 20, PH - 10, { align: 'right' });
     }
-
-    return Buffer.from(doc.output('arraybuffer'));
   }
 
   // ─────────────────────────────── helpers ────────────────────────────────────

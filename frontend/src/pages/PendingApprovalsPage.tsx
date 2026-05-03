@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import api from '../api/axios';
+import { Clock, Mail, RefreshCw, Search, Shield, UserCheck } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { UserCheck, Clock, Mail, Shield, Search, RefreshCw } from 'lucide-react';
+import api from '../api/axios';
 
 interface PendingUser {
   id: number;
@@ -46,8 +46,8 @@ const PendingApprovalsPage: React.FC = () => {
     }
   };
 
-  const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredUsers = users.filter(u =>
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -67,10 +67,10 @@ const PendingApprovalsPage: React.FC = () => {
         <div style={{ padding: '16px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '12px' }}>
           <div style={{ position: 'relative', flex: 1 }}>
             <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              className="form-control" 
-              placeholder="Search by name or email..." 
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by name or email..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               style={{ paddingLeft: '36px' }}
@@ -129,9 +129,9 @@ const PendingApprovalsPage: React.FC = () => {
                       </div>
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <button 
-                        onClick={() => handleApprove(user.id)} 
-                        className="btn btn-primary" 
+                      <button
+                        onClick={() => handleApprove(user.id)}
+                        className="btn btn-primary"
                         disabled={processingId === user.id}
                         style={{ padding: '6px 16px', fontSize: '13px' }}
                       >

@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'node:path';
 import { Attendance } from './attendance/attendance.entity';
 import { AttendanceModule } from './attendance/attendance.module';
 import { AuthModule } from './auth/auth.module';
@@ -11,11 +13,9 @@ import { DepartmentsModule } from './departments/departments.module';
 import { Employee } from './employees/employee.entity';
 import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
-import { MessagesModule } from './messages/messages.module';
 import { Message } from './messages/message.entity';
+import { MessagesModule } from './messages/messages.module';
 import { ReportsModule } from './reports/reports.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 
 @Module({
   imports: [

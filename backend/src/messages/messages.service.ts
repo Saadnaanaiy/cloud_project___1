@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Message } from './message.entity';
 import { User } from '../auth/user.entity';
+import { Message } from './message.entity';
 
 @Injectable()
 export class MessagesService {
   constructor(
     @InjectRepository(Message)
-    private messagesRepository: Repository<Message>,
+    private readonly messagesRepository: Repository<Message>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async saveMessage(
@@ -55,17 +55,7 @@ export class MessagesService {
     });
   }
 
-  async getContacts(userId: number, role?: string): Promise<any[]> {
-    // This is a simplified query. In a real app, you'd want the latest message per contact.
-    // We'll fetch all messages for the user, then group by contact to find unique contacts.
-    const messages = await this.messagesRepository.find({
-      where: [{ senderId: userId }, { receiverId: userId }],
-      relations: ['sender', 'receiver'],
-      order: { createdAt: 'DESC' },
-    });
-
-    const contactsMap = new Map<number, any>();
-
+  private processContactsFromMessages(messages: Message[], userId: number, contactsMap: Map<number, any>) {
     for (const msg of messages) {
       const contactId = msg.senderId === userId ? msg.receiverId : msg.senderId;
       if (!contactsMap.has(contactId)) {
@@ -79,12 +69,11 @@ export class MessagesService {
               role: contactUser.role,
             },
             lastMessage: msg,
-            unreadCount: 0, // We will calculate this next
+            unreadCount: 0,
           });
         }
       }
 
-      // Calculate unread count (if the message was sent TO the current user and is unread)
       if (msg.receiverId === userId && !msg.isRead) {
         const contactData = contactsMap.get(contactId);
         if (contactData) {
@@ -92,14 +81,11 @@ export class MessagesService {
         }
       }
     }
+  }
 
-    // If the user is admin or HR, they should see everyone in the system so they can start a chat
-    if (
-      role === 'ADMIN' ||
-      role === 'HR' ||
-      role === 'admin' ||
-      role === 'hr'
-    ) {
+  private async addAllUsersForPrivilegedRoles(role: string | undefined, userId: number, contactsMap: Map<number, any>) {
+    const privilegedRoles = ['ADMIN', 'HR', 'admin', 'hr'];
+    if (role && privilegedRoles.includes(role)) {
       const allUsers = await this.usersRepository.find();
       for (const u of allUsers) {
         if (u.id !== userId && !contactsMap.has(u.id)) {
@@ -116,6 +102,19 @@ export class MessagesService {
         }
       }
     }
+  }
+
+  async getContacts(userId: number, role?: string): Promise<any[]> {
+    const messages = await this.messagesRepository.find({
+      where: [{ senderId: userId }, { receiverId: userId }],
+      relations: ['sender', 'receiver'],
+      order: { createdAt: 'DESC' },
+    });
+
+    const contactsMap = new Map<number, any>();
+
+    this.processContactsFromMessages(messages, userId, contactsMap);
+    await this.addAllUsersForPrivilegedRoles(role, userId, contactsMap);
 
     return Array.from(contactsMap.values());
   }

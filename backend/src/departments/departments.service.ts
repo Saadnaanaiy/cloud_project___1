@@ -6,7 +6,7 @@ import { Department } from './department.entity';
 @Injectable()
 export class DepartmentsService implements OnModuleInit {
   constructor(
-    @InjectRepository(Department) private repo: Repository<Department>,
+    @InjectRepository(Department) private readonly repo: Repository<Department>,
   ) {}
 
   async onModuleInit() {

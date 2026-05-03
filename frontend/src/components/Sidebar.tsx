@@ -1,11 +1,19 @@
+import {
+    Building2,
+    CalendarCheck,
+    ChevronRight,
+    FileText,
+    LayoutDashboard,
+    LogOut,
+    Menu,
+    UserCheck,
+    Users,
+    X
+} from 'lucide-react';
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
-import {
-  LayoutDashboard, Users, CalendarCheck, FileText,
-  LogOut, ChevronRight, Building2, Menu, X, UserCheck
-} from 'lucide-react';
 
 const roleColors: Record<string, string> = { admin: '#6c5ce7', hr: '#00b894', manager: '#f59e0b' };
 
@@ -39,7 +47,15 @@ const Sidebar: React.FC<{ mobileMenuOpen: boolean, setMobileMenuOpen: (o: boolea
   return (
     <>
       {mobileMenuOpen && (
-        <div className="sidebar-overlay" onClick={() => setMobileMenuOpen(false)} style={{ display: window.innerWidth > 768 ? 'none' : 'block' }} />
+        <div
+          className="sidebar-overlay"
+          onClick={() => setMobileMenuOpen(false)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setMobileMenuOpen(false); }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close sidebar"
+          style={{ display: window.innerWidth > 768 ? 'none' : 'block' }}
+        />
       )}
       <aside className={`sidebar-container ${collapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
       {/* Header */}

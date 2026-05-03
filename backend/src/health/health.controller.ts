@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
-  constructor(private dataSource: DataSource) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   @Get()
   @ApiOperation({ summary: 'Basic health check' })

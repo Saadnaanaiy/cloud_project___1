@@ -1,9 +1,9 @@
+import { Calendar, Check, Edit2, Key, Mail, Save, Shield, User, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Shield, Calendar, Edit2, Key, Save, X, Check } from 'lucide-react';
+import toast from 'react-hot-toast';
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
-import api from '../api/axios';
-import toast from 'react-hot-toast';
 
 const roleColors: Record<string, string> = { admin: 'var(--purple)', hr: 'var(--teal)', manager: 'var(--amber)' };
 const roleBg: Record<string, string> = {
@@ -130,12 +130,12 @@ const ProfilePage: React.FC = () => {
           <h3 style={{ fontWeight: 600, marginBottom: '20px', fontSize: '15px' }}>Edit Information</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
             <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <input className="form-control" value={infoForm.name} onChange={e => setInfoForm({ ...infoForm, name: e.target.value })} />
+              <label htmlFor="fullName" className="form-label">Full Name</label>
+              <input id="fullName" className="form-control" value={infoForm.name} onChange={e => setInfoForm({ ...infoForm, name: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label">{t('emailLabel')}</label>
-              <input type="email" className="form-control" value={infoForm.email} onChange={e => setInfoForm({ ...infoForm, email: e.target.value })} />
+              <label htmlFor="email" className="form-label">{t('emailLabel')}</label>
+              <input id="email" type="email" className="form-control" value={infoForm.email} onChange={e => setInfoForm({ ...infoForm, email: e.target.value })} />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
@@ -196,14 +196,14 @@ const ProfilePage: React.FC = () => {
           <div className="animate-slide">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
               <div className="form-group">
-                <label className="form-label">New Password</label>
-                <input type="password" className="form-control"
+                <label htmlFor="newPassword" className="form-label">New Password</label>
+                <input id="newPassword" type="password" className="form-control"
                   value={passForm.newPassword} onChange={e => setPassForm({ ...passForm, newPassword: e.target.value })}
                   placeholder="Min. 6 characters" />
               </div>
               <div className="form-group">
-                <label className="form-label">Confirm Password</label>
-                <input type="password" className="form-control"
+                <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+                <input id="confirmPassword" type="password" className="form-control"
                   value={passForm.confirmPassword} onChange={e => setPassForm({ ...passForm, confirmPassword: e.target.value })}
                   placeholder="Repeat password" />
               </div>

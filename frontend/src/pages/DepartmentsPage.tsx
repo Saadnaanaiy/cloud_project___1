@@ -1,9 +1,9 @@
+import { Building2, Edit2, Plus, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Building2 } from 'lucide-react';
-import api from '../api/axios';
 import toast from 'react-hot-toast';
-import { useLang } from '../context/LanguageContext';
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 
 interface Dept { id: number; name: string; description: string; }
 
@@ -103,7 +103,13 @@ const DepartmentsPage: React.FC = () => {
 
       {/* Add / Edit Modal */}
       {(modal === 'add' || modal === 'edit') && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+        <div
+          className="modal-overlay"
+          onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
+          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
+          role="button"
+          tabIndex={0}
+        >
           <div className="modal" style={{ maxWidth: '440px' }}>
             <div className="modal-header">
               <h3 className="modal-title">{modal === 'add' ? t('newDept') : t('editDept')}</h3>
@@ -137,7 +143,13 @@ const DepartmentsPage: React.FC = () => {
 
       {/* Delete confirm */}
       {modal === 'delete' && selected && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+        <div
+          className="modal-overlay"
+          onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
+          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
+          role="button"
+          tabIndex={0}
+        >
           <div className="modal" style={{ maxWidth: '380px', textAlign: 'center' }}>
             <div style={{ marginBottom: '20px' }}>
               <div style={{

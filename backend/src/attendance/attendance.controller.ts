@@ -11,7 +11,7 @@ import { AttendanceService } from './attendance.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('attendance')
 export class AttendanceController {
-  constructor(private service: AttendanceService) {}
+  constructor(private readonly service: AttendanceService) {}
 
   // ── READ — all authenticated roles ───────────────────────────────────────────
   @Get()

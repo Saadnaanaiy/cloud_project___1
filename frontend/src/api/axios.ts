@@ -15,8 +15,8 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       // Prevent hard reload if we are already trying to auth
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
-        window.location.href = '/login';
+      if (globalThis.location.pathname !== '/login' && globalThis.location.pathname !== '/signup') {
+        globalThis.location.href = '/login';
       }
     }
     return Promise.reject(err);

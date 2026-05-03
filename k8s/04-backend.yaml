@@ -15,6 +15,7 @@ spec:
       labels:
         app: backend
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: backend
           image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:latest

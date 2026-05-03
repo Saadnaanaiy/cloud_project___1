@@ -6,7 +6,7 @@ import { Attendance, AttendanceStatus } from './attendance.entity';
 @Injectable()
 export class AttendanceService {
   constructor(
-    @InjectRepository(Attendance) private repo: Repository<Attendance>,
+    @InjectRepository(Attendance) private readonly repo: Repository<Attendance>,
   ) {}
 
   async getByDate(date: string) {
@@ -80,7 +80,6 @@ export class AttendanceService {
   }
 
   async getYearlyStats(year: number) {
-    const pad = (n: number) => String(n).padStart(2, '0');
     const start = `${year}-01-01`;
     const end = `${year}-12-31`;
     const rows = await this.repo
@@ -96,7 +95,7 @@ export class AttendanceService {
 
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return rows.map((row) => {
-      const monthIndex = parseInt(row.month.split('-')[1], 10) - 1;
+      const monthIndex = Number.parseInt(row.month.split('-')[1], 10) - 1;
       return {
         month: monthNames[monthIndex],
         fullMonth: row.month,

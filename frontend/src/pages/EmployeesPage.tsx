@@ -1,9 +1,9 @@
+import { Edit2, Eye, Filter, Lock, Plus, Search, Trash2, Unlock, UserX } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Lock, Unlock, Filter, UserX, Eye } from 'lucide-react';
-import api from '../api/axios';
 import toast from 'react-hot-toast';
-import { useLang } from '../context/LanguageContext';
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 
 interface Employee {
   id: number; firstName: string; lastName: string; email: string;
@@ -224,7 +224,13 @@ const EmployeesPage: React.FC = () => {
 
       {/* Add / Edit Modal */}
       {(modal === 'add' || modal === 'edit') && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+        <div
+          className="modal-overlay"
+          onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
+          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
+          role="button"
+          tabIndex={0}
+        >
           <div className="modal">
             <div className="modal-header">
               <h3 className="modal-title">{modal === 'add' ? t('addEmp') : t('editEmp')}</h3>
@@ -290,7 +296,13 @@ const EmployeesPage: React.FC = () => {
 
       {/* View Profile */}
       {modal === 'view' && selected && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+        <div
+          className="modal-overlay"
+          onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
+          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
+          role="button"
+          tabIndex={0}
+        >
           <div className="modal" style={{ maxWidth: '500px' }}>
             <div className="modal-header">
               <h3 className="modal-title">{t('viewProfile')}</h3>
@@ -342,7 +354,13 @@ const EmployeesPage: React.FC = () => {
 
       {/* Delete confirm */}
       {modal === 'delete' && selected && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+        <div
+          className="modal-overlay"
+          onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
+          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
+          role="button"
+          tabIndex={0}
+        >
           <div className="modal" style={{ maxWidth: '400px' }}>
             <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
               <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>

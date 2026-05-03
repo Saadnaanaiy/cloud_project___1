@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useChat } from '../../context/ChatContext';
-import { useAuth } from '../../context/AuthContext';
-import { X, Send, Search, MessageSquare, ArrowLeft, Reply, Paperclip, File, Play, Download, Loader2, FileText, FileSpreadsheet, FileArchive, FileImage } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { ArrowLeft, Download, File, FileArchive, FileImage, FileSpreadsheet, FileText, Loader2, MessageSquare, Paperclip, Play, Reply, Search, Send, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import type { Message } from '../../context/ChatContext';
+import { useChat } from '../../context/ChatContext';
 
 interface ChatDrawerProps {
   isOpen: boolean;
@@ -50,7 +50,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     setInputMessage(e.target.value);
     if (activeContactId) {
       sendTyping(activeContactId, true);
-      
+
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = setTimeout(() => {
         sendTyping(activeContactId, false);
@@ -90,15 +90,15 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     const mime = type?.toLowerCase() || '';
     if (mime.includes('image')) return { icon: <FileImage size={22} />, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)', label: 'IMAGE' };
     if (mime.includes('pdf')) return { icon: <FileText size={22} />, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)', label: 'PDF DOCUMENT' };
-    if (mime.includes('excel') || mime.includes('spreadsheet') || mime.includes('csv')) 
+    if (mime.includes('excel') || mime.includes('spreadsheet') || mime.includes('csv'))
       return { icon: <FileSpreadsheet size={22} />, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', label: 'EXCEL SHEET' };
-    if (mime.includes('word') || mime.includes('officedocument.wordprocessingml')) 
+    if (mime.includes('word') || mime.includes('officedocument.wordprocessingml'))
       return { icon: <FileText size={22} />, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)', label: 'WORD DOC' };
-    if (mime.includes('text/plain')) 
+    if (mime.includes('text/plain'))
       return { icon: <FileText size={22} />, color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)', label: 'TEXT FILE' };
-    if (mime.includes('zip') || mime.includes('rar') || mime.includes('archive')) 
+    if (mime.includes('zip') || mime.includes('rar') || mime.includes('archive'))
       return { icon: <FileArchive size={22} />, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', label: 'ARCHIVE' };
-    
+
     return { icon: <File size={22} />, color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)', label: 'FILE' };
   };
 
@@ -107,8 +107,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
     // Use /api prefix to route through the Nginx proxy to the backend
     const fullUrl = `/api${msg.attachmentUrl}`;
-    
-    
+
+
     if (msg.attachmentType?.startsWith('audio/')) {
       return (
         <div className="message-attachment audio" style={{ marginTop: '10px', background: 'var(--bg-main)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border)' }}>
@@ -118,7 +118,9 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
             </div>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>Audio Message</span>
           </div>
-          <audio controls src={fullUrl} style={{ width: '100%', height: '36px' }} />
+          <audio controls src={fullUrl} style={{ width: '100%', height: '36px' }}>
+            <track kind="captions" />
+          </audio>
         </div>
       );
     }
@@ -126,22 +128,22 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     const fileInfo = getFileIcon(msg.attachmentType);
 
     return (
-      <div className="message-attachment file" style={{ 
-        marginTop: '8px', 
-        background: 'var(--bg-surface)', 
-        padding: '12px', 
-        borderRadius: '12px', 
-        display: 'flex', 
-        alignItems: 'center', 
+      <div className="message-attachment file" style={{
+        marginTop: '8px',
+        background: 'var(--bg-surface)',
+        padding: '12px',
+        borderRadius: '12px',
+        display: 'flex',
+        alignItems: 'center',
         gap: '12px',
         border: '1px solid var(--border)',
         boxShadow: 'var(--shadow-sm)'
       }}>
-        <div style={{ 
-          width: '40px', 
-          height: '40px', 
-          borderRadius: '10px', 
-          background: fileInfo.bg, 
+        <div style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '10px',
+          background: fileInfo.bg,
           color: fileInfo.color,
           display: 'flex',
           alignItems: 'center',
@@ -150,13 +152,13 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           {fileInfo.icon}
         </div>
         <div style={{ flex: 1, overflow: 'hidden' }}>
-          <div style={{ 
-            fontSize: '13px', 
-            fontWeight: 600, 
+          <div style={{
+            fontSize: '13px',
+            fontWeight: 600,
             color: 'var(--text-primary)',
-            overflow: 'hidden', 
-            textOverflow: 'ellipsis', 
-            whiteSpace: 'nowrap' 
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
           }}>
             {msg.attachmentName}
           </div>
@@ -164,9 +166,9 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
             {fileInfo.label}
           </div>
         </div>
-        <a 
-          href={fullUrl} 
-          download={msg.attachmentName} 
+        <a
+          href={fullUrl}
+          download={msg.attachmentName}
           className="btn-icon"
           style={{ background: 'var(--bg-main)', border: '1px solid var(--border)' }}
         >
@@ -183,19 +185,19 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   return (
     <div className={`chat-drawer-overlay ${isOpen ? 'open' : ''}`}>
       <div className={`chat-drawer ${isOpen ? 'open' : ''}`}>
-        
+
         {/* Contacts List View */}
         <div className="chat-sidebar" style={{ display: activeContactId ? 'none' : 'flex' }}>
           <div className="chat-header">
             <h3>Messages</h3>
             <button onClick={onClose} className="btn-icon"><X size={20} /></button>
           </div>
-          
+
           <div className="chat-search">
             <Search size={16} />
-            <input 
-              type="text" 
-              placeholder="Search conversations..." 
+            <input
+              type="text"
+              placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -210,10 +212,13 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
               </div>
             ) : (
               filteredContacts.map(contact => (
-                <div 
-                  key={contact.user.id} 
+                <div
+                  key={contact.user.id}
                   className="chat-contact-item"
                   onClick={() => setActiveContactId(contact.user.id)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveContactId(contact.user.id); }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="contact-avatar">
                     {contact.user.name.charAt(0).toUpperCase()}
@@ -289,7 +294,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                   </div>
                 );
               })}
-              
+
               {activeContactId && typingStatus[activeContactId] && (
                 <div className="message-bubble theirs typing-indicator-bubble">
                   <div className="bubble-content">
@@ -299,7 +304,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -317,24 +322,24 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                   </div>
                 )}
                 <form className="chat-input-area" onSubmit={handleSend}>
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    style={{ display: 'none' }} 
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
                     onChange={handleFileUpload}
                     accept="image/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                   />
-                  <button 
-                    type="button" 
-                    className="btn-icon" 
+                  <button
+                    type="button"
+                    className="btn-icon"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
                   >
                     {isUploading ? <Loader2 size={18} className="spin" /> : <Paperclip size={18} />}
                   </button>
-                  <input 
-                    type="text" 
-                    placeholder="Type a message..." 
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
                     value={inputMessage}
                     onChange={handleInputChange}
                   />

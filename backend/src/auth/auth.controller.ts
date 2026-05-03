@@ -1,27 +1,27 @@
 import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Put,
-  UseGuards,
-  Request,
+    Body,
+    Controller,
+    Get,
+    Param, ParseIntPipe,
+    Post,
+    Put,
+    Request,
+    UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { RolesGuard } from './roles.guard';
 import { Roles } from './roles.decorator';
+import { RolesGuard } from './roles.guard';
 import { UserRole } from './user.entity';
-import { Param, ParseIntPipe } from '@nestjs/common';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(ThrottlerGuard)
   @Post('login')

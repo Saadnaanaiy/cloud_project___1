@@ -17,8 +17,8 @@ import { User, UserRole } from './user.entity';
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
-    private jwtService: JwtService,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async onModuleInit() {

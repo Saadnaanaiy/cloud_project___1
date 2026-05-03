@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, type ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import api from '../api/axios';
 import { useAuth } from './AuthContext';
@@ -130,9 +130,9 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (user) {
       const token = localStorage.getItem('token');
 
-      // Use window.location.origin to automatically get the correct protocol (https:// or http://)
+      // Use globalThis.location.origin to automatically get the correct protocol (https:// or http://)
       // Socket.IO will automatically handle ws:// vs wss://
-      const newSocket = io(window.location.origin, {
+      const newSocket = io(globalThis.location.origin, {
         auth: { token },
         reconnection: true,
         reconnectionDelay: 1000,
@@ -176,25 +176,25 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [user]);
 
+  const value = useMemo(() => ({
+    socket,
+    contacts,
+    unreadTotal,
+    fetchContacts,
+    markAsRead,
+    sendMessage,
+    messages,
+    setMessages,
+    activeContactId,
+    setActiveContactId,
+    fetchConversation,
+    typingStatus,
+    sendTyping,
+    uploadFile,
+  }), [socket, contacts, unreadTotal, messages, activeContactId, typingStatus]);
+
   return (
-    <ChatContext.Provider
-      value={{
-        socket,
-        contacts,
-        unreadTotal,
-        fetchContacts,
-        markAsRead,
-        sendMessage,
-        messages,
-        setMessages,
-        activeContactId,
-        setActiveContactId,
-        fetchConversation,
-        typingStatus,
-        sendTyping,
-        uploadFile,
-      }}
-    >
+    <ChatContext.Provider value={value}>
       {children}
     </ChatContext.Provider>
   );

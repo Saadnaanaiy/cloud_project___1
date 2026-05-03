@@ -1,14 +1,13 @@
 import {
-  Controller,
-  Get,
-  Param,
-  UseGuards,
-  Request,
-  Post,
-  Body,
-  UseInterceptors,
-  UploadedFile,
-  BadRequestException,
+    BadRequestException,
+    Controller,
+    Get,
+    Param,
+    Post,
+    Request,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -29,13 +28,13 @@ export class MessagesController {
   async getConversation(@Request() req, @Param('contactId') contactId: string) {
     return this.messagesService.getConversation(
       req.user.id,
-      parseInt(contactId),
+      Number.parseInt(contactId),
     );
   }
 
   @Post('read/:contactId')
   async markAsRead(@Request() req, @Param('contactId') contactId: string) {
-    await this.messagesService.markAsRead(parseInt(contactId), req.user.id);
+    await this.messagesService.markAsRead(Number.parseInt(contactId), req.user.id);
     return { success: true };
   }
 

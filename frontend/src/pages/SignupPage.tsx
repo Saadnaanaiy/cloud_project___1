@@ -96,9 +96,10 @@ const SignupPage: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                   <div className="auth-v2-input-group" style={{ marginBottom: 0 }}>
-                    <label className="auth-v2-label">First Name</label>
+                    <label htmlFor="firstName" className="auth-v2-label">First Name</label>
                     <div className="auth-v2-input-wrapper">
                       <input
+                        id="firstName"
                         type="text"
                         className="auth-v2-input"
                         placeholder="John"
@@ -112,9 +113,10 @@ const SignupPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="auth-v2-input-group" style={{ marginBottom: 0 }}>
-                    <label className="auth-v2-label">Last Name</label>
+                    <label htmlFor="lastName" className="auth-v2-label">Last Name</label>
                     <div className="auth-v2-input-wrapper">
                       <input
+                        id="lastName"
                         type="text"
                         className="auth-v2-input"
                         placeholder="Doe"
@@ -130,9 +132,10 @@ const SignupPage: React.FC = () => {
                 </div>
 
                 <div className="auth-v2-input-group">
-                  <label className="auth-v2-label">Email Address</label>
+                  <label htmlFor="email" className="auth-v2-label">Email Address</label>
                   <div className="auth-v2-input-wrapper">
                     <input
+                      id="email"
                       type="email"
                       className="auth-v2-input"
                       value={form.email}
@@ -145,9 +148,10 @@ const SignupPage: React.FC = () => {
                 </div>
 
                 <div className="auth-v2-input-group">
-                  <label className="auth-v2-label">Role</label>
+                  <label htmlFor="role" className="auth-v2-label">Role</label>
                   <div className="auth-v2-input-wrapper">
                     <select
+                      id="role"
                       className="auth-v2-input"
                       value={form.role}
                       onChange={e => setForm({ ...form, role: e.target.value })}
@@ -159,9 +163,10 @@ const SignupPage: React.FC = () => {
                 </div>
 
                 <div className="auth-v2-input-group">
-                  <label className="auth-v2-label">Password</label>
+                  <label htmlFor="password" className="auth-v2-label">Password</label>
                   <div className="auth-v2-input-wrapper">
                     <input
+                      id="password"
                       type={showPass ? 'text' : 'password'}
                       className="auth-v2-input"
                       value={form.password}
@@ -182,9 +187,10 @@ const SignupPage: React.FC = () => {
                 </div>
 
                 <div className="auth-v2-input-group">
-                  <label className="auth-v2-label">Confirm Password</label>
+                  <label htmlFor="confirmPassword" className="auth-v2-label">Confirm Password</label>
                   <div className="auth-v2-input-wrapper">
                     <input
+                      id="confirmPassword"
                       type={showConfirm ? 'text' : 'password'}
                       className="auth-v2-input"
                       value={form.confirmPassword}

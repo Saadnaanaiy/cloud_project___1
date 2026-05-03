@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import api from '../api/axios';
 
 interface User { id: number; name: string; email: string; role: string; }
@@ -23,8 +23,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const t = localStorage.getItem('token');
     const u = localStorage.getItem('user');
-    if (t && u) { 
-      setToken(t); 
+    if (t && u) {
+      setToken(t);
       setUser(JSON.parse(u));
       api.defaults.headers.common['Authorization'] = `Bearer ${t}`;
     }
@@ -68,8 +68,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const value = useMemo(() => ({
+    user,
+    token,
+    login,
+    register,
+    logout,
+    refreshUser,
+    isAuthenticated: !!token,
+    isInitializing
+  }), [user, token, isInitializing]);
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, isAuthenticated: !!token, isInitializing }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
