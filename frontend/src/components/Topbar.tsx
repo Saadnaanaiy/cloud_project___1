@@ -75,7 +75,7 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
             onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface-hover)'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-surface)'}
           >
-            <img src={`https://flagcdn.com/w20/${lang === 'fr' ? 'fr' : lang === 'ar' ? 'ma' : 'gb'}.png`} alt="flag" style={{ width: '16px', borderRadius: '2px', objectFit: 'cover', height: '12px' }} />
+            <img src={`https://flagcdn.com/w20/${lang === 'fr' ? 'fr' : (lang === 'ar' ? 'ma' : 'gb')}.png`} alt="flag" style={{ width: '16px', borderRadius: '2px', objectFit: 'cover', height: '12px' }} />
             {lang.toUpperCase()}
           </button>
 
@@ -119,7 +119,7 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
         </button>
 
         {/* Notifications & Chat */}
-        <button className="btn btn-ghost btn-icon" onClick={() => setChatOpen && setChatOpen(true)} style={{ position: 'relative', color: 'var(--text-secondary)' }} title="Messages">
+        <button className="btn btn-ghost btn-icon" onClick={() => setChatOpen?.(true)} style={{ position: 'relative', color: 'var(--text-secondary)' }} title="Messages">
           <MessageCircle size={18} />
           {unreadTotal > 0 && (
             <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '16px', height: '16px', borderRadius: '10px', background: 'var(--red)', color: '#fff', fontSize: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg-surface)' }}>

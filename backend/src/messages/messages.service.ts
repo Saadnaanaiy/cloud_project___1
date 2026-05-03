@@ -55,31 +55,35 @@ export class MessagesService {
     });
   }
 
+  private getContactUser(msg: Message, userId: number) {
+    return msg.senderId === userId ? msg.receiver : msg.sender;
+  }
+
+  private initContactData(contactId: number, msg: Message, contactUser: any, contactsMap: Map<number, any>) {
+    if (!contactsMap.has(contactId) && contactUser) {
+      contactsMap.set(contactId, {
+        user: { id: contactUser.id, name: contactUser.name, email: contactUser.email, role: contactUser.role },
+        lastMessage: msg,
+        unreadCount: 0,
+      });
+    }
+  }
+
+  private incrementUnreadCount(msg: Message, userId: number, contactId: number, contactsMap: Map<number, any>) {
+    if (msg.receiverId === userId && !msg.isRead) {
+      const contactData = contactsMap.get(contactId);
+      if (contactData) {
+        contactData.unreadCount += 1;
+      }
+    }
+  }
+
   private processContactsFromMessages(messages: Message[], userId: number, contactsMap: Map<number, any>) {
     for (const msg of messages) {
       const contactId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-      if (!contactsMap.has(contactId)) {
-        const contactUser = msg.senderId === userId ? msg.receiver : msg.sender;
-        if (contactUser) {
-          contactsMap.set(contactId, {
-            user: {
-              id: contactUser.id,
-              name: contactUser.name,
-              email: contactUser.email,
-              role: contactUser.role,
-            },
-            lastMessage: msg,
-            unreadCount: 0,
-          });
-        }
-      }
-
-      if (msg.receiverId === userId && !msg.isRead) {
-        const contactData = contactsMap.get(contactId);
-        if (contactData) {
-          contactData.unreadCount += 1;
-        }
-      }
+      const contactUser = this.getContactUser(msg, userId);
+      this.initContactData(contactId, msg, contactUser, contactsMap);
+      this.incrementUnreadCount(msg, userId, contactId, contactsMap);
     }
   }
 

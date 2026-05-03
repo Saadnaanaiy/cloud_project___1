@@ -19,7 +19,7 @@ const DashboardPage: React.FC = () => {
   const formatDateOnly = (dateValue?: string) => {
     if (!dateValue) return '';
     const rawDate = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
-    const match = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(rawDate);
     if (!match) return rawDate;
     return `${match[3]}/${match[2]}`;
   };
@@ -82,7 +82,7 @@ const DashboardPage: React.FC = () => {
     { label: t('onLeave'), value: stats?.onLeave ?? '—', icon: Clock, color: 'var(--amber)', sub: t('temporarilyAbsent') },
   ];
 
-  const deptData = Array.isArray(stats?.byDepartment) ? stats.byDepartment.map((d: any) => ({ name: d.department || 'Unknown', value: parseInt(d.count) })) : [];
+  const deptData = Array.isArray(stats?.byDepartment) ? stats.byDepartment.map((d: any) => ({ name: d.department || 'Unknown', value: Number.parseInt(d.count, 10) })) : [];
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', gap: '16px' }}>
@@ -174,7 +174,7 @@ const DashboardPage: React.FC = () => {
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie data={deptData} cx="50%" cy="50%" innerRadius={60} outerRadius={95} paddingAngle={3} dataKey="value">
-                  {deptData.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {deptData.map((d: any, i: number) => <Cell key={d.name} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }} />
                 <Legend formatter={(v) => <span style={{ color: 'var(--text-primary)', fontSize: '11px' }}>{v}</span>} />

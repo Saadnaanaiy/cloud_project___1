@@ -47,7 +47,7 @@ resource "google_project_iam_member" "github_sa_artifact_writer" {
 
 resource "google_project_iam_member" "github_sa_gke_developer" {
   project = var.project_id
-  role    = "roles/container.developer"
+  role    = "roles/container.clusterViewer"
   member  = "serviceAccount:${google_service_account.github_actions.email}"
 }
 

@@ -250,7 +250,7 @@ body {
 
 .btn-success {
 
-  background: #10b981;
+  background: #059669;
 
   color: white;
 
@@ -262,7 +262,7 @@ body {
 
 .btn-success:not(:disabled):hover {
 
-  background: #059669;
+  background: #047857;
 
   box-shadow: 0 8px 12px -2px rgba(16, 185, 129, 0.25);
 
@@ -282,7 +282,7 @@ body {
 
 .btn-danger {
 
-  background: #ef4444;
+  background: #dc2626;
 
   color: white;
 
@@ -294,7 +294,7 @@ body {
 
 .btn-danger:not(:disabled):hover {
 
-  background: #dc2626;
+  background: #b91c1c;
 
   box-shadow: 0 8px 12px -2px rgba(239, 68, 68, 0.25);
 

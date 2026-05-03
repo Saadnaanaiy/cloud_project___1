@@ -47,14 +47,13 @@ const Sidebar: React.FC<{ mobileMenuOpen: boolean, setMobileMenuOpen: (o: boolea
   return (
     <>
       {mobileMenuOpen && (
-        <div
+        <button
+          type="button"
           className="sidebar-overlay"
           onClick={() => setMobileMenuOpen(false)}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setMobileMenuOpen(false); }}
-          role="button"
-          tabIndex={0}
           aria-label="Close sidebar"
-          style={{ display: window.innerWidth > 768 ? 'none' : 'block' }}
+          style={{ display: window.innerWidth > 768 ? 'none' : 'block', border: 'none', padding: 0 }}
         />
       )}
       <aside className={`sidebar-container ${collapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
@@ -85,7 +84,7 @@ const Sidebar: React.FC<{ mobileMenuOpen: boolean, setMobileMenuOpen: (o: boolea
             textDecoration: 'none', transition: 'all 0.2s',
             color: isActive ? 'var(--brand-text)' : 'var(--text-muted)',
             background: isActive ? 'var(--brand)' : 'transparent',
-            fontSize: '14px', fontWeight: isActive ? 500 : 500,
+            fontSize: '14px', fontWeight: 500,
             justifyContent: collapsed ? 'center' : 'flex-start',
           })}>
             {({ isActive }) => (<>

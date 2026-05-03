@@ -30,19 +30,19 @@ export class AuthService implements OnModuleInit {
       {
         name: 'Super Admin',
         email: 'admin@company.com',
-        password: 'admin123',
+        password: process.env.DEFAULT_ADMIN_PASSWORD || 'admin123',
         role: UserRole.ADMIN,
       },
       {
         name: 'HR Manager',
         email: 'hr@company.com',
-        password: 'hr123',
+        password: process.env.DEFAULT_HR_PASSWORD || 'hr123',
         role: UserRole.HR,
       },
       {
         name: 'Department Manager',
         email: 'manager@company.com',
-        password: 'manager123',
+        password: process.env.DEFAULT_MANAGER_PASSWORD || 'manager123',
         role: UserRole.MANAGER,
       },
     ];

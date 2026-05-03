@@ -23,6 +23,7 @@ const PendingApprovalsPage: React.FC = () => {
       const { data } = await api.get('/auth/pending');
       setUsers(data);
     } catch (err) {
+      console.error(err);
       toast.error('Failed to load pending users');
     } finally {
       setLoading(false);
@@ -40,6 +41,7 @@ const PendingApprovalsPage: React.FC = () => {
       toast.success('User approved successfully!');
       setUsers(users.filter(u => u.id !== id));
     } catch (err) {
+      console.error(err);
       toast.error('Failed to approve user');
     } finally {
       setProcessingId(null);

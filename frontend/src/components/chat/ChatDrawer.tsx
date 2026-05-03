@@ -212,13 +212,12 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
               </div>
             ) : (
               filteredContacts.map(contact => (
-                <div
+                <button
+                  type="button"
                   key={contact.user.id}
                   className="chat-contact-item"
                   onClick={() => setActiveContactId(contact.user.id)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveContactId(contact.user.id); }}
-                  role="button"
-                  tabIndex={0}
+                  style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                 >
                   <div className="contact-avatar">
                     {contact.user.name.charAt(0).toUpperCase()}
@@ -247,7 +246,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                       )}
                     </div>
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>

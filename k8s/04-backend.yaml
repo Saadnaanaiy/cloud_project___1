@@ -18,7 +18,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: backend
-          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:latest
+          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:v1.0.0
           ports:
             - containerPort: 3001
           envFrom:
@@ -62,9 +62,11 @@ spec:
             requests:
               cpu: "200m"
               memory: "256Mi"
+              ephemeral-storage: "500Mi"
             limits:
               cpu: "500m"
               memory: "512Mi"
+              ephemeral-storage: "1Gi"
 ---
 apiVersion: v1
 kind: Service

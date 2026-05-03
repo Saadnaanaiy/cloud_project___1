@@ -22,14 +22,14 @@ export const options = {
 
 const BASE_URL = __ENV.API_URL || 'https://empmanager.duckdns.org';
 
-export default function () {
+export default function loadTest() {
   let authToken = '';
 
   group('Authentication', function () {
     const start = Date.now();
     const res = http.post(
       `${BASE_URL}/api/auth/login`,
-      JSON.stringify({ email: 'admin@company.com', password: 'Admin123!' }),
+      JSON.stringify({ email: 'admin@company.com', password: __ENV.TEST_PASSWORD || 'Admin123!' }),
       { headers: { 'Content-Type': 'application/json' } }
     );
     loginDuration.add(Date.now() - start);

@@ -18,9 +18,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: frontend
-          # TODO: replace with your Artifact Registry image after CI/CD push
-          # europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:latest
-          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:latest
+          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:v1.0.0
           ports:
             - containerPort: 80
           readinessProbe:
@@ -40,9 +38,11 @@ spec:
             requests:
               cpu: "100m"
               memory: "128Mi"
+              ephemeral-storage: "500Mi"
             limits:
               cpu: "300m"
               memory: "256Mi"
+              ephemeral-storage: "1Gi"
 ---
 apiVersion: v1
 kind: Service

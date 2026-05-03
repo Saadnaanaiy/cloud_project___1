@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useMemo, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import api from '../api/axios';
 import { useAuth } from './AuthContext';
@@ -144,7 +144,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setSocket(newSocket);
       fetchContacts();
 
-      newSocket.on('newMessage', (message: Message) => {
+      const handleNewMessage = (message: Message) => {
         setActiveContactId((currentActiveId) => {
           if (currentActiveId === message.senderId || currentActiveId === message.receiverId) {
             setMessages((prev) => Array.isArray(prev) ? [...prev, message] : [message]);
@@ -155,20 +155,20 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           return currentActiveId;
         });
         fetchContacts();
-      });
+      };
 
-      newSocket.on(
-        'userTyping',
-        ({ senderId, isTyping }: { senderId: number; isTyping: boolean }) => {
-          setTypingStatus((prev) => ({ ...prev, [senderId]: isTyping }));
+      const handleUserTyping = ({ senderId, isTyping }: { senderId: number; isTyping: boolean }) => {
+        setTypingStatus((prev) => ({ ...prev, [senderId]: isTyping }));
 
-          if (isTyping) {
-            setTimeout(() => {
-              setTypingStatus((prev) => ({ ...prev, [senderId]: false }));
-            }, 3000);
-          }
+        if (isTyping) {
+          setTimeout(() => {
+            setTypingStatus((prev) => ({ ...prev, [senderId]: false }));
+          }, 3000);
         }
-      );
+      };
+
+      newSocket.on('newMessage', handleNewMessage);
+      newSocket.on('userTyping', handleUserTyping);
 
       return () => {
         newSocket.disconnect();

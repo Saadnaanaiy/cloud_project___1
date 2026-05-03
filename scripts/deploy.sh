@@ -12,11 +12,11 @@ set -euo pipefail
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; CYAN='\033[0;36m'; NC='\033[0m'
 
-info()    { echo -e "${BLUE}ℹ️  $1${NC}"; }
-success() { echo -e "${GREEN}✅ $1${NC}"; }
-warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
-error()   { echo -e "${RED}❌ $1${NC}"; exit 1; }
-step()    { echo -e "\n${CYAN}══════════════════════════════════════${NC}"; echo -e "${CYAN}  STEP $1${NC}"; echo -e "${CYAN}══════════════════════════════════════${NC}"; }
+info()    { local msg="$1"; echo -e "${BLUE}ℹ️  ${msg}${NC}"; }
+success() { local msg="$1"; echo -e "${GREEN}✅ ${msg}${NC}"; }
+warning() { local msg="$1"; echo -e "${YELLOW}⚠️  ${msg}${NC}"; }
+error()   { local msg="$1"; echo -e "${RED}❌ ${msg}${NC}"; exit 1; }
+step()    { local msg="$1"; echo -e "\n${CYAN}══════════════════════════════════════${NC}"; echo -e "${CYAN}  STEP ${msg}${NC}"; echo -e "${CYAN}══════════════════════════════════════${NC}"; }
 
 # ─── Configuration ───────────────────────────────────────────
 PROJECT_ID="cloudappproject-494314"
@@ -118,12 +118,12 @@ for i in {1..12}; do
   LB_IP=$(kubectl get svc nginx-ingress-ingress-nginx-controller \
     -n ingress-nginx \
     -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
-  if [ -n "$LB_IP" ]; then break; fi
+  if [[ -n "$LB_IP" ]]; then break; fi
   echo "  Attempt $i/12 — waiting 10s..."
   sleep 10
 done
 
-if [ -z "$LB_IP" ]; then
+if [[ -z "$LB_IP" ]]; then
   error "Could not get LoadBalancer IP. Check: kubectl get svc -n ingress-nginx"
 fi
 
@@ -164,7 +164,7 @@ info "Waiting for SSL certificate (2-5 minutes)..."
 for i in {1..30}; do
   STATUS=$(kubectl get certificate employee-tls -n $NAMESPACE \
     -o jsonpath='{.status.conditions[0].status}' 2>/dev/null || echo "False")
-  if [ "$STATUS" = "True" ]; then
+  if [[ "$STATUS" == "True" ]]; then
     success "SSL Certificate issued! ✅"
     break
   fi

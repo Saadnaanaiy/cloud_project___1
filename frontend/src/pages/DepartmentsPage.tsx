@@ -59,14 +59,16 @@ const DepartmentsPage: React.FC = () => {
         )}
       </div>
 
-      {loading ? (
+      {loading && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '80px' }}><div className="spinner" /></div>
-      ) : depts.length === 0 ? (
+      )}
+      {!loading && depts.length === 0 && (
         <div className="empty-state" style={{ padding: '80px' }}>
           <Building2 size={48} />
           <p>{t('noData')}</p>
         </div>
-      ) : (
+      )}
+      {!loading && depts.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
           {depts.map((dept, i) => (
             <div key={dept.id} className="glass-card" style={{ padding: '24px' }}>
@@ -101,14 +103,12 @@ const DepartmentsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Add / Edit Modal */}
       {(modal === 'add' || modal === 'edit') && (
-        <div
+        <button
+          type="button"
           className="modal-overlay"
           onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
-          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
-          role="button"
-          tabIndex={0}
+          style={{ border: 'none', cursor: 'default' }}
         >
           <div className="modal" style={{ maxWidth: '440px' }}>
             <div className="modal-header">
@@ -138,17 +138,16 @@ const DepartmentsPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </button>
       )}
 
       {/* Delete confirm */}
       {modal === 'delete' && selected && (
-        <div
+        <button
+          type="button"
           className="modal-overlay"
           onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
-          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
-          role="button"
-          tabIndex={0}
+          style={{ border: 'none', cursor: 'default' }}
         >
           <div className="modal" style={{ maxWidth: '380px', textAlign: 'center' }}>
             <div style={{ marginBottom: '20px' }}>
@@ -169,7 +168,7 @@ const DepartmentsPage: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </button>
       )}
     </div>
   );

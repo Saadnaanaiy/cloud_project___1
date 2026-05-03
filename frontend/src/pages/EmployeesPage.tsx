@@ -135,13 +135,14 @@ const EmployeesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="glass-card">
-        {loading ? (
+        {loading && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}><div className="spinner" /></div>
-        ) : employees.length === 0 ? (
+        )}
+        {!loading && employees.length === 0 && (
           <div className="empty-state"><UserX size={48} /><p>{t('noEmployees')}</p><span style={{ fontSize: '13px' }}>{t('adjustFilters')}</span></div>
-        ) : (
+        )}
+        {!loading && employees.length > 0 && (
           <div className="table-wrap">
             <table>
               <thead>
@@ -224,12 +225,11 @@ const EmployeesPage: React.FC = () => {
 
       {/* Add / Edit Modal */}
       {(modal === 'add' || modal === 'edit') && (
-        <div
+        <button
+          type="button"
           className="modal-overlay"
           onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
-          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
-          role="button"
-          tabIndex={0}
+          style={{ border: 'none', cursor: 'default' }}
         >
           <div className="modal">
             <div className="modal-header">
@@ -286,22 +286,23 @@ const EmployeesPage: React.FC = () => {
               <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
                 <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setModal(null)}>{t('cancel')}</button>
                 <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleSave} disabled={saving}>
-                  {saving ? t('saving') : modal === 'add' ? t('addEmp') : t('saveChanges')}
+                  {saving && <span className="spinner" style={{ width: '14px', height: '14px', borderWidth: '2px' }} />}
+                  {!saving && modal === 'add' && t('addEmp')}
+                  {!saving && modal === 'edit' && t('saveChanges')}
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </button>
       )}
 
       {/* View Profile */}
       {modal === 'view' && selected && (
-        <div
+        <button
+          type="button"
           className="modal-overlay"
           onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
-          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
-          role="button"
-          tabIndex={0}
+          style={{ border: 'none', cursor: 'default' }}
         >
           <div className="modal" style={{ maxWidth: '500px' }}>
             <div className="modal-header">
@@ -349,17 +350,16 @@ const EmployeesPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </button>
       )}
 
       {/* Delete confirm */}
       {modal === 'delete' && selected && (
-        <div
+        <button
+          type="button"
           className="modal-overlay"
           onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
-          onKeyDown={e => { if (e.key === 'Escape') setModal(null); }}
-          role="button"
-          tabIndex={0}
+          style={{ border: 'none', cursor: 'default' }}
         >
           <div className="modal" style={{ maxWidth: '400px' }}>
             <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
@@ -378,7 +378,7 @@ const EmployeesPage: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </button>
       )}
     </div>
   );
