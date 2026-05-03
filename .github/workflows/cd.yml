@@ -94,16 +94,21 @@ jobs:
       # ─────────────────────────────────────────────
       # STEP 2 — Update image tags & deploy services
       # ─────────────────────────────────────────────
-      - name: Update backend image and restart
+      - name: Update manifests and deploy
         run: |
-          IMAGE="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:${{ steps.tag.outputs.TAG }}"
-          kubectl set image deployment/backend backend=$IMAGE -n ${{ env.NAMESPACE }}
+          TAG="${{ steps.tag.outputs.TAG }}"
+          IMAGE_BASE="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}"
+          
+          # Inject image tags into manifests
+          sed -i "s|backend:v1.0.0|backend:$TAG|g" k8s/04-backend.yaml
+          sed -i "s|frontend:v1.0.0|frontend:$TAG|g" k8s/05-frontend.yaml
+          
+          # Apply full manifests (includes env vars and other config)
+          kubectl apply -f k8s/04-backend.yaml
+          kubectl apply -f k8s/05-frontend.yaml
+          
+          # Force restart to ensure fresh containers
           kubectl rollout restart deployment/backend -n ${{ env.NAMESPACE }}
-
-      - name: Update frontend image and restart
-        run: |
-          IMAGE="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:${{ steps.tag.outputs.TAG }}"
-          kubectl set image deployment/frontend frontend=$IMAGE -n ${{ env.NAMESPACE }}
           kubectl rollout restart deployment/frontend -n ${{ env.NAMESPACE }}
 
       # ─────────────────────────────────────────────
