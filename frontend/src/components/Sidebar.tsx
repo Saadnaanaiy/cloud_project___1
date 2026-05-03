@@ -8,7 +8,8 @@ import {
     Menu,
     UserCheck,
     Users,
-    X
+    X,
+    Home
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -24,7 +25,8 @@ const Sidebar: React.FC<{ mobileMenuOpen: boolean, setMobileMenuOpen: (o: boolea
   const [collapsed, setCollapsed] = useState(false);
 
   const navItems = [
-    { to: '/', icon: LayoutDashboard, label: t('dashboard') },
+    { to: '/', icon: Home, label: t('home') || 'Home' },
+    { to: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
     { to: '/employees', icon: Users, label: t('employees') },
     { to: '/attendance', icon: CalendarCheck, label: t('attendance') },
     { to: '/reports', icon: FileText, label: t('reports') },

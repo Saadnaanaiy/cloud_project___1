@@ -14,6 +14,8 @@ import ReportsPage from './pages/ReportsPage';
 import DepartmentsPage from './pages/DepartmentsPage';
 import ProfilePage from './pages/ProfilePage';
 import PendingApprovalsPage from './pages/PendingApprovalsPage';
+import HomePage from './pages/HomePage';
+import NotFoundPage from './pages/NotFoundPage';
 import './index.css';
 
 const App: React.FC = () => {
@@ -51,7 +53,8 @@ const App: React.FC = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route element={<ProtectedLayout />}>
-                <Route path="/" element={<DashboardPage />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/employees" element={<EmployeesPage />} />
                 <Route path="/attendance" element={<AttendancePage />} />
                 <Route path="/reports" element={<ReportsPage />} />
@@ -59,7 +62,7 @@ const App: React.FC = () => {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
               </Route>
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
