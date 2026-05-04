@@ -11,7 +11,8 @@ import { Employee } from '../employees/employee.entity';
 export class ReportsService {
   constructor(
     @InjectRepository(Employee) private readonly empRepo: Repository<Employee>,
-    @InjectRepository(Attendance) private readonly attRepo: Repository<Attendance>,
+    @InjectRepository(Attendance)
+    private readonly attRepo: Repository<Attendance>,
   ) {}
 
   // ─────────────────────────────────────── EXCEL ──────────────────────────────
@@ -280,7 +281,12 @@ export class ReportsService {
     });
   }
 
-  private drawPDFHeader(doc: jsPDF, PW: number, PRIMARY: [number, number, number], genDate: string) {
+  private drawPDFHeader(
+    doc: jsPDF,
+    PW: number,
+    PRIMARY: [number, number, number],
+    genDate: string,
+  ) {
     doc.setFillColor(...PRIMARY);
     doc.rect(0, 0, PW, 40, 'F');
 
@@ -295,7 +301,13 @@ export class ReportsService {
     doc.text(`Generated on ${genDate}  |  Strictly Confidential`, 20, 28);
   }
 
-  private drawPDFKPIs(doc: jsPDF, PW: number, stats: any, colors: any, PH: number) {
+  private drawPDFKPIs(
+    doc: jsPDF,
+    PW: number,
+    stats: any,
+    colors: any,
+    PH: number,
+  ) {
     const kpis = [
       { label: 'Total Employees', value: String(stats.total) },
       { label: 'Active Personnel', value: String(stats.active) },
@@ -324,15 +336,33 @@ export class ReportsService {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...(colors.MUTED as [number, number, number]));
-      doc.text(k.label.toUpperCase(), x + kpiW / 2, kpiY + 19, { align: 'center' });
+      doc.text(k.label.toUpperCase(), x + kpiW / 2, kpiY + 19, {
+        align: 'center',
+      });
     });
   }
 
-  private drawPDFTable(doc: jsPDF, employees: Employee[], colors: any, startY: number) {
+  private drawPDFTable(
+    doc: jsPDF,
+    employees: Employee[],
+    colors: any,
+    startY: number,
+  ) {
     autoTable(doc, {
       startY,
       margin: { left: 20, right: 20 },
-      head: [['ID', 'Full Name', 'Email Address', 'Department', 'Position', 'Hire Date', 'Salary', 'Status']],
+      head: [
+        [
+          'ID',
+          'Full Name',
+          'Email Address',
+          'Department',
+          'Position',
+          'Hire Date',
+          'Salary',
+          'Status',
+        ],
+      ],
       body: employees.map((e) => [
         `EMP-${String(e.id).padStart(4, '0')}`,
         `${e.firstName} ${e.lastName}`,
@@ -374,25 +404,39 @@ export class ReportsService {
       didParseCell: (data) => {
         if (data.column.index === 7 && data.section === 'body') {
           const rawValue = data.cell.raw;
-          const val = (typeof rawValue === 'string' ? rawValue : String(rawValue ?? '')).toLowerCase();
+          const val = (
+            typeof rawValue === 'string' ? rawValue : String(rawValue ?? '')
+          ).toLowerCase();
           if (val === 'active') data.cell.styles.textColor = colors.GREEN;
           else if (val === 'blocked') data.cell.styles.textColor = colors.RED;
-          else if (val === 'on leave') data.cell.styles.textColor = colors.AMBER;
+          else if (val === 'on leave')
+            data.cell.styles.textColor = colors.AMBER;
           data.cell.styles.fontStyle = 'bold';
         }
       },
     });
   }
 
-  private drawPDFFooter(doc: jsPDF, PW: number, PH: number, MUTED: [number, number, number]) {
+  private drawPDFFooter(
+    doc: jsPDF,
+    PW: number,
+    PH: number,
+    MUTED: [number, number, number],
+  ) {
     const totalPages = (doc as any).internal.getNumberOfPages();
     for (let p = 1; p <= totalPages; p++) {
       doc.setPage(p);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...MUTED);
-      doc.text('Employee Management System - Generated automatically', 20, PH - 10);
-      doc.text(`Page ${p} of ${totalPages}`, PW - 20, PH - 10, { align: 'right' });
+      doc.text(
+        'Employee Management System - Generated automatically',
+        20,
+        PH - 10,
+      );
+      doc.text(`Page ${p} of ${totalPages}`, PW - 20, PH - 10, {
+        align: 'right',
+      });
     }
   }
 

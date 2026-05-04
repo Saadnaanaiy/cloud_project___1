@@ -1,4 +1,9 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuditService } from './audit.service';
@@ -10,7 +15,10 @@ export class LoginAuditInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const userAgent = request.headers['user-agent'] || 'Unknown';
-    const ipAddress = request.headers['x-forwarded-for'] || request.ip || request.connection.remoteAddress;
+    const ipAddress =
+      request.headers['x-forwarded-for'] ||
+      request.ip ||
+      request.connection.remoteAddress;
 
     return next.handle().pipe(
       tap(async (response) => {

@@ -1,25 +1,40 @@
-import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { ArrowRight, BarChart3, Clock, MessageSquare, ShieldCheck, TrendingUp, User, Users, Zap, LayoutDashboard, LogOut, Home as HomeIcon } from 'lucide-react';
+import React, { useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
+import {
+    ArrowRight,
+    BarChart3,
+    Clock,
+    MessageSquare,
+    ShieldCheck,
+    TrendingUp,
+    User,
+    Users,
+    Zap,
+    LayoutDashboard,
+    LogOut,
+} from "lucide-react"
 
-const APP_NAME = 'EmpManager';
-const PLATFORM_VERSION = 'V2.0';
+const APP_NAME = "EmpManager"
+const PLATFORM_VERSION = "V2.0"
 
 const HomePage: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+    const { user, logout } = useAuth()
+    const navigate = useNavigate()
 
-  const handleLogout = useCallback(() => {
-    logout();
-    navigate('/login');
-  }, [logout, navigate]);
+    const handleLogout = useCallback(() => {
+        logout()
+        navigate("/login")
+    }, [logout, navigate])
 
-  const handleNavigate = useCallback((path: string) => {
-    navigate(path);
-  }, [navigate]);
+    const handleNavigate = useCallback(
+        (path: string) => {
+            navigate(path)
+        },
+        [navigate],
+    )
 
-  const styles = `
+    const styles = `
     * {
       margin: 0;
       padding: 0;
@@ -495,163 +510,244 @@ const HomePage: React.FC = () => {
     .hp-footer-links button:hover {
       color: #f1f5f9;
     }
-  `;
+  `
 
-  return (
-    <div className="hp-container">
-      <style>{styles}</style>
+    return (
+        <div className="hp-container">
+            <style>{styles}</style>
 
-      {/* Navbar */}
-      <nav className="hp-navbar">
-        <div className="hp-navbar-content">
-          <button onClick={() => handleNavigate('/')} className="hp-logo">
-            <div className="hp-logo-icon">E</div>
-            <span>{APP_NAME}</span>
-          </button>
-          <div className="hp-nav-menu">
-            <div className="hp-nav-links">
-              <button onClick={() => handleNavigate('/dashboard')}>Dashboard</button>
-              <button onClick={() => handleNavigate('/employees')}>Employees</button>
-              <button onClick={() => handleNavigate('/reports')}>Reports</button>
-            </div>
-            <div className="hp-user-section">
-              <span className="hp-user-name">{user?.name || 'Guest'}</span>
-              <button onClick={handleLogout} className="hp-logout-btn" aria-label="Logout">
-                <LogOut size={16} />
-              </button>
-            </div>
-          </div>
+            {/* Navbar */}
+            <nav className="hp-navbar">
+                <div className="hp-navbar-content">
+                    <button
+                        onClick={() => handleNavigate("/")}
+                        className="hp-logo"
+                    >
+                        <div className="hp-logo-icon">E</div>
+                        <span>{APP_NAME}</span>
+                    </button>
+                    <div className="hp-nav-menu">
+                        <div className="hp-nav-links">
+                            <button
+                                onClick={() => handleNavigate("/dashboard")}
+                            >
+                                Dashboard
+                            </button>
+                            <button
+                                onClick={() => handleNavigate("/employees")}
+                            >
+                                Employees
+                            </button>
+                            <button onClick={() => handleNavigate("/reports")}>
+                                Reports
+                            </button>
+                        </div>
+                        <div className="hp-user-section">
+                            <span className="hp-user-name">
+                                {user?.name || "Guest"}
+                            </span>
+                            <button
+                                onClick={handleLogout}
+                                className="hp-logout-btn"
+                                aria-label="Logout"
+                            >
+                                <LogOut size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <main className="hp-main">
+                {/* Hero Section */}
+                <div className="hp-hero">
+                    <div className="hp-badge">
+                        Platform {PLATFORM_VERSION} is Live
+                    </div>
+                    <h1 className="hp-title">
+                        Management{" "}
+                        <span className="hp-highlight">Reimagined</span>
+                    </h1>
+                    <p className="hp-subtitle">
+                        Welcome back, <strong>{user?.name}</strong>. Experience
+                        the next generation of cloud-native employee management
+                        with real-time insights and collaboration.
+                    </p>
+                    <div className="hp-cta-buttons">
+                        <button
+                            onClick={() => handleNavigate("/dashboard")}
+                            className="hp-btn hp-btn-primary"
+                        >
+                            <LayoutDashboard size={18} />
+                            Go to Dashboard
+                            <ArrowRight size={18} />
+                        </button>
+                        <button
+                            onClick={() => handleNavigate("/profile")}
+                            className="hp-btn hp-btn-secondary"
+                        >
+                            <User size={18} />
+                            View Profile
+                        </button>
+                    </div>
+                </div>
+
+                {/* Stats Section */}
+                <div className="hp-stats">
+                    <div className="hp-stat-card">
+                        <div className="hp-stat-icon">
+                            <Users size={24} />
+                        </div>
+                        <div className="hp-stat-label">Active Employees</div>
+                        <div className="hp-stat-value">2,145</div>
+                    </div>
+                    <div className="hp-stat-card">
+                        <div className="hp-stat-icon">
+                            <TrendingUp size={24} />
+                        </div>
+                        <div className="hp-stat-label">Monthly Growth</div>
+                        <div className="hp-stat-value">+12.5%</div>
+                    </div>
+                    <div className="hp-stat-card">
+                        <div className="hp-stat-icon">
+                            <Clock size={24} />
+                        </div>
+                        <div className="hp-stat-label">Avg Attendance</div>
+                        <div className="hp-stat-value">94.2%</div>
+                    </div>
+                    <div className="hp-stat-card">
+                        <div className="hp-stat-icon">
+                            <MessageSquare size={24} />
+                        </div>
+                        <div className="hp-stat-label">Total Messages</div>
+                        <div className="hp-stat-value">8,234</div>
+                    </div>
+                </div>
+
+                {/* Features Section */}
+                <div className="hp-features">
+                    <div className="hp-feature-card">
+                        <div className="hp-feature-icon">
+                            <ShieldCheck size={20} />
+                        </div>
+                        <h3 className="hp-feature-title">
+                            Enterprise Security
+                        </h3>
+                        <p className="hp-feature-desc">
+                            Military-grade encryption & compliance
+                        </p>
+                    </div>
+                    <div className="hp-feature-card">
+                        <div className="hp-feature-icon">
+                            <Zap size={20} />
+                        </div>
+                        <h3 className="hp-feature-title">Real-time Updates</h3>
+                        <p className="hp-feature-desc">
+                            Instant sync across all devices
+                        </p>
+                    </div>
+                    <div className="hp-feature-card">
+                        <div className="hp-feature-icon">
+                            <BarChart3 size={20} />
+                        </div>
+                        <h3 className="hp-feature-title">Advanced Analytics</h3>
+                        <p className="hp-feature-desc">
+                            In-depth insights & reporting
+                        </p>
+                    </div>
+                    <div className="hp-feature-card">
+                        <div className="hp-feature-icon">
+                            <Users size={20} />
+                        </div>
+                        <h3 className="hp-feature-title">Team Collaboration</h3>
+                        <p className="hp-feature-desc">
+                            Seamless communication tools
+                        </p>
+                    </div>
+                    <div className="hp-feature-card">
+                        <div className="hp-feature-icon">
+                            <ShieldCheck size={20} />
+                        </div>
+                        <h3 className="hp-feature-title">Global Access</h3>
+                        <p className="hp-feature-desc">
+                            Available anywhere, anytime
+                        </p>
+                    </div>
+                    <div className="hp-feature-card">
+                        <div className="hp-feature-icon">
+                            <TrendingUp size={20} />
+                        </div>
+                        <h3 className="hp-feature-title">
+                            Performance Tracking
+                        </h3>
+                        <p className="hp-feature-desc">
+                            Monitor growth & metrics
+                        </p>
+                    </div>
+                </div>
+
+                {/* Preview Section */}
+                <div className="hp-preview">
+                    <img
+                        src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426"
+                        alt="Dashboard Preview"
+                        className="hp-preview-image"
+                    />
+                    <div className="hp-preview-stats">
+                        <div className="hp-preview-stat">
+                            <div className="hp-preview-stat-label">Uptime</div>
+                            <div className="hp-preview-stat-value">99.9%</div>
+                        </div>
+                        <div className="hp-preview-stat">
+                            <div className="hp-preview-stat-label">
+                                Security
+                            </div>
+                            <div className="hp-preview-stat-value">100%</div>
+                        </div>
+                        <div className="hp-preview-stat">
+                            <div className="hp-preview-stat-label">
+                                Performance
+                            </div>
+                            <div className="hp-preview-stat-value">A+</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* CTA Section */}
+                <div className="hp-cta-section">
+                    <h2 className="hp-cta-title">Ready to get started?</h2>
+                    <p className="hp-cta-desc">
+                        Streamline your workforce management today and unlock
+                        the full potential of your team.
+                    </p>
+                    <button
+                        onClick={() => handleNavigate("/dashboard")}
+                        className="hp-btn hp-btn-primary"
+                        style={{ margin: "0 auto" }}
+                    >
+                        Enter Dashboard
+                        <ArrowRight size={18} />
+                    </button>
+                </div>
+            </main>
+
+            {/* Footer */}
+            <footer className="hp-footer">
+                <div className="hp-footer-content">
+                    <div className="hp-footer-brand">
+                        <div className="hp-footer-brand-icon">E</div>
+                        <span>{APP_NAME}</span>
+                    </div>
+                    <div className="hp-footer-links">
+                        <button aria-label="Privacy">Privacy</button>
+                        <button aria-label="Terms">Terms</button>
+                        <button aria-label="Documentation">Docs</button>
+                    </div>
+                </div>
+            </footer>
         </div>
-      </nav>
+    )
+}
 
-      {/* Main Content */}
-      <main className="hp-main">
-        {/* Hero Section */}
-        <div className="hp-hero">
-          <div className="hp-badge">Platform {PLATFORM_VERSION} is Live</div>
-          <h1 className="hp-title">
-            Management <span className="hp-highlight">Reimagined</span>
-          </h1>
-          <p className="hp-subtitle">
-            Welcome back, <strong>{user?.name}</strong>. Experience the next generation of cloud-native employee management with real-time insights and collaboration.
-          </p>
-          <div className="hp-cta-buttons">
-            <button onClick={() => handleNavigate('/dashboard')} className="hp-btn hp-btn-primary">
-              <LayoutDashboard size={18} />
-              Go to Dashboard
-              <ArrowRight size={18} />
-            </button>
-            <button onClick={() => handleNavigate('/profile')} className="hp-btn hp-btn-secondary">
-              <User size={18} />
-              View Profile
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Section */}
-        <div className="hp-stats">
-          <div className="hp-stat-card">
-            <div className="hp-stat-icon"><Users size={24} /></div>
-            <div className="hp-stat-label">Active Employees</div>
-            <div className="hp-stat-value">2,145</div>
-          </div>
-          <div className="hp-stat-card">
-            <div className="hp-stat-icon"><TrendingUp size={24} /></div>
-            <div className="hp-stat-label">Monthly Growth</div>
-            <div className="hp-stat-value">+12.5%</div>
-          </div>
-          <div className="hp-stat-card">
-            <div className="hp-stat-icon"><Clock size={24} /></div>
-            <div className="hp-stat-label">Avg Attendance</div>
-            <div className="hp-stat-value">94.2%</div>
-          </div>
-          <div className="hp-stat-card">
-            <div className="hp-stat-icon"><MessageSquare size={24} /></div>
-            <div className="hp-stat-label">Total Messages</div>
-            <div className="hp-stat-value">8,234</div>
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="hp-features">
-          <div className="hp-feature-card">
-            <div className="hp-feature-icon"><ShieldCheck size={20} /></div>
-            <h3 className="hp-feature-title">Enterprise Security</h3>
-            <p className="hp-feature-desc">Military-grade encryption & compliance</p>
-          </div>
-          <div className="hp-feature-card">
-            <div className="hp-feature-icon"><Zap size={20} /></div>
-            <h3 className="hp-feature-title">Real-time Updates</h3>
-            <p className="hp-feature-desc">Instant sync across all devices</p>
-          </div>
-          <div className="hp-feature-card">
-            <div className="hp-feature-icon"><BarChart3 size={20} /></div>
-            <h3 className="hp-feature-title">Advanced Analytics</h3>
-            <p className="hp-feature-desc">In-depth insights & reporting</p>
-          </div>
-          <div className="hp-feature-card">
-            <div className="hp-feature-icon"><Users size={20} /></div>
-            <h3 className="hp-feature-title">Team Collaboration</h3>
-            <p className="hp-feature-desc">Seamless communication tools</p>
-          </div>
-          <div className="hp-feature-card">
-            <div className="hp-feature-icon"><ShieldCheck size={20} /></div>
-            <h3 className="hp-feature-title">Global Access</h3>
-            <p className="hp-feature-desc">Available anywhere, anytime</p>
-          </div>
-          <div className="hp-feature-card">
-            <div className="hp-feature-icon"><TrendingUp size={20} /></div>
-            <h3 className="hp-feature-title">Performance Tracking</h3>
-            <p className="hp-feature-desc">Monitor growth & metrics</p>
-          </div>
-        </div>
-
-        {/* Preview Section */}
-        <div className="hp-preview">
-          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426" alt="Dashboard Preview" className="hp-preview-image" />
-          <div className="hp-preview-stats">
-            <div className="hp-preview-stat">
-              <div className="hp-preview-stat-label">Uptime</div>
-              <div className="hp-preview-stat-value">99.9%</div>
-            </div>
-            <div className="hp-preview-stat">
-              <div className="hp-preview-stat-label">Security</div>
-              <div className="hp-preview-stat-value">100%</div>
-            </div>
-            <div className="hp-preview-stat">
-              <div className="hp-preview-stat-label">Performance</div>
-              <div className="hp-preview-stat-value">A+</div>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="hp-cta-section">
-          <h2 className="hp-cta-title">Ready to get started?</h2>
-          <p className="hp-cta-desc">Streamline your workforce management today and unlock the full potential of your team.</p>
-          <button onClick={() => handleNavigate('/dashboard')} className="hp-btn hp-btn-primary" style={{ margin: '0 auto' }}>
-            Enter Dashboard
-            <ArrowRight size={18} />
-          </button>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="hp-footer">
-        <div className="hp-footer-content">
-          <div className="hp-footer-brand">
-            <div className="hp-footer-brand-icon">E</div>
-            <span>{APP_NAME}</span>
-          </div>
-          <div className="hp-footer-links">
-            <button aria-label="Privacy">Privacy</button>
-            <button aria-label="Terms">Terms</button>
-            <button aria-label="Documentation">Docs</button>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-export default HomePage;
+export default HomePage
