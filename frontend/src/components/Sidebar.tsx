@@ -25,7 +25,7 @@ const Sidebar: React.FC<{ mobileMenuOpen: boolean, setMobileMenuOpen: (o: boolea
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
-  const navItems = [
+  let navItems = [
     { to: '/', icon: Home, label: t('home') || 'Home' },
     { to: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
     { to: '/employees', icon: Users, label: t('employees') },
