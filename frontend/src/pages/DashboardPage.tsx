@@ -12,12 +12,39 @@ const renderLegendLabel = (v: string) => (
   <span style={{ color: 'var(--text-primary)', fontSize: '11px' }}>{v}</span>
 );
 
+interface DepartmentStat {
+  department: string;
+  count: string | number;
+}
+
+interface DashboardStats {
+  total: number;
+  active: number;
+  blocked: number;
+  onLeave: number;
+  byDepartment: DepartmentStat[];
+}
+
+interface MonthlyAttendanceData {
+  date: string;
+  present: number;
+  absent: number;
+  late: number;
+}
+
+interface YearlyRawData {
+  month: string;
+  present: number;
+  absent: number;
+  late: number;
+}
+
 const DashboardPage: React.FC = () => {
   const { t } = useLang();
-  const [stats, setStats] = useState<any>(null);
-  const [monthlyData, setMonthlyData] = useState<any[]>([]);
-  const [yearlyData, setYearlyData] = useState<any[]>([]);
-  const [yearlyRawData, setYearlyRawData] = useState<any[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [monthlyData, setMonthlyData] = useState<MonthlyAttendanceData[]>([]);
+  const [yearlyData, setYearlyData] = useState<YearlyRawData[]>([]);
+  const [yearlyRawData, setYearlyRawData] = useState<YearlyRawData[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
 
@@ -37,12 +64,12 @@ const DashboardPage: React.FC = () => {
     ]).then(([statsRes, monthlyRes, yearlyRes]) => {
       setStats(statsRes.data);
       const attendanceData = Array.isArray(monthlyRes.data) ? monthlyRes.data : [];
-      setMonthlyData(attendanceData.map((d: any) => {
+      setMonthlyData(attendanceData.map((d: Record<string, string | number>) => {
         const present = Number(d.present) || 0;
         const absent = Number(d.absent) || 0;
         const late = Number(d.late) || 0;
         return {
-          date: formatDateOnly(d.date),
+          date: formatDateOnly(d.date as string),
           present,
           absent,
           late,
@@ -50,11 +77,11 @@ const DashboardPage: React.FC = () => {
       }));
       const yData = Array.isArray(yearlyRes.data) ? yearlyRes.data : [];
       setYearlyRawData(yData);
-      const normalized = yData.slice(-6).map((d: any) => {
+      const normalized = yData.slice(-6).map((d: Record<string, string | number>) => {
         const total = (Number(d.present) || 0) + (Number(d.absent) || 0) + (Number(d.late) || 0);
         const t = total === 0 ? 1 : total;
         return {
-          month: d.month,
+          month: d.month as string,
           present: (Number(d.present) || 0) / t,
           absent: (Number(d.absent) || 0) / t,
           late: (Number(d.late) || 0) / t,

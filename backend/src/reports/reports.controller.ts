@@ -1,5 +1,13 @@
 import { Controller, Get, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiForbiddenResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiProduces,
+    ApiTags,
+    ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -8,15 +16,27 @@ import { UserRole } from '../auth/user.entity';
 import { ReportsService } from './reports.service';
 
 @ApiTags('Reports')
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
+@ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
+@ApiForbiddenResponse({ description: 'Requires admin or hr role' })
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly service: ReportsService) {}
 
-  // ── REPORTS — Admin & HR only ─────────────────────────────────────────────
   @Get('excel')
   @Roles(UserRole.ADMIN, UserRole.HR)
+  @ApiOperation({
+    summary: 'Export employees as Excel (.xlsx)',
+    description:
+      'Generates and downloads a full employee report in Excel format. ' +
+      'Requires **admin** or **hr** role.',
+  })
+  @ApiProduces('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  @ApiOkResponse({
+    description: 'Excel file download (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)',
+    schema: { type: 'string', format: 'binary' },
+  })
   async downloadExcel(@Res() res: Response) {
     const buffer = await this.service.generateExcel();
     const filename = `rapport_employes_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -31,6 +51,17 @@ export class ReportsController {
 
   @Get('pdf')
   @Roles(UserRole.ADMIN, UserRole.HR)
+  @ApiOperation({
+    summary: 'Export employees as PDF',
+    description:
+      'Generates and downloads a full employee report in PDF format. ' +
+      'Requires **admin** or **hr** role.',
+  })
+  @ApiProduces('application/pdf')
+  @ApiOkResponse({
+    description: 'PDF file download (application/pdf)',
+    schema: { type: 'string', format: 'binary' },
+  })
   async downloadPDF(@Res() res: Response) {
     const buffer = await this.service.generatePDF();
     const filename = `rapport_employes_${new Date().toISOString().split('T')[0]}.pdf`;

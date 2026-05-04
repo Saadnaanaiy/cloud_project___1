@@ -106,6 +106,7 @@ jobs:
           # Apply full manifests (includes env vars and other config)
           kubectl apply -f k8s/04-backend.yaml
           kubectl apply -f k8s/05-frontend.yaml
+          kubectl apply -f k8s/09-pdb.yaml
           
           # Force restart to ensure fresh containers
           kubectl rollout restart deployment/backend -n ${{ env.NAMESPACE }}
