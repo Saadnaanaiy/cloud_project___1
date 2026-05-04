@@ -7,7 +7,7 @@ import { AuditLog } from './audit-log.entity';
 export class AuditService {
   constructor(
     @InjectRepository(AuditLog)
-    private auditLogRepository: Repository<AuditLog>,
+    private readonly auditLogRepository: Repository<AuditLog>,
   ) {}
 
   async log(userId: number, action: string, ipAddress: string, userAgent: string) {

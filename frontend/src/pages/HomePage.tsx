@@ -237,9 +237,9 @@ const HomePage: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-8 text-sm text-text-secondary">
-            <a href="#" className="hover:text-text-primary transition-colors">Privacy</a>
-            <a href="#" className="hover:text-text-primary transition-colors">Terms</a>
-            <a href="#" className="hover:text-text-primary transition-colors">Docs</a>
+            <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Privacy policy">Privacy</button>
+            <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Terms of service">Terms</button>
+            <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Documentation">Docs</button>
           </div>
 
           <div className="flex items-center gap-4">

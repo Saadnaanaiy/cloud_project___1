@@ -44,6 +44,70 @@ const SecurityLogsPage: React.FC = () => {
     return <Monitor size={14} className="text-purple" />;
   };
 
+  const renderTableContent = () => {
+    if (loading) {
+      return Array.from({ length: 5 }).map((_, i) => (
+        <tr key={`skeleton-${i}`} className="animate-pulse">
+          <td colSpan={5} className="py-8"><div className="h-4 bg-surface-hover rounded w-full"></div></td>
+        </tr>
+      ));
+    }
+
+    if (logs.length === 0) {
+      return (
+        <tr>
+          <td colSpan={5} className="empty-state">No security logs found.</td>
+        </tr>
+      );
+    }
+
+    return logs?.map?.((log) => (
+      <motion.tr 
+        key={log.id}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <td>
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-brand/10 flex items-center justify-center text-xs font-bold text-brand">
+              {log.user?.name.charAt(0)}
+            </div>
+            <div>
+              <div className="font-medium">{log.user?.name || 'Deleted User'}</div>
+              <div className="text-xs text-text-muted">{log.user?.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span className={`badge ${log.action === 'LOGIN' ? 'badge-active' : 'badge-terminated'}`}>
+            {log.action}
+          </span>
+        </td>
+        <td>
+          <code className="text-xs font-mono bg-surface-hover px-2 py-1 rounded border border-border">
+            {log.ipAddress}
+          </code>
+        </td>
+        <td>
+          <div className="flex items-center gap-2 max-w-xs">
+            {getDeviceIcon(log.userAgent)}
+            <span className="text-xs text-text-secondary truncate" title={log.userAgent}>
+              {log.userAgent}
+            </span>
+          </div>
+        </td>
+        <td>
+          <div className="text-sm">
+            {format(new Date(log.timestamp), 'MMM dd, yyyy')}
+          </div>
+          <div className="text-xs text-text-muted">
+            {format(new Date(log.timestamp), 'HH:mm:ss')}
+          </div>
+        </td>
+      </motion.tr>
+    ));
+  };
+
   return (
     <div className="page-inner animate-fade">
       <div className="page-header">
@@ -75,63 +139,7 @@ const SecurityLogsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="animate-pulse">
-                      <td colSpan={5} className="py-8"><div className="h-4 bg-surface-hover rounded w-full"></div></td>
-                    </tr>
-                  ))
-                ) : logs.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="empty-state">No security logs found.</td>
-                  </tr>
-                ) : (
-                  logs.map((log) => (
-                    <motion.tr 
-                      key={log.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                    >
-                      <td>
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-brand/10 flex items-center justify-center text-xs font-bold text-brand">
-                            {log.user?.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-medium">{log.user?.name || 'Deleted User'}</div>
-                            <div className="text-xs text-text-muted">{log.user?.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`badge ${log.action === 'LOGIN' ? 'badge-active' : 'badge-terminated'}`}>
-                          {log.action}
-                        </span>
-                      </td>
-                      <td>
-                        <code className="text-xs font-mono bg-surface-hover px-2 py-1 rounded border border-border">
-                          {log.ipAddress}
-                        </code>
-                      </td>
-                      <td>
-                        <div className="flex items-center gap-2 max-w-xs">
-                          {getDeviceIcon(log.userAgent)}
-                          <span className="text-xs text-text-secondary truncate" title={log.userAgent}>
-                            {log.userAgent}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="text-sm">
-                          {format(new Date(log.timestamp), 'MMM dd, yyyy')}
-                        </div>
-                        <div className="text-xs text-text-muted">
-                          {format(new Date(log.timestamp), 'HH:mm:ss')}
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))
-                )}
+                {renderTableContent()}
               </tbody>
             </table>
           </div>

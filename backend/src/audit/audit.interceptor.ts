@@ -5,7 +5,7 @@ import { AuditService } from './audit.service';
 
 @Injectable()
 export class LoginAuditInterceptor implements NestInterceptor {
-  constructor(private auditService: AuditService) {}
+  constructor(private readonly auditService: AuditService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
@@ -15,7 +15,7 @@ export class LoginAuditInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(async (response) => {
         // If login was successful, the response will contain the user data
-        if (response && response.user && response.user.id) {
+        if (response?.user?.id) {
           await this.auditService.log(
             response.user.id,
             'LOGIN',
