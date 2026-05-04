@@ -1,101 +1,78 @@
-import {
-  ArrowRight,
-  Globe,
-  LayoutDashboard,
-  LogOut,
-  Rocket,
-  Share2,
-  ShieldCheck,
-  User,
-  Zap
-} from 'lucide-react';
+import { ArrowRight, BarChart3, Clock, Globe, LayoutDashboard, LogOut, MessageSquare, ShieldCheck, TrendingUp, User, Users, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-// ============================================================================
-// TYPES & CONSTANTS
-// ============================================================================
-
-interface Feature {
-  readonly id: string;
-  readonly icon: React.ReactNode;
-  readonly title: string;
-  readonly desc: string;
-}
-
-const APP_NAME = 'CloudManager' as const;
+const APP_NAME = 'EmpManager' as const;
 const PLATFORM_VERSION = 'V2.0' as const;
 
 const CONTAINER_VARIANTS = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
+  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } }
 } as const;
 
 const ITEM_VARIANTS = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 } as const;
 
-const FEATURES: ReadonlyArray<Feature> = [
-  { id: 'f1', icon: <Zap className="text-amber" />, title: "Real-time Sync", desc: "Instant updates across all devices" },
-  { id: 'f2', icon: <ShieldCheck className="text-teal" />, title: "Enterprise Security", desc: "Military-grade data encryption" },
-  { id: 'f3', icon: <Globe className="text-blue" />, title: "Global Access", desc: "Available anywhere, anytime" }
+const STATS = [
+  { icon: Users, label: 'Active Employees', value: '2,145', color: 'text-blue' },
+  { icon: TrendingUp, label: 'Monthly Growth', value: '+12.5%', color: 'text-green' },
+  { icon: Clock, label: 'Avg Attendance', value: '94.2%', color: 'text-amber' },
+  { icon: MessageSquare, label: 'Total Messages', value: '8,234', color: 'text-purple' }
 ];
 
-// ============================================================================
-// SUB-COMPONENTS
-// ============================================================================
+const FEATURES = [
+  { icon: ShieldCheck, title: 'Enterprise Security', desc: 'Military-grade encryption & compliance' },
+  { icon: Zap, title: 'Real-time Updates', desc: 'Instant sync across all devices' },
+  { icon: BarChart3, title: 'Advanced Analytics', desc: 'In-depth insights & reporting' },
+  { icon: Users, title: 'Team Collaboration', desc: 'Seamless communication tools' },
+  { icon: Globe, title: 'Global Access', desc: 'Available anywhere, anytime' },
+  { icon: TrendingUp, title: 'Performance Tracking', desc: 'Monitor growth & metrics' }
+];
 
-const FeatureCard = memo(({ icon, title, desc }: Omit<Feature, 'id'>) => (
-  <article className="group rounded-3xl border border-border bg-surface/30 p-8 text-left backdrop-blur-sm transition-all hover:border-brand/30 hover:bg-surface/50">
-    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-surface shadow-sm ring-1 ring-border transition-transform group-hover:scale-110">
-      {icon}
+const StatCard = memo(({ icon: Icon, label, value, color }: typeof STATS[0]) => (
+  <motion.div variants={ITEM_VARIANTS} className="group glass-card p-6 rounded-2xl hover:border-brand/30 transition-all">
+    <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-surface mb-4 group-hover:scale-110 transition-transform ${color}`}>
+      <Icon size={24} />
     </div>
-    <h3 className="text-lg font-bold">{title}</h3>
-    <p className="mt-2 text-sm text-text-secondary leading-relaxed">{desc}</p>
-  </article>
+    <p className="text-text-secondary text-sm font-medium">{label}</p>
+    <p className="text-2xl font-bold mt-1">{value}</p>
+  </motion.div>
 ));
 
-FeatureCard.displayName = 'FeatureCard';
+StatCard.displayName = 'StatCard';
+
+const FeatureBox = memo(({ icon: Icon, title, desc }: typeof FEATURES[0]) => (
+  <motion.div variants={ITEM_VARIANTS} className="glass-card p-6 rounded-2xl hover:border-brand/30 transition-all">
+    <div className="h-10 w-10 rounded-lg bg-brand/10 flex items-center justify-center mb-4 text-brand">
+      <Icon size={20} />
+    </div>
+    <h4 className="font-bold text-base mb-1">{title}</h4>
+    <p className="text-text-secondary text-sm">{desc}</p>
+  </motion.div>
+));
+
+FeatureBox.displayName = 'FeatureBox';
 
 const Navbar = memo(({ user, onLogout, onNavigate }: { user: any; onLogout: () => void; onNavigate: (p: string) => void }) => (
-  <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl" aria-label="Main Navigation">
-    <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-6">
-      <button 
-        onClick={() => onNavigate('/')} 
-        className="flex items-center gap-2 cursor-pointer bg-transparent border-none p-0"
-        aria-label="Go to home"
-      >
-        <div className="size-8 rounded-lg bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white font-black">
-          E
-        </div>
+  <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+    <div className="mx-auto max-w-7xl flex h-16 items-center justify-between px-6">
+      <button onClick={() => onNavigate('/')} className="flex items-center gap-2 cursor-pointer bg-transparent border-none p-0" aria-label="Go to home">
+        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white font-black text-sm">E</div>
         <h1 className="text-lg font-bold tracking-tight hidden sm:block">{APP_NAME}</h1>
       </button>
-      
-      <div className="flex items-center gap-4">
-        <div className="hidden items-center gap-6 md:flex mr-6 text-sm font-medium text-text-secondary border-r border-border pr-6">
-          <button onClick={() => onNavigate('/')} className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer">Home</button>
+      <div className="flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-text-secondary">
           <button onClick={() => onNavigate('/dashboard')} className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer">Dashboard</button>
+          <button onClick={() => onNavigate('/employees')} className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer">Employees</button>
           <button onClick={() => onNavigate('/reports')} className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer">Reports</button>
         </div>
-
-        <div className="flex items-center gap-3 bg-surface/50 border border-border p-1 rounded-full pl-3 pr-2 backdrop-blur-sm">
-          <span className="text-xs font-bold text-text-secondary max-w-[100px] truncate" title={user?.name}>
-            {user?.name || 'Guest'}
-          </span>
-          <button 
-            onClick={onLogout}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-red/10 text-red hover:bg-red hover:text-white transition-all shadow-sm border-none cursor-pointer"
-            aria-label="Logout"
-          >
+        <div className="flex items-center gap-2 bg-surface/50 border border-border px-3 py-1.5 rounded-full">
+          <span className="text-xs font-bold text-text-secondary max-w-[80px] truncate">{user?.name || 'Guest'}</span>
+          <button onClick={onLogout} className="flex h-7 w-7 items-center justify-center rounded-full bg-red/10 text-red hover:bg-red hover:text-white transition-all border-none cursor-pointer" aria-label="Logout">
             <LogOut size={14} />
           </button>
         </div>
@@ -105,10 +82,6 @@ const Navbar = memo(({ user, onLogout, onNavigate }: { user: any; onLogout: () =
 ));
 
 Navbar.displayName = 'Navbar';
-
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
 
 const HomePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -124,131 +97,114 @@ const HomePage: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background text-text-primary">
-      {/* Background Decor */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
-
+    <div className="min-h-screen bg-background text-text-primary pt-16">
       <Navbar user={user} onLogout={handleLogout} onNavigate={handleNavigate} />
 
-      <main className="relative z-10 mx-auto max-w-7xl px-6 pt-32 pb-32">
-        <motion.div 
-          className="flex flex-col items-center text-center"
-          variants={CONTAINER_VARIANTS}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div 
-            variants={ITEM_VARIANTS}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface/50 px-4 py-1.5 backdrop-blur-md"
-          >
-            <span className="flex h-2 w-2 rounded-full bg-teal" />
-            <span className="text-xs font-semibold tracking-wider uppercase text-text-secondary">
-              Platform {PLATFORM_VERSION} is Live
-            </span>
+      {/* Hero Section */}
+      <motion.section className="relative px-6 pt-12 pb-20 max-w-7xl mx-auto" variants={CONTAINER_VARIANTS} initial="hidden" animate="visible">
+        <div className="absolute top-0 left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px]" aria-hidden="true" />
+        <div className="absolute bottom-0 right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]" aria-hidden="true" />
+
+        <div className="relative z-10">
+          <motion.div variants={ITEM_VARIANTS} className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/50 px-4 py-1.5 mb-6">
+            <span className="h-2 w-2 rounded-full bg-teal" />
+            <span className="text-xs font-semibold tracking-wider uppercase text-text-secondary">Platform {PLATFORM_VERSION} is Live</span>
           </motion.div>
 
-          <motion.h1 
-            variants={ITEM_VARIANTS}
-            className="max-w-4xl text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl"
-          >
+          <motion.h1 variants={ITEM_VARIANTS} className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-4">
             Management <span className="bg-gradient-to-r from-blue to-purple bg-clip-text text-transparent">Reimagined</span>
           </motion.h1>
 
-          <motion.p 
-            variants={ITEM_VARIANTS}
-            className="mt-8 max-w-2xl text-lg leading-relaxed text-text-secondary sm:text-xl"
-          >
-            Welcome back, <span className="font-semibold text-text-primary">{user?.name}</span>. 
-            Experience the next generation of cloud-native employee management. 
+          <motion.p variants={ITEM_VARIANTS} className="text-lg text-text-secondary max-w-2xl mb-8">
+            Welcome back, <span className="font-semibold text-text-primary">{user?.name}</span>. Experience the next generation of cloud-native employee management with real-time insights and collaboration.
           </motion.p>
 
-          <motion.div variants={ITEM_VARIANTS} className="mt-12 flex flex-wrap items-center justify-center gap-4">
-            <button 
-              onClick={() => handleNavigate('/dashboard')}
-              className="group relative flex h-14 items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand px-8 font-bold text-brand-text transition-all hover:scale-[1.02] active:scale-[0.98] border-none cursor-pointer"
-            >
-              <LayoutDashboard size={20} />
+          <motion.div variants={ITEM_VARIANTS} className="flex flex-wrap gap-4">
+            <button onClick={() => handleNavigate('/dashboard')} className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-8 font-semibold text-brand-text hover:scale-105 transition-all border-none cursor-pointer">
+              <LayoutDashboard size={18} />
               Go to Dashboard
-              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
-            <button 
-              onClick={() => handleNavigate('/profile')}
-              className="flex h-14 items-center justify-center gap-2 rounded-2xl border border-border bg-surface/50 px-8 font-bold text-text-primary backdrop-blur-md transition-all hover:bg-surface-hover hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <User size={20} />
+            <button onClick={() => handleNavigate('/profile')} className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-surface/50 px-8 font-semibold text-text-primary hover:bg-surface-hover transition-all border-none cursor-pointer">
+              <User size={18} />
               View Profile
             </button>
           </motion.div>
+        </div>
+      </motion.section>
 
-          <motion.section 
-            variants={ITEM_VARIANTS}
-            className="mt-24 grid w-full grid-cols-1 gap-6 sm:grid-cols-3"
-            aria-label="Features"
-          >
-            {FEATURES.map((f) => (
-              <FeatureCard key={f.id} icon={f.icon} title={f.title} desc={f.desc} />
-            ))}
-          </motion.section>
-
-          <motion.div 
-            variants={ITEM_VARIANTS}
-            className="relative mt-24 w-full rounded-[2rem] border border-border bg-surface/30 p-4 shadow-2xl backdrop-blur-xl"
-          >
-            <div className="overflow-hidden rounded-2xl border border-border bg-background/50">
-              <img 
-                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426" 
-                alt="CloudManager Dashboard Preview" 
-                className="aspect-video w-full object-cover opacity-90 transition-transform duration-700 hover:scale-[1.02]"
-              />
-            </div>
-            {/* Stats Cards */}
-            <div className="absolute -bottom-6 -left-6 hidden h-32 w-64 rounded-2xl border border-border bg-surface p-4 shadow-xl md:block backdrop-blur-md">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-teal/20 flex items-center justify-center text-teal">
-                  <ShieldCheck size={20} />
-                </div>
-                <div className="text-left">
-                  <p className="text-xs text-text-secondary uppercase font-bold">Security</p>
-                  <p className="text-lg font-bold">100% Verified</p>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -top-6 -right-6 hidden h-32 w-64 rounded-2xl border border-border bg-surface p-4 shadow-xl md:block backdrop-blur-md">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue/20 flex items-center justify-center text-blue">
-                  <Rocket size={20} />
-                </div>
-                <div className="text-left">
-                  <p className="text-xs text-text-secondary uppercase font-bold">Uptime</p>
-                  <p className="text-lg font-bold">99.9% Reliable</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+      {/* Stats Section */}
+      <motion.section className="px-6 py-12 max-w-7xl mx-auto" variants={CONTAINER_VARIANTS} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+        <motion.div variants={ITEM_VARIANTS} className="mb-12">
+          <h2 className="text-3xl font-bold mb-2">Key Metrics</h2>
+          <p className="text-text-secondary">Real-time insights into your organization's performance</p>
         </motion.div>
-      </main>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {STATS.map((stat) => (
+            <StatCard key={stat.label} {...stat} />
+          ))}
+        </div>
+      </motion.section>
 
-      <footer className="border-t border-border bg-surface/30 py-12 backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-brand flex items-center justify-center text-brand-text font-black text-xl">E</div>
-            <span className="text-xl font-bold tracking-tight">{APP_NAME}</span>
+      {/* Features Section */}
+      <motion.section className="px-6 py-12 max-w-7xl mx-auto" variants={CONTAINER_VARIANTS} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+        <motion.div variants={ITEM_VARIANTS} className="mb-12">
+          <h2 className="text-3xl font-bold mb-2">Powerful Features</h2>
+          <p className="text-text-secondary">Everything you need to manage your organization efficiently</p>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {FEATURES.map((feature) => (
+            <FeatureBox key={feature.title} {...feature} />
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Dashboard Preview */}
+      <motion.section className="px-6 py-12 max-w-7xl mx-auto" variants={CONTAINER_VARIANTS} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+        <motion.div variants={ITEM_VARIANTS} className="glass-card rounded-2xl overflow-hidden border border-border">
+          <div className="relative aspect-video bg-surface/50 flex items-center justify-center">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426" alt="Dashboard Preview" className="w-full h-full object-cover opacity-80" />
           </div>
-          
-          <div className="flex items-center gap-8 text-sm text-text-secondary">
-            <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Privacy policy">Privacy</button>
-            <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Terms of service">Terms</button>
+          <div className="grid grid-cols-3 divide-x divide-border bg-surface/30 p-6">
+            <div>
+              <p className="text-text-secondary text-sm font-medium">Uptime</p>
+              <p className="text-2xl font-bold text-teal mt-1">99.9%</p>
+            </div>
+            <div className="px-6">
+              <p className="text-text-secondary text-sm font-medium">Security</p>
+              <p className="text-2xl font-bold text-green mt-1">100%</p>
+            </div>
+            <div className="pl-6">
+              <p className="text-text-secondary text-sm font-medium">Performance</p>
+              <p className="text-2xl font-bold text-blue mt-1">A+</p>
+            </div>
+          </div>
+        </motion.div>
+      </motion.section>
+
+      {/* CTA Section */}
+      <motion.section className="px-6 py-16 max-w-4xl mx-auto text-center" variants={CONTAINER_VARIANTS} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+        <motion.div variants={ITEM_VARIANTS} className="glass-card rounded-2xl border border-border p-12">
+          <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
+          <p className="text-text-secondary mb-8 max-w-2xl mx-auto">Streamline your workforce management today and unlock the full potential of your team.</p>
+          <button onClick={() => handleNavigate('/dashboard')} className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-8 font-semibold text-brand-text hover:scale-105 transition-all border-none cursor-pointer mx-auto">
+            Enter Dashboard
+            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        </motion.div>
+      </motion.section>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-surface/30 py-8 mt-20">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-text-secondary">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-brand flex items-center justify-center text-brand-text font-black text-xs">E</div>
+            <span className="font-bold">{APP_NAME}</span>
+          </div>
+          <div className="flex gap-6">
+            <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Privacy">Privacy</button>
+            <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Terms">Terms</button>
             <button className="hover:text-text-primary transition-colors bg-transparent border-none cursor-pointer" aria-label="Documentation">Docs</button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border hover:bg-surface-hover transition-all bg-transparent cursor-pointer" aria-label="Social link 1">
-              <Globe size={18} />
-            </button>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border hover:bg-surface-hover transition-all bg-transparent cursor-pointer" aria-label="Social link 2">
-              <Share2 size={18} />
-            </button>
           </div>
         </div>
       </footer>

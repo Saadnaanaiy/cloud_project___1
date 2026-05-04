@@ -373,8 +373,8 @@ export class ReportsService {
       },
       didParseCell: (data) => {
         if (data.column.index === 7 && data.section === 'body') {
-          const raw = data.cell.raw;
-          const val = (raw == null ? '' : String(raw)).toLowerCase();
+          const raw = String(data.cell.raw ?? '');
+          const val = raw.toLowerCase();
           if (val === 'active') data.cell.styles.textColor = colors.GREEN;
           else if (val === 'blocked') data.cell.styles.textColor = colors.RED;
           else if (val === 'on leave') data.cell.styles.textColor = colors.AMBER;
