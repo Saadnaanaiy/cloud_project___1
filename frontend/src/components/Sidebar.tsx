@@ -9,7 +9,6 @@ import {
     UserCheck,
     Users,
     X,
-    Home,
     Shield,
 } from "lucide-react"
 import React, { useState } from "react"
@@ -33,7 +32,6 @@ const Sidebar: React.FC<{
     const [collapsed, setCollapsed] = useState(false)
 
     let navItems = [
-        { to: "/", icon: Home, label: t("home") || "Home" },
         { to: "/dashboard", icon: LayoutDashboard, label: t("dashboard") },
         { to: "/employees", icon: Users, label: t("employees") },
         { to: "/attendance", icon: CalendarCheck, label: t("attendance") },
