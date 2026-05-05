@@ -1,4 +1,4 @@
-import { Edit2, Eye, Filter, Lock, Plus, Search, Trash2, Unlock, UserX } from 'lucide-react';
+import { Download, Edit2, Eye, FileText, Filter, Lock, Plus, Search, Trash2, Unlock, UserX } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
@@ -90,6 +90,21 @@ const EmployeesPage: React.FC = () => {
     } catch { toast.error('Action failed'); }
   };
 
+  const downloadReport = async (type: 'excel' | 'pdf') => {
+    try {
+      const response = await api.get(`/reports/${type}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `rapport_employes_${new Date().toISOString().split('T')[0]}.${type === 'excel' ? 'xlsx' : 'pdf'}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      toast.error('Failed to download report');
+    }
+  };
+
   const getInitials = (emp: Employee) => `${emp.firstName[0]}${emp.lastName[0]}`.toUpperCase();
   const getAvatarBg = (id: number) => avatarColors[id % avatarColors.length];
 
@@ -105,9 +120,21 @@ const EmployeesPage: React.FC = () => {
             {employees.length} {employees.length === 1 ? t('employeeFound') : t('employeesFound')}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <Plus size={16} />{t('addEmp')}
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {(user?.role === 'admin' || user?.role === 'hr') && (
+            <>
+              <button className="btn btn-ghost" onClick={() => downloadReport('pdf')} title="Export PDF">
+                <FileText size={16} /> PDF
+              </button>
+              <button className="btn btn-ghost" onClick={() => downloadReport('excel')} title="Export Excel">
+                <Download size={16} /> Excel
+              </button>
+            </>
+          )}
+          <button className="btn btn-primary" onClick={openAdd}>
+            <Plus size={16} />{t('addEmp')}
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
