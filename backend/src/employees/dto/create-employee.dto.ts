@@ -41,7 +41,7 @@ export class CreateEmployeeDto {
   @IsDateString()
   hireDate?: string;
 
-  @ApiPropertyOptional({ example: 5500.00, description: 'Monthly salary in local currency' })
+  @ApiPropertyOptional({ example: 5500, description: 'Monthly salary in local currency' })
   @IsOptional()
   @IsNumber()
   @Min(0)

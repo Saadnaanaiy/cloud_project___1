@@ -41,8 +41,8 @@ const SignupPage: React.FC = () => {
         return Object.keys(e).length === 0
     }
 
-    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-        ;(e as React.FormEvent<HTMLFormElement>).preventDefault()
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
         if (!validate()) return
         if (!captchaToken) {
             toast.error("Please complete the CAPTCHA")

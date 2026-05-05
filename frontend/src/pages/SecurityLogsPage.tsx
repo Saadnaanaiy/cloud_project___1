@@ -48,7 +48,7 @@ const SecurityLogsPage: React.FC = () => {
     const renderTableContent = () => {
         if (loading) {
             return Array.from({ length: 5 }).map((_, i) => (
-                <tr key={`skeleton-${i}`} className="animate-pulse">
+                <tr key={crypto.randomUUID()} className="animate-pulse">
                     <td colSpan={5} className="py-8">
                         <div className="h-4 bg-surface-hover rounded w-full"></div>
                     </td>

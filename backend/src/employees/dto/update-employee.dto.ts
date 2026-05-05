@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDateString,
   IsEmail,
@@ -41,7 +41,7 @@ export class UpdateEmployeeDto {
   @IsDateString()
   hireDate?: string;
 
-  @ApiPropertyOptional({ example: 6000.00 })
+  @ApiPropertyOptional({ example: 6000 })
   @IsOptional()
   @IsNumber()
   @Min(0)

@@ -405,7 +405,7 @@ export class ReportsService {
         if (data.column.index === 7 && data.section === 'body') {
           const rawValue = data.cell.raw;
           const val = (
-            typeof rawValue === 'string' ? rawValue : String(rawValue ?? '')
+            typeof rawValue === 'string' ? rawValue : (rawValue != null ? String(rawValue) : '')
           ).toLowerCase();
           if (val === 'active') data.cell.styles.textColor = colors.GREEN;
           else if (val === 'blocked') data.cell.styles.textColor = colors.RED;

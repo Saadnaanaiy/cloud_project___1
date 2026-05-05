@@ -93,7 +93,7 @@ const EmployeesPage: React.FC = () => {
   const downloadReport = async (type: 'excel' | 'pdf') => {
     try {
       const response = await api.get(`/reports/${type}`, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = globalThis.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `rapport_employes_${new Date().toISOString().split('T')[0]}.${type === 'excel' ? 'xlsx' : 'pdf'}`);
