@@ -46,7 +46,7 @@ export class AuditController {
         {
           id: 1,
           action: 'LOGIN',
-          ipAddress: '192.168.1.1',
+          ipAddress: '198.51.100.1',
           userAgent: 'Mozilla/5.0...',
           location: 'Casablanca, MA',
           timestamp: '2025-05-04T11:30:00.000Z',

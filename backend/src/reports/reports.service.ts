@@ -404,9 +404,13 @@ export class ReportsService {
       didParseCell: (data) => {
         if (data.column.index === 7 && data.section === 'body') {
           const rawValue = data.cell.raw;
-          const val = (
-            typeof rawValue === 'string' ? rawValue : (rawValue != null ? String(rawValue) : '')
-          ).toLowerCase();
+          let val = '';
+          if (typeof rawValue === 'string') {
+            val = rawValue;
+          } else if (typeof rawValue === 'number' || typeof rawValue === 'boolean') {
+            val = String(rawValue);
+          }
+          val = val.toLowerCase();
           if (val === 'active') data.cell.styles.textColor = colors.GREEN;
           else if (val === 'blocked') data.cell.styles.textColor = colors.RED;
           else if (val === 'on leave')

@@ -41,7 +41,7 @@ const SignupPage: React.FC = () => {
         return Object.keys(e).length === 0
     }
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault()
         if (!validate()) return
         if (!captchaToken) {

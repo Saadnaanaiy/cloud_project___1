@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
     const [loading, setLoading] = useState(false)
     const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault()
         if (!captchaToken) {
             toast.error("Please complete the CAPTCHA")

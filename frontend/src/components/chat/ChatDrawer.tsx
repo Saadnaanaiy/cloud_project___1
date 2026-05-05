@@ -80,7 +80,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         }
     }
 
-    const handleSend = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSend = (e: React.SyntheticEvent) => {
         e.preventDefault()
         if (inputMessage.trim() && activeContactId) {
             sendMessage(
