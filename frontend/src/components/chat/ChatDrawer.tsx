@@ -26,6 +26,24 @@ interface ChatDrawerProps {
     onClose: () => void
 }
 
+const avatarColors = [
+    { bg: "#EEEDFE", color: "#534AB7" },
+    { bg: "#E1F5EE", color: "#0F6E56" },
+    { bg: "#FBEAF0", color: "#993556" },
+    { bg: "#E6F1FB", color: "#185FA5" },
+    { bg: "#FAEEDA", color: "#854F0B" },
+    { bg: "#EAF3DE", color: "#3B6D11" },
+    { bg: "#FAECE7", color: "#993C1D" },
+]
+
+const getAvatarColor = (id: string | number) => {
+    const index =
+        typeof id === "string"
+            ? id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+            : id
+    return avatarColors[index % avatarColors.length]
+}
+
 const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     const {
         contacts,
@@ -72,7 +90,6 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         setInputMessage(e.target.value)
         if (activeContactId) {
             sendTyping(activeContactId, true)
-
             if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
             typingTimeoutRef.current = setTimeout(() => {
                 sendTyping(activeContactId, false)
@@ -80,8 +97,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         }
     }
 
-    const handleSend = (e: React.SyntheticEvent) => {
-        e.preventDefault()
+    const handleSend = (e: React.SyntheticEvent<HTMLFormElement>) => {
+        ;(e as React.FormEvent<HTMLFormElement>).preventDefault()
         if (inputMessage.trim() && activeContactId) {
             sendMessage(
                 activeContactId,
@@ -167,7 +184,6 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                 bg: "rgba(245, 158, 11, 0.1)",
                 label: "ARCHIVE",
             }
-
         return {
             icon: <File size={22} />,
             color: "#6b7280",
@@ -178,7 +194,6 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
     const renderAttachment = (msg: Message) => {
         if (!msg.attachmentUrl) return null
-
         const fullUrl = `/api${msg.attachmentUrl}`
 
         if (msg.attachmentType?.startsWith("audio/")) {
@@ -230,7 +245,6 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         }
 
         const fileInfo = getFileIcon(msg.attachmentType)
-
         return (
             <div
                 className="message-attachment file"
@@ -305,11 +319,12 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     return (
         <div className={`chat-drawer-overlay ${isOpen ? "open" : ""}`}>
             <div className={`chat-drawer ${isOpen ? "open" : ""}`}>
-                {/* Contacts List View */}
+                {/* ── Contacts List View ── */}
                 <div
                     className="chat-sidebar"
                     style={{ display: activeContactId ? "none" : "flex" }}
                 >
+                    {/* Header */}
                     <div className="chat-header">
                         <h3>Messages</h3>
                         <button onClick={onClose} className="btn-icon">
@@ -317,6 +332,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                         </button>
                     </div>
 
+                    {/* Search */}
                     <div className="chat-search">
                         <Search size={16} />
                         <input
@@ -327,6 +343,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                         />
                     </div>
 
+                    {/* ── Redesigned contacts list ── */}
                     <div className="chat-contacts">
                         {filteredContacts.length === 0 ? (
                             <div className="no-contacts">
@@ -343,78 +360,245 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                                 </span>
                             </div>
                         ) : (
-                            filteredContacts.map((contact) => (
-                                <button
-                                    type="button"
-                                    key={contact.user.id}
-                                    className="chat-contact-item"
-                                    onClick={() =>
-                                        setActiveContactId(contact.user.id)
-                                    }
-                                    style={{
-                                        width: "100%",
-                                        textAlign: "left",
-                                        background: "none",
-                                        border: "none",
-                                        padding: 0,
-                                        cursor: "pointer",
-                                        marginBottom: "8px",
-                                    }}
-                                >
-                                    <div className="contact-avatar">
-                                        {contact.user.name
-                                            .charAt(0)
-                                            .toUpperCase()}
-                                    </div>
-                                    <div className="contact-info">
-                                        <div className="contact-name-row">
-                                            <span className="name">
-                                                {contact.user.name}
-                                            </span>
-                                            {contact.lastMessage && (
-                                                <span className="time">
-                                                    {formatDistanceToNow(
-                                                        new Date(
-                                                            contact.lastMessage
-                                                                .createdAt,
-                                                        ),
-                                                        { addSuffix: true },
-                                                    )}
-                                                </span>
+                            filteredContacts.map((contact) => {
+                                const avatarColor = getAvatarColor(
+                                    contact.user.id,
+                                )
+                                const isTyping = Boolean(
+                                    typingStatus[contact.user.id],
+                                )
+                                const lastMsgText =
+                                    contact.lastMessage?.content || ""
+                                const hasAttachment =
+                                    !lastMsgText && contact.lastMessage
+                                const timeAgo = contact.lastMessage
+                                    ? formatDistanceToNow(
+                                          new Date(
+                                              contact.lastMessage.createdAt,
+                                          ),
+                                          { addSuffix: true },
+                                      )
+                                    : ""
+
+                                return (
+                                    <button
+                                        type="button"
+                                        key={contact.user.id}
+                                        onClick={() =>
+                                            setActiveContactId(contact.user.id)
+                                        }
+                                        style={{
+                                            width: "100%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "12px",
+                                            padding: "11px 16px",
+                                            background: "none",
+                                            border: "none",
+                                            borderBottom:
+                                                "0.5px solid var(--border, rgba(0,0,0,0.08))",
+                                            cursor: "pointer",
+                                            textAlign: "left",
+                                            transition: "background 0.12s",
+                                            position: "relative",
+                                        }}
+                                        onMouseEnter={(e) =>
+                                            (e.currentTarget.style.background =
+                                                "var(--bg-hover, rgba(0,0,0,0.04))")
+                                        }
+                                        onMouseLeave={(e) =>
+                                            (e.currentTarget.style.background =
+                                                "none")
+                                        }
+                                    >
+                                        {/* Avatar */}
+                                        <div
+                                            style={{
+                                                width: "42px",
+                                                height: "42px",
+                                                borderRadius: "50%",
+                                                background: avatarColor.bg,
+                                                color: avatarColor.color,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: 600,
+                                                fontSize: "15px",
+                                                flexShrink: 0,
+                                                position: "relative",
+                                            }}
+                                        >
+                                            {contact.user.name
+                                                .charAt(0)
+                                                .toUpperCase()}
+
+                                            {/* Unread dot on avatar when badge > 0 */}
+                                            {contact.unreadCount > 0 && (
+                                                <span
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: "1px",
+                                                        right: "1px",
+                                                        width: "10px",
+                                                        height: "10px",
+                                                        borderRadius: "50%",
+                                                        background:
+                                                            "var(--brand, #534AB7)",
+                                                        border: "2px solid var(--bg-surface, #fff)",
+                                                    }}
+                                                />
                                             )}
                                         </div>
-                                        <div className="contact-msg-row">
-                                            {typingStatus[contact.user.id] ? (
+
+                                        {/* Content */}
+                                        <div
+                                            style={{
+                                                flex: 1,
+                                                overflow: "hidden",
+                                            }}
+                                        >
+                                            {/* Row 1: name + time */}
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "baseline",
+                                                    justifyContent:
+                                                        "space-between",
+                                                    marginBottom: "3px",
+                                                }}
+                                            >
                                                 <span
-                                                    className="msg-preview"
                                                     style={{
-                                                        color: "var(--brand)",
-                                                        fontStyle: "italic",
+                                                        fontSize: "14px",
+                                                        fontWeight:
+                                                            contact.unreadCount >
+                                                            0
+                                                                ? 600
+                                                                : 500,
+                                                        color: "var(--text-primary)",
+                                                        whiteSpace: "nowrap",
+                                                        overflow: "hidden",
+                                                        textOverflow:
+                                                            "ellipsis",
+                                                        maxWidth: "160px",
                                                     }}
                                                 >
-                                                    Typing...
+                                                    {contact.user.name}
                                                 </span>
-                                            ) : (
-                                                <span className="msg-preview">
-                                                    {contact.lastMessage
-                                                        ?.content ||
-                                                        "No messages yet"}
+                                                {timeAgo && (
+                                                    <span
+                                                        style={{
+                                                            fontSize: "11px",
+                                                            color:
+                                                                contact.unreadCount >
+                                                                0
+                                                                    ? "var(--brand, #534AB7)"
+                                                                    : "var(--text-muted)",
+                                                            flexShrink: 0,
+                                                            marginLeft: "8px",
+                                                            fontWeight:
+                                                                contact.unreadCount >
+                                                                0
+                                                                    ? 500
+                                                                    : 400,
+                                                        }}
+                                                    >
+                                                        {timeAgo}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Row 2: preview + unread count */}
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent:
+                                                        "space-between",
+                                                    gap: "8px",
+                                                }}
+                                            >
+                                                <span
+                                                    style={{
+                                                        fontSize: "12px",
+                                                        color: isTyping
+                                                            ? "var(--brand, #534AB7)"
+                                                            : contact.unreadCount >
+                                                                0
+                                                              ? "var(--text-primary)"
+                                                              : "var(--text-muted)",
+                                                        fontStyle: isTyping
+                                                            ? "italic"
+                                                            : "normal",
+                                                        fontWeight:
+                                                            contact.unreadCount >
+                                                                0 && !isTyping
+                                                                ? 500
+                                                                : 400,
+                                                        whiteSpace: "nowrap",
+                                                        overflow: "hidden",
+                                                        textOverflow:
+                                                            "ellipsis",
+                                                    }}
+                                                >
+                                                    {isTyping
+                                                        ? "Typing…"
+                                                        : hasAttachment
+                                                          ? "📎 Attachment"
+                                                          : lastMsgText ||
+                                                            "No messages yet"}
                                                 </span>
-                                            )}
-                                            {contact.unreadCount > 0 && (
-                                                <span className="unread-badge">
-                                                    {contact.unreadCount}
+
+                                                {contact.unreadCount > 0 && (
+                                                    <span
+                                                        style={{
+                                                            background:
+                                                                "var(--brand, #534AB7)",
+                                                            color: "#fff",
+                                                            fontSize: "11px",
+                                                            fontWeight: 600,
+                                                            borderRadius:
+                                                                "100px",
+                                                            padding: "2px 7px",
+                                                            minWidth: "20px",
+                                                            textAlign: "center",
+                                                            flexShrink: 0,
+                                                        }}
+                                                    >
+                                                        {contact.unreadCount}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Role tag */}
+                                            {contact.user.role && (
+                                                <span
+                                                    style={{
+                                                        display: "inline-block",
+                                                        marginTop: "4px",
+                                                        fontSize: "10px",
+                                                        color: avatarColor.color,
+                                                        background:
+                                                            avatarColor.bg,
+                                                        borderRadius: "4px",
+                                                        padding: "1px 6px",
+                                                        fontWeight: 500,
+                                                        textTransform:
+                                                            "lowercase",
+                                                    }}
+                                                >
+                                                    {contact.user.role}
                                                 </span>
                                             )}
                                         </div>
-                                    </div>
-                                </button>
-                            ))
+                                    </button>
+                                )
+                            })
                         )}
                     </div>
                 </div>
 
-                {/* Active Chat View */}
+                {/* ── Active Chat View (unchanged) ── */}
                 {activeContactId && activeContact && (
                     <div className="chat-main" style={{ display: "flex" }}>
                         <div className="chat-header active-chat-header">
@@ -497,10 +681,10 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                                 )
                             })}
 
-                            {/* ✅ FIX (typescript:S6439): Boolean() wraps the entire expression
-                                so neither activeContactId (string) nor typingStatus[activeContactId]
-                                can leak a non-boolean value into JSX */}
-                            {Boolean(activeContactId && typingStatus[activeContactId]) && (
+                            {Boolean(
+                                activeContactId &&
+                                typingStatus[activeContactId],
+                            ) && (
                                 <div className="message-bubble theirs typing-indicator-bubble">
                                     <div className="bubble-content">
                                         <div className="typing-dots">
