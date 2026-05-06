@@ -358,6 +358,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                                         border: "none",
                                         padding: 0,
                                         cursor: "pointer",
+                                        marginBottom: "8px",
                                     }}
                                 >
                                     <div className="contact-avatar">
