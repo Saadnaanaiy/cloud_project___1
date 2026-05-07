@@ -8,8 +8,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   // Ensure uploads directory exists
   const uploadsDir = path.join(__dirname, '..', 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
+  try {
     fs.mkdirSync(uploadsDir, { recursive: true });
+  } catch {
+    // directory already exists
   }
 
   const app = await NestFactory.create(AppModule);
@@ -55,7 +57,6 @@ async function bootstrap() {
       'support@empmanager.io',
     )
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-    .addServer('http://localhost:3001', 'Local Development')
     .addServer('https://empmanager.duckdns.org', 'Production (GKE)')
     .addBearerAuth(
       {

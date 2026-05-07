@@ -18,12 +18,16 @@ import { AuditModule } from '../audit/audit.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET', 'employee_secret_key_2026'),
-        signOptions: {
-          expiresIn: config.get('JWT_EXPIRES_IN', '1h'),
-        },
-      }),
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET');
+        if (!secret) throw new Error('JWT_SECRET environment variable is required');
+        return {
+          secret,
+          signOptions: {
+            expiresIn: config.get('JWT_EXPIRES_IN', '1h'),
+          },
+        };
+      },
     }),
   ],
   providers: [AuthService, JwtStrategy, RolesGuard],

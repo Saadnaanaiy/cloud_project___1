@@ -417,8 +417,7 @@ const SignupPage: React.FC = () => {
                                     <Turnstile
                                         siteKey={
                                             import.meta.env
-                                                .VITE_TURNSTILE_SITE_KEY ||
-                                            "1x00000000000000000000AA"
+                                                .VITE_TURNSTILE_SITE_KEY || ""
                                         }
                                         onSuccess={(token) =>
                                             setCaptchaToken(token)

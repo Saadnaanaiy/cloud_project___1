@@ -42,11 +42,12 @@ export class ReportsController {
   })
   async downloadExcel(@Res() res: Response) {
     const buffer = await this.service.generateExcel();
-    const filename = `rapport_employes_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `rapport_employes_${today}.xlsx`;
     res.set({
       'Content-Type':
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Disposition': `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
       'Content-Length': buffer.length,
     });
     res.send(buffer);
@@ -67,10 +68,11 @@ export class ReportsController {
   })
   async downloadPDF(@Res() res: Response) {
     const buffer = await this.service.generatePDF();
-    const filename = `rapport_employes_${new Date().toISOString().split('T')[0]}.pdf`;
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `rapport_employes_${today}.pdf`;
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Disposition': `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
       'Content-Length': buffer.length,
     });
     res.send(buffer);

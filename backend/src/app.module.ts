@@ -28,18 +28,21 @@ import { AuditModule } from './audit/audit.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'mysql' as const,
-        host: config.get<string>('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 3306),
-        username: config.get<string>('DB_USERNAME', 'root'),
-        password: config.get<string>('DB_PASSWORD', ''),
-        database: config.get<string>('DB_NAME', 'employee_db'),
-        entities: [User, Employee, Department, Attendance, Message, AuditLog],
-        // Only auto-sync schema in development — in production use migrations
-        synchronize: true,
-        logging: false,
-      }),
+      useFactory: (config: ConfigService) => {
+        const password = config.get<string>('DB_PASSWORD');
+        if (!password) throw new Error('DB_PASSWORD environment variable is required');
+        return {
+          type: 'mysql' as const,
+          host: config.get<string>('DB_HOST', 'localhost'),
+          port: config.get<number>('DB_PORT', 3306),
+          username: config.get<string>('DB_USERNAME', 'root'),
+          password,
+          database: config.get<string>('DB_NAME', 'employee_db'),
+          entities: [User, Employee, Department, Attendance, Message, AuditLog],
+          synchronize: config.get<string>('NODE_ENV') !== 'production',
+          logging: false,
+        };
+      },
     }),
     ThrottlerModule.forRoot([
       {

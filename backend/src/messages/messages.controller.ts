@@ -122,9 +122,14 @@ export class MessagesController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {
+          const safeName = file.originalname
+            .replace(/[/\\:*?"<>|]/g, '_')
+            .replace(/\.\./g, '')
+            .replace(/~/g, '')
+            .trim();
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `${uniqueSuffix}-${file.originalname}`);
+          cb(null, `${uniqueSuffix}-${safeName}`);
         },
       }),
       limits: { fileSize: 10 * 1024 * 1024 },

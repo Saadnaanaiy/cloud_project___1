@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -28,7 +29,7 @@ import { MessagesService } from './messages.service';
     },
     credentials: true,
   },
-  path: '/socket.io/',
+  path: '/ws/chat/',
 })
 export class MessagesGateway
   implements OnGatewayConnection, OnGatewayDisconnect
@@ -42,6 +43,7 @@ export class MessagesGateway
   constructor(
     private readonly messagesService: MessagesService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -53,9 +55,9 @@ export class MessagesGateway
         client.disconnect();
         return;
       }
-      const payload = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET || 'super-secret',
-      });
+      const secret = this.configService.get<string>('JWT_SECRET');
+      if (!secret) { client.disconnect(); return; }
+      const payload = this.jwtService.verify(token, { secret });
       const userId = payload.sub;
       client.data = { userId, role: payload.role };
 
