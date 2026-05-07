@@ -39,7 +39,7 @@ const avatarColors = [
 const getAvatarColor = (id: string | number) => {
     const index =
         typeof id === "string"
-            ? id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+            ? id.split("").reduce((acc, c) => acc + (c.codePointAt(0) ?? 0), 0)
             : id
     return avatarColors[index % avatarColors.length]
 }
@@ -97,8 +97,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         }
     }
 
-    const handleSend = (e: React.SyntheticEvent<HTMLFormElement>) => {
-        ;(e as React.FormEvent<HTMLFormElement>).preventDefault()
+    const handleSend = (e: React.SyntheticEvent) => {
+        e.preventDefault()
         if (inputMessage.trim() && activeContactId) {
             sendMessage(
                 activeContactId,
@@ -316,6 +316,33 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         c.user.name.toLowerCase().includes(searchQuery.toLowerCase()),
     )
 
+    const getMessagePreviewText = (
+        isTyping: boolean,
+        hasAttachment: boolean,
+        lastMsgText: string,
+    ) => {
+        if (isTyping) return "Typing…"
+        if (hasAttachment) return "📎 Attachment"
+        return lastMsgText || "No messages yet"
+    }
+
+    const getPreviewColor = (
+        isTyping: boolean,
+        hasUnread: boolean,
+    ) => {
+        if (isTyping) return "var(--brand, #534AB7)"
+        if (hasUnread) return "var(--text-primary)"
+        return "var(--text-muted)"
+    }
+
+    const getPreviewFontWeight = (
+        hasUnread: boolean,
+        isTyping: boolean,
+    ) => {
+        if (hasUnread && !isTyping) return 500
+        return 400
+    }
+
     return (
         <div className={`chat-drawer-overlay ${isOpen ? "open" : ""}`}>
             <div className={`chat-drawer ${isOpen ? "open" : ""}`}>
@@ -521,32 +548,18 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                                                 <span
                                                     style={{
                                                         fontSize: "12px",
-                                                        color: isTyping
-                                                            ? "var(--brand, #534AB7)"
-                                                            : contact.unreadCount >
-                                                                0
-                                                              ? "var(--text-primary)"
-                                                              : "var(--text-muted)",
+                                                        color: getPreviewColor(isTyping, contact.unreadCount > 0),
                                                         fontStyle: isTyping
                                                             ? "italic"
                                                             : "normal",
-                                                        fontWeight:
-                                                            contact.unreadCount >
-                                                                0 && !isTyping
-                                                                ? 500
-                                                                : 400,
+                                                        fontWeight: getPreviewFontWeight(contact.unreadCount > 0, isTyping),
                                                         whiteSpace: "nowrap",
                                                         overflow: "hidden",
                                                         textOverflow:
                                                             "ellipsis",
                                                     }}
                                                 >
-                                                    {isTyping
-                                                        ? "Typing…"
-                                                        : hasAttachment
-                                                          ? "📎 Attachment"
-                                                          : lastMsgText ||
-                                                            "No messages yet"}
+                                                    {getMessagePreviewText(isTyping, hasAttachment, lastMsgText)}
                                                 </span>
 
                                                 {contact.unreadCount > 0 && (

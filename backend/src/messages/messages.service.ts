@@ -59,17 +59,32 @@ export class MessagesService {
     return msg.senderId === userId ? msg.receiver : msg.sender;
   }
 
-  private initContactData(contactId: number, msg: Message, contactUser: any, contactsMap: Map<number, any>) {
+  private initContactData(
+    contactId: number,
+    msg: Message,
+    contactUser: any,
+    contactsMap: Map<number, any>,
+  ) {
     if (!contactsMap.has(contactId) && contactUser) {
       contactsMap.set(contactId, {
-        user: { id: contactUser.id, name: contactUser.name, email: contactUser.email, role: contactUser.role },
+        user: {
+          id: contactUser.id,
+          name: contactUser.name,
+          email: contactUser.email,
+          role: contactUser.role,
+        },
         lastMessage: msg,
         unreadCount: 0,
       });
     }
   }
 
-  private incrementUnreadCount(msg: Message, userId: number, contactId: number, contactsMap: Map<number, any>) {
+  private incrementUnreadCount(
+    msg: Message,
+    userId: number,
+    contactId: number,
+    contactsMap: Map<number, any>,
+  ) {
     if (msg.receiverId === userId && !msg.isRead) {
       const contactData = contactsMap.get(contactId);
       if (contactData) {
@@ -78,7 +93,11 @@ export class MessagesService {
     }
   }
 
-  private processContactsFromMessages(messages: Message[], userId: number, contactsMap: Map<number, any>) {
+  private processContactsFromMessages(
+    messages: Message[],
+    userId: number,
+    contactsMap: Map<number, any>,
+  ) {
     for (const msg of messages) {
       const contactId = msg.senderId === userId ? msg.receiverId : msg.senderId;
       const contactUser = this.getContactUser(msg, userId);
@@ -87,7 +106,11 @@ export class MessagesService {
     }
   }
 
-  private async addAllUsersForPrivilegedRoles(role: string | undefined, userId: number, contactsMap: Map<number, any>) {
+  private async addAllUsersForPrivilegedRoles(
+    role: string | undefined,
+    userId: number,
+    contactsMap: Map<number, any>,
+  ) {
     const privilegedRoles = ['ADMIN', 'HR', 'admin', 'hr'];
     if (role && privilegedRoles.includes(role)) {
       const allUsers = await this.usersRepository.find();

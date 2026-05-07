@@ -62,7 +62,8 @@ async function bootstrap() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Paste your JWT access_token here (no "Bearer " prefix needed)',
+        description:
+          'Paste your JWT access_token here (no "Bearer " prefix needed)',
         name: 'Authorization',
         in: 'header',
       },
@@ -73,7 +74,10 @@ async function bootstrap() {
     .addTag('Departments', 'Department management')
     .addTag('Attendance', 'Daily attendance tracking and statistics')
     .addTag('Reports', 'Export employee data as PDF or Excel')
-    .addTag('Messages', 'REST layer for real-time chat (WebSocket via Socket.IO)')
+    .addTag(
+      'Messages',
+      'REST layer for real-time chat (WebSocket via Socket.IO)',
+    )
     .addTag('Audit', 'Security and audit log access (Admin only)')
     .build();
 

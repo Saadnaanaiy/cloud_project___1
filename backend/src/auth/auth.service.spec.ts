@@ -71,7 +71,7 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      global.fetch = jest.fn().mockResolvedValue({
+      globalThis.fetch = jest.fn().mockResolvedValue({
         json: jest.fn().mockResolvedValue({ success: true }),
       });
 
@@ -155,7 +155,7 @@ describe('AuthService', () => {
         isApproved: false,
       });
 
-      global.fetch = jest.fn().mockResolvedValue({
+      globalThis.fetch = jest.fn().mockResolvedValue({
         json: jest.fn().mockResolvedValue({ success: true }),
       });
 

@@ -1,26 +1,26 @@
 import {
-    Body,
-    Controller,
-    Get,
-    Param,
-    ParseIntPipe,
-    Post,
-    Put,
-    Request,
-    UseGuards,
-    UseInterceptors,
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Request,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiCreatedResponse,
-    ApiForbiddenResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiParam,
-    ApiTags,
-    ApiUnauthorizedResponse,
-    ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { LoginAuditInterceptor } from '../audit/audit.interceptor';
@@ -63,7 +63,9 @@ export class AuthController {
       },
     },
   })
-  @ApiBadRequestResponse({ description: 'Invalid credentials or account pending approval' })
+  @ApiBadRequestResponse({
+    description: 'Invalid credentials or account pending approval',
+  })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
@@ -82,7 +84,9 @@ export class AuthController {
       example: { message: 'Account created. Waiting for admin approval.' },
     },
   })
-  @ApiBadRequestResponse({ description: 'Email already registered or validation error' })
+  @ApiBadRequestResponse({
+    description: 'Email already registered or validation error',
+  })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -92,7 +96,8 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Get current user profile',
-    description: 'Returns the full profile of the currently authenticated user.',
+    description:
+      'Returns the full profile of the currently authenticated user.',
   })
   @ApiOkResponse({
     description: 'Current user profile',
@@ -116,7 +121,8 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Update current user profile',
-    description: 'Updates name, email, or password for the currently authenticated user. All fields are optional.',
+    description:
+      'Updates name, email, or password for the currently authenticated user. All fields are optional.',
   })
   @ApiBody({ type: UpdateProfileDto })
   @ApiOkResponse({ description: 'Updated user profile object' })
@@ -131,7 +137,8 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'List pending user approvals',
-    description: 'Returns all user accounts that have registered but not yet been approved. **Admin only.**',
+    description:
+      'Returns all user accounts that have registered but not yet been approved. **Admin only.**',
   })
   @ApiOkResponse({ description: 'Array of pending user objects' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
@@ -146,9 +153,15 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Approve a pending user',
-    description: 'Grants access to a user who registered and is awaiting approval. **Admin only.**',
+    description:
+      'Grants access to a user who registered and is awaiting approval. **Admin only.**',
   })
-  @ApiParam({ name: 'id', type: Number, description: 'User ID to approve', example: 5 })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'User ID to approve',
+    example: 5,
+  })
   @ApiOkResponse({ description: 'User approved successfully' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
   @ApiForbiddenResponse({ description: 'Requires admin role' })

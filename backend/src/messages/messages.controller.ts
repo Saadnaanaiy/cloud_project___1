@@ -1,26 +1,26 @@
 import {
-    BadRequestException,
-    Controller,
-    Get,
-    Param,
-    ParseIntPipe,
-    Post,
-    Request,
-    UploadedFile,
-    UseGuards,
-    UseInterceptors,
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Request,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiConsumes,
-    ApiCreatedResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiParam,
-    ApiTags,
-    ApiUnauthorizedResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -49,10 +49,18 @@ export class MessagesController {
   @Get('history/:contactId')
   @ApiOperation({
     summary: 'Get conversation history',
-    description: 'Returns the full message history between the current user and a contact.',
+    description:
+      'Returns the full message history between the current user and a contact.',
   })
-  @ApiParam({ name: 'contactId', type: Number, description: 'Contact user ID', example: 3 })
-  @ApiOkResponse({ description: 'Array of message objects ordered by date ascending' })
+  @ApiParam({
+    name: 'contactId',
+    type: Number,
+    description: 'Contact user ID',
+    example: 3,
+  })
+  @ApiOkResponse({
+    description: 'Array of message objects ordered by date ascending',
+  })
   async getConversation(
     @Request() req,
     @Param('contactId', ParseIntPipe) contactId: number,
@@ -63,9 +71,15 @@ export class MessagesController {
   @Post('read/:contactId')
   @ApiOperation({
     summary: 'Mark messages as read',
-    description: 'Marks all messages from a given contact as read for the current user.',
+    description:
+      'Marks all messages from a given contact as read for the current user.',
   })
-  @ApiParam({ name: 'contactId', type: Number, description: 'Contact user ID', example: 3 })
+  @ApiParam({
+    name: 'contactId',
+    type: Number,
+    description: 'Contact user ID',
+    example: 3,
+  })
   @ApiOkResponse({ description: '{ success: true }' })
   async markAsRead(
     @Request() req,

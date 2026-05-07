@@ -7,7 +7,10 @@ export class UpdateProfileDto {
   @IsString()
   name?: string;
 
-  @ApiPropertyOptional({ example: 'john@company.com', description: 'Email address' })
+  @ApiPropertyOptional({
+    example: 'john@company.com',
+    description: 'Email address',
+  })
   @IsOptional()
   @IsEmail()
   email?: string;

@@ -1,12 +1,12 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiForbiddenResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiQuery,
-    ApiTags,
-    ApiUnauthorizedResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuditService } from './audit.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';

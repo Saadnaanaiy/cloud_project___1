@@ -22,26 +22,41 @@ export class CreateEmployeeDto {
   @IsString()
   lastName: string;
 
-  @ApiProperty({ example: 'jane.doe@company.com', description: 'Unique email address' })
+  @ApiProperty({
+    example: 'jane.doe@company.com',
+    description: 'Unique email address',
+  })
   @IsEmail()
   email: string;
 
-  @ApiPropertyOptional({ example: '+212 6 12 34 56 78', description: 'Phone number' })
+  @ApiPropertyOptional({
+    example: '+212 6 12 34 56 78',
+    description: 'Phone number',
+  })
   @IsOptional()
   @IsString()
   phone?: string;
 
-  @ApiPropertyOptional({ example: 'Software Engineer', description: 'Job title / position' })
+  @ApiPropertyOptional({
+    example: 'Software Engineer',
+    description: 'Job title / position',
+  })
   @IsOptional()
   @IsString()
   position?: string;
 
-  @ApiPropertyOptional({ example: '2024-01-15', description: 'Hire date (YYYY-MM-DD)' })
+  @ApiPropertyOptional({
+    example: '2024-01-15',
+    description: 'Hire date (YYYY-MM-DD)',
+  })
   @IsOptional()
   @IsDateString()
   hireDate?: string;
 
-  @ApiPropertyOptional({ example: 5500, description: 'Monthly salary in local currency' })
+  @ApiPropertyOptional({
+    example: 5500,
+    description: 'Monthly salary in local currency',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -56,12 +71,18 @@ export class CreateEmployeeDto {
   @IsEnum(EmployeeStatus)
   status?: EmployeeStatus;
 
-  @ApiPropertyOptional({ example: 2, description: 'Department ID to assign the employee to' })
+  @ApiPropertyOptional({
+    example: 2,
+    description: 'Department ID to assign the employee to',
+  })
   @IsOptional()
   @IsNumber()
   departmentId?: number;
 
-  @ApiPropertyOptional({ example: 'https://cdn.example.com/avatar.jpg', description: 'Avatar image URL' })
+  @ApiPropertyOptional({
+    example: 'https://cdn.example.com/avatar.jpg',
+    description: 'Avatar image URL',
+  })
   @IsOptional()
   @IsString()
   avatarUrl?: string;

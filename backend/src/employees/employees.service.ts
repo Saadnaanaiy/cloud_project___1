@@ -5,7 +5,9 @@ import { Employee, EmployeeStatus } from './employee.entity';
 
 @Injectable()
 export class EmployeesService implements OnModuleInit {
-  constructor(@InjectRepository(Employee) private readonly repo: Repository<Employee>) {}
+  constructor(
+    @InjectRepository(Employee) private readonly repo: Repository<Employee>,
+  ) {}
 
   async onModuleInit() {
     // Wait for Departments to be seeded to avoid foreign key constraint errors

@@ -1,12 +1,12 @@
 import { Controller, Get, Res, UseGuards } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiForbiddenResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiProduces,
-    ApiTags,
-    ApiUnauthorizedResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiProduces,
+  ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -32,9 +32,12 @@ export class ReportsController {
       'Generates and downloads a full employee report in Excel format. ' +
       'Requires **admin** or **hr** role.',
   })
-  @ApiProduces('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  @ApiProduces(
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
   @ApiOkResponse({
-    description: 'Excel file download (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)',
+    description:
+      'Excel file download (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)',
     schema: { type: 'string', format: 'binary' },
   })
   async downloadExcel(@Res() res: Response) {

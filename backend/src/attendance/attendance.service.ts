@@ -93,7 +93,20 @@ export class AttendanceService {
       .orderBy('SUBSTR(a.date, 1, 7)', 'ASC')
       .getRawMany();
 
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return rows.map((row) => {
       const monthIndex = Number.parseInt(row.month.split('-')[1], 10) - 1;
       return {

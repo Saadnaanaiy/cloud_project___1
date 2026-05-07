@@ -1,14 +1,14 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiCreatedResponse,
-    ApiForbiddenResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiQuery,
-    ApiTags,
-    ApiUnauthorizedResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -38,7 +38,8 @@ export class AttendanceController {
   @ApiQuery({
     name: 'date',
     required: false,
-    description: 'Date to fetch attendance for (YYYY-MM-DD). Defaults to today.',
+    description:
+      'Date to fetch attendance for (YYYY-MM-DD). Defaults to today.',
     example: '2025-05-04',
   })
   @ApiQuery({
@@ -62,10 +63,17 @@ export class AttendanceController {
   @Get('stats/monthly')
   @ApiOperation({
     summary: 'Monthly attendance stats',
-    description: 'Returns day-by-day attendance counts (present, absent, late) for a given month.',
+    description:
+      'Returns day-by-day attendance counts (present, absent, late) for a given month.',
   })
   @ApiQuery({ name: 'year', required: true, type: Number, example: 2025 })
-  @ApiQuery({ name: 'month', required: true, type: Number, example: 5, description: '1–12' })
+  @ApiQuery({
+    name: 'month',
+    required: true,
+    type: Number,
+    example: 5,
+    description: '1–12',
+  })
   @ApiOkResponse({ description: 'Array of daily attendance stat objects' })
   monthly(@Query('year') year: number, @Query('month') month: number) {
     return this.service.getMonthlyStats(+year, +month);
@@ -74,7 +82,8 @@ export class AttendanceController {
   @Get('stats/yearly')
   @ApiOperation({
     summary: 'Yearly attendance stats',
-    description: 'Returns month-by-month attendance totals for a given year (used for charts).',
+    description:
+      'Returns month-by-month attendance totals for a given year (used for charts).',
   })
   @ApiQuery({ name: 'year', required: true, type: Number, example: 2025 })
   @ApiOkResponse({ description: 'Array of monthly attendance stat objects' })

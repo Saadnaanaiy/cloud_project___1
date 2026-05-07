@@ -407,7 +407,10 @@ export class ReportsService {
           let val = '';
           if (typeof rawValue === 'string') {
             val = rawValue;
-          } else if (typeof rawValue === 'number' || typeof rawValue === 'boolean') {
+          } else if (
+            typeof rawValue === 'number' ||
+            typeof rawValue === 'boolean'
+          ) {
             val = String(rawValue);
           }
           val = val.toLowerCase();

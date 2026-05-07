@@ -1,10 +1,10 @@
 import {
-    BadRequestException,
-    ConflictException,
-    Injectable,
-    NotFoundException,
-    OnModuleInit,
-    UnauthorizedException,
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -27,7 +27,8 @@ export class AuthService implements OnModuleInit {
 
   private requireEnv(name: string): string {
     const value = process.env[name];
-    if (!value) throw new Error(`Required environment variable "${name}" is not set`);
+    if (!value)
+      throw new Error(`Required environment variable "${name}" is not set`);
     return value;
   }
 
@@ -184,7 +185,9 @@ export class AuthService implements OnModuleInit {
 
   private async verifyCaptcha(token: string) {
     if (!token) {
-      throw new BadRequestException('CAPTCHA token is missing from the request');
+      throw new BadRequestException(
+        'CAPTCHA token is missing from the request',
+      );
     }
 
     const secretKey = process.env.TURNSTILE_SECRET_KEY;
@@ -195,7 +198,9 @@ export class AuthService implements OnModuleInit {
     // Must set DISABLE_TURNSTILE=true in your local .env to skip verification.
     // Never bypass in production — always fail closed.
     if (isDev && disableTurnstile) {
-      console.warn('⚠️  Turnstile verification is DISABLED for local development.');
+      console.warn(
+        '⚠️  Turnstile verification is DISABLED for local development.',
+      );
       return;
     }
 
@@ -205,7 +210,8 @@ export class AuthService implements OnModuleInit {
       );
     }
 
-    const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    const verifyUrl =
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
     try {
       const captchaRes = await fetch(verifyUrl, {
@@ -217,12 +223,16 @@ export class AuthService implements OnModuleInit {
 
       if (!captchaData.success) {
         console.error('Turnstile verification failed:', captchaData);
-        throw new BadRequestException(`Verification failed: ${captchaData['error-codes']?.join(', ') || 'unknown error'}`);
+        throw new BadRequestException(
+          `Verification failed: ${captchaData['error-codes']?.join(', ') || 'unknown error'}`,
+        );
       }
     } catch (err: any) {
       if (err instanceof BadRequestException) throw err;
       console.error('Error during Turnstile verification:', err);
-      throw new BadRequestException('Security verification service is temporarily unavailable');
+      throw new BadRequestException(
+        'Security verification service is temporarily unavailable',
+      );
     }
   }
 }

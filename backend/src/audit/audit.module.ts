@@ -7,10 +7,7 @@ import { LoginAuditInterceptor } from './audit.interceptor';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([AuditLog]),
-    forwardRef(() => AuthModule),
-  ],
+  imports: [TypeOrmModule.forFeature([AuditLog]), forwardRef(() => AuthModule)],
   controllers: [AuditController],
   providers: [AuditService, LoginAuditInterceptor],
   exports: [AuditService, LoginAuditInterceptor],

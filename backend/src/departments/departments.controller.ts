@@ -1,27 +1,27 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    ParseIntPipe,
-    Post,
-    Put,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiCreatedResponse,
-    ApiForbiddenResponse,
-    ApiNoContentResponse,
-    ApiNotFoundResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiParam,
-    ApiTags,
-    ApiUnauthorizedResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -44,7 +44,8 @@ export class DepartmentsController {
   @Get()
   @ApiOperation({
     summary: 'List all departments',
-    description: 'Returns all departments. Accessible by all authenticated roles.',
+    description:
+      'Returns all departments. Accessible by all authenticated roles.',
   })
   @ApiOkResponse({ description: 'Array of department objects' })
   findAll() {
@@ -53,7 +54,12 @@ export class DepartmentsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a department by ID' })
-  @ApiParam({ name: 'id', type: Number, description: 'Department ID', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Department ID',
+    example: 1,
+  })
   @ApiOkResponse({ description: 'Department object' })
   @ApiNotFoundResponse({ description: 'Department not found' })
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -79,10 +85,18 @@ export class DepartmentsController {
     summary: 'Update a department',
     description: 'Requires **admin** role.',
   })
-  @ApiParam({ name: 'id', type: Number, description: 'Department ID to update', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Department ID to update',
+    example: 1,
+  })
   @ApiOkResponse({ description: 'Updated department object' })
   @ApiNotFoundResponse({ description: 'Department not found' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateDepartmentDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateDepartmentDto,
+  ) {
     return this.service.update(id, body);
   }
 
@@ -93,7 +107,12 @@ export class DepartmentsController {
     summary: 'Delete a department',
     description: 'Permanently removes the department. Requires **admin** role.',
   })
-  @ApiParam({ name: 'id', type: Number, description: 'Department ID to delete', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Department ID to delete',
+    example: 1,
+  })
   @ApiNoContentResponse({ description: 'Department deleted' })
   @ApiNotFoundResponse({ description: 'Department not found' })
   remove(@Param('id', ParseIntPipe) id: number) {
