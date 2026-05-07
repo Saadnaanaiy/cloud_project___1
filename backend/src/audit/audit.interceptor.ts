@@ -15,10 +15,7 @@ export class LoginAuditInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const userAgent = request.headers['user-agent'] || 'Unknown';
-    const ipAddress =
-      request.headers['x-forwarded-for'] ||
-      request.ip ||
-      request.connection.remoteAddress;
+    const ipAddress = request.ip;
 
     return next.handle().pipe(
       tap(async (response) => {
