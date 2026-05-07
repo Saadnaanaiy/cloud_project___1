@@ -147,7 +147,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
         reconnectionAttempts: 5,
-        path: '/socket.io/',
+        path: '/ws/chat/',
       });
 
       setSocket(newSocket);

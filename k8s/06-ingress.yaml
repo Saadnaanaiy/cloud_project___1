@@ -40,7 +40,7 @@ spec:
                 port:
                   number: 3001
           # WebSocket route for real-time chat
-          - path: /socket.io
+          - path: /ws
             pathType: ImplementationSpecific
             backend:
               service:
