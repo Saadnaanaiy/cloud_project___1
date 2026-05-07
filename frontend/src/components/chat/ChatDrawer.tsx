@@ -397,7 +397,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                                 const lastMsgText =
                                     contact.lastMessage?.content || ""
                                 const hasAttachment =
-                                    !lastMsgText && contact.lastMessage
+                                    Boolean(!lastMsgText && contact.lastMessage)
                                 const timeAgo = contact.lastMessage
                                     ? formatDistanceToNow(
                                           new Date(
