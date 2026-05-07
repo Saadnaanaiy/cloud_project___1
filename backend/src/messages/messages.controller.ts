@@ -127,6 +127,25 @@ export class MessagesController {
           cb(null, `${uniqueSuffix}-${file.originalname}`);
         },
       }),
+      limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (req, file, cb) => {
+        const allowed = [
+          'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+          'audio/mpeg', 'audio/ogg', 'audio/wav',
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'text/plain',
+          'application/zip', 'application/x-rar-compressed',
+        ];
+        if (allowed.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new BadRequestException(`File type ${file.mimetype} is not allowed`), false);
+        }
+      },
     }),
   )
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
