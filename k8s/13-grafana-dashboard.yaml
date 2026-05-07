@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-employee-platform
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  employee-platform.json: |
+{{ .Files.Get "dashboards/employee-platform.json" | indent 4 }}

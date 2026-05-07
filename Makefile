@@ -228,3 +228,26 @@ load-test-local: ## Run k6 load test against LOCAL backend
 
 load-test-k8s: ## Run k6 load test against PRODUCTION (GKE)
 	k6 run --env API_URL=https://$(DOMAIN) tests/load-test.js
+
+# ─── Dashboard & DR ────────────────────────────────────────────
+dashboard-deploy: ## Deploy custom Grafana dashboard
+	kubectl apply -f k8s/13-grafana-dashboard.yaml
+
+dr-test: ## Simulate disaster recovery (dry-run)
+	@echo "Running DR simulation..."
+	@echo "Phase 1: Check Terraform state"
+	cd infrastructure && terraform plan -var-file="terraform.tfvars"
+	@echo "Phase 2: Check K8s resources"
+	kubectl get all -n $(NAMESPACE)
+	@echo "Phase 3: Check backups"
+	kubectl get cronjob mysql-backup -n $(NAMESPACE) 2>/dev/null || echo "No backup CronJob found"
+	@echo "✅ DR dry-run complete. See docs/disaster-recovery.md for full procedure."
+
+pentest-recon: ## Run reconnaissance script (requires Kali)
+	bash scripts/pentest/01-recon.sh $(DOMAIN)
+
+pentest-attack: ## Run web attack tests (requires Kali)
+	bash scripts/pentest/02-web-attacks.sh $(DOMAIN)
+
+pentest-k8s: ## Run K8s security audit
+	bash scripts/pentest/03-k8s-audit.sh

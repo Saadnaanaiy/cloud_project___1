@@ -1,0 +1,157 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: employee-platform-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: employee-platform.rules
+      rules:
+        - alert: BackendPodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total{namespace="employee-platform", container="backend"}[15m]) * 60 * 15 > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Backend pod is crash looping"
+            description: "Pod {{ $labels.pod }} in namespace employee-platform is restarting frequently ({{ $value }} restarts in 15m)."
+
+        - alert: FrontendPodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total{namespace="employee-platform", container="frontend"}[15m]) * 60 * 15 > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Frontend pod is crash looping"
+            description: "Pod {{ $labels.pod }} in namespace employee-platform is restarting frequently ({{ $value }} restarts in 15m)."
+
+        - alert: MySQLPodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total{namespace="employee-platform", container="mysql"}[15m]) * 60 * 15 > 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "MySQL pod is crash looping"
+            description: "MySQL pod {{ $labels.pod }} is restarting frequently. Data loss risk!"
+
+        - alert: HighPodCPUUsage
+          expr: |
+            sum(rate(container_cpu_usage_seconds_total{namespace="employee-platform"}[5m])) by (pod)
+            /
+            sum(kube_pod_container_resource_limits{namespace="employee-platform", resource="cpu"}) by (pod)
+            > 0.85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High CPU usage on pod {{ $labels.pod }}"
+            description: "Pod {{ $labels.pod }} is using {{ $value | humanizePercentage }} of its CPU limit."
+
+        - alert: HighPodMemoryUsage
+          expr: |
+            sum(container_memory_working_set_bytes{namespace="employee-platform", container!=""}) by (pod)
+            /
+            sum(kube_pod_container_resource_limits{namespace="employee-platform", resource="memory"}) by (pod)
+            > 0.90
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High memory usage on pod {{ $labels.pod }}"
+            description: "Pod {{ $labels.pod }} is using {{ $value | humanizePercentage }} of its memory limit."
+
+        - alert: MySQLHighCPU
+          expr: |
+            sum(rate(container_cpu_usage_seconds_total{namespace="employee-platform", container="mysql"}[5m]))
+            /
+            sum(kube_pod_container_resource_limits{namespace="employee-platform", container="mysql", resource="cpu"})
+            > 0.80
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "MySQL CPU usage is high"
+            description: "MySQL is using {{ $value | humanizePercentage }} of its CPU limit for over 15 minutes."
+
+        - alert: NotEnoughReadyReplicas
+          expr: |
+            kube_deployment_spec_replicas{namespace="employee-platform"}
+            -
+            kube_deployment_status_replicas_ready{namespace="employee-platform"}
+            > 0
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Deployment {{ $labels.deployment }} has unready replicas"
+            description: "Deployment {{ $labels.deployment }} has {{ $value }} pods that are not ready."
+
+        - alert: PersistentVolumeFillingUp
+          expr: |
+            kubelet_volume_stats_available_bytes{namespace="employee-platform"}
+            /
+            kubelet_volume_stats_capacity_bytes{namespace="employee-platform"}
+            < 0.15
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Persistent volume is filling up"
+            description: "PV {{ $labels.persistentvolumeclaim }} has less than 15% free space ({{ $value | humanizePercentage }} remaining)."
+
+        - alert: HPAScalingLimited
+          expr: kube_horizontalpodautoscaler_status_condition{namespace="employee-platform", condition="ScalingLimited", status="true"} == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "HPA {{ $labels.horizontalpodautoscaler }} is limited"
+            description: "HPA cannot scale further. Consider increasing maxReplicas."
+
+    - name: ingress.rules
+      rules:
+        - alert: HighIngressErrorRate
+          expr: |
+            sum(rate(nginx_ingress_controller_requests{namespace="employee-platform", status=~"5.."}[5m]))
+            /
+            sum(rate(nginx_ingress_controller_requests{namespace="employee-platform"}[5m]))
+            > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High 5xx error rate on ingress"
+            description: "{{ $value | humanizePercentage }} of requests are returning 5xx errors."
+
+        - alert: HighIngressLatency
+          expr: |
+            histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{namespace="employee-platform"}[5m])) by (le))
+            > 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High ingress latency (p99 > 2s)"
+            description: "99th percentile latency is {{ $value }} seconds."
+
+    - name: certificate.rules
+      rules:
+        - alert: CertificateExpiringSoon
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 86400 * 7
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "TLS certificate expiring in less than 7 days"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in {{ $value | humanizeDuration }}."
+
+        - alert: CertificateNotReady
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.name }} is not ready"
+            description: "TLS certificate issuance failed for {{ $labels.name }} in {{ $labels.namespace }}."
