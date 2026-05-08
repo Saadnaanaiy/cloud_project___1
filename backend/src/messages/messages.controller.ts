@@ -124,8 +124,8 @@ export class MessagesController {
         filename: (req, file, cb) => {
           const safeName = file.originalname
             .replaceAll(/[/\\:*?"<>|]/g, '_')
-            .replaceAll(/\.\./g, '')
-            .replaceAll(/~/g, '')
+            .replaceAll('..', '')
+            .replaceAll('~', '')
             .trim();
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);

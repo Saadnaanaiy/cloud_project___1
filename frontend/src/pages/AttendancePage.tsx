@@ -54,7 +54,7 @@ const AttendancePage: React.FC = () => {
     setSaving(true);
     try {
       const safeEmployees = Array.isArray(employees) ? employees : [];
-      const recordsArr = safeEmployees.map(e => ({ employeeId: e.id, status: (records[e.id] || 'absent') as string }));
+      const recordsArr = safeEmployees.map(e => ({ employeeId: e.id, status: records[e.id] || 'absent' }));
       await api.post('/attendance', { date, records: recordsArr });
       toast.success(`Attendance saved for ${recordsArr.length} employees!`);
     } catch { toast.error('Failed to save attendance'); }

@@ -5,13 +5,13 @@ describe('translations', () => {
   it('has all keys in French', () => {
     const enKeys = Object.keys(translations.en)
     const frKeys = Object.keys(translations.fr)
-    expect(frKeys.sort()).toEqual(enKeys.sort())
+    expect(frKeys.toSorted((a, b) => a.localeCompare(b))).toEqual(enKeys.toSorted((a, b) => a.localeCompare(b)))
   })
 
   it('has all keys in Arabic', () => {
     const enKeys = Object.keys(translations.en)
     const arKeys = Object.keys(translations.ar)
-    expect(arKeys.sort()).toEqual(enKeys.sort())
+    expect(arKeys.toSorted((a, b) => a.localeCompare(b))).toEqual(enKeys.toSorted((a, b) => a.localeCompare(b)))
   })
 
   it('returns the correct English value for a key', () => {

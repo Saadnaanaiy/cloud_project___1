@@ -51,13 +51,13 @@ vi.mock('../context/ThemeContext', () => ({
 
 describe('App', () => {
   it('renders login page at /login', () => {
-    window.history.pushState({}, '', '/login')
+    globalThis.history.pushState({}, '', '/login')
     render(<App />)
     expect(screen.getByText('Welcome back')).toBeInTheDocument()
   })
 
   it('renders 404 page for unknown routes', () => {
-    window.history.pushState({}, '', '/nonexistent')
+    globalThis.history.pushState({}, '', '/nonexistent')
     render(<App />)
     expect(screen.getByText('404')).toBeInTheDocument()
   })

@@ -69,7 +69,7 @@ const DashboardPage: React.FC = () => {
         const absent = Number(d.absent) || 0;
         const late = Number(d.late) || 0;
         return {
-          date: formatDateOnly(d.date as string),
+          date: formatDateOnly(d.date),
           present,
           absent,
           late,
