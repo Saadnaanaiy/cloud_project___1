@@ -90,7 +90,7 @@ jobs:
 
       - name: Run frontend tests with coverage
         working-directory: frontend
-          run: npx vitest run --ci
+        run: npx vitest run --ci
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
