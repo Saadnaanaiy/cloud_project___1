@@ -80,7 +80,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
             fetchConversation(activeContactId)
             markAsRead(activeContactId)
         }
-    }, [activeContactId])
+    }, [activeContactId, fetchConversation, markAsRead])
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })

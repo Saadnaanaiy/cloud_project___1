@@ -99,7 +99,7 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
                 { code: 'ar', flag: 'ma', label: 'العربية' },
               ].map(l => (
                 <button key={l.code}
-                  onClick={() => { setLang(l.code as any); setLangOpen(false); }}
+                  onClick={() => { setLang(l.code as 'en' | 'fr' | 'ar'); setLangOpen(false); }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '8px',
                     width: '100%', padding: '6px 10px', background: lang === l.code ? 'var(--btn-ghost-hover)' : 'transparent',

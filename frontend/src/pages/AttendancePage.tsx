@@ -33,7 +33,7 @@ const AttendancePage: React.FC = () => {
       setEmployees(Array.isArray(empRes.data) ? empRes.data : []);
       const existing: Record<number, string> = {};
       if (Array.isArray(attRes.data)) {
-        attRes.data.forEach((a: any) => { existing[a.employeeId] = a.status; });
+        attRes.data.forEach((a: { employeeId: number; status: string }) => { existing[a.employeeId] = a.status; });
       }
       setRecords(existing);
     }).catch(() => toast.error('Failed to load attendance data'))
@@ -54,7 +54,7 @@ const AttendancePage: React.FC = () => {
     setSaving(true);
     try {
       const safeEmployees = Array.isArray(employees) ? employees : [];
-      const recordsArr = safeEmployees.map(e => ({ employeeId: e.id, status: (records[e.id] || 'absent') as any }));
+      const recordsArr = safeEmployees.map(e => ({ employeeId: e.id, status: (records[e.id] || 'absent') as string }));
       await api.post('/attendance', { date, records: recordsArr });
       toast.success(`Attendance saved for ${recordsArr.length} employees!`);
     } catch { toast.error('Failed to save attendance'); }
@@ -161,7 +161,7 @@ const AttendancePage: React.FC = () => {
                             outline: 'none',
                           }}>
                           {statusOptions.map(s => (
-                            <option key={s.value} value={s.value} style={{ color: 'var(--text-primary)' }}>{t(s.value as any) || s.label}</option>
+                            <option key={s.value} value={s.value} style={{ color: 'var(--text-primary)' }}>{t(s.value as 'present' | 'absent' | 'late' | 'onLeave') || s.label}</option>
                           ))}
                         </select>
                       </td>

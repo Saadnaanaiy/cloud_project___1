@@ -64,7 +64,7 @@ const DashboardPage: React.FC = () => {
     ]).then(([statsRes, monthlyRes, yearlyRes]) => {
       setStats(statsRes.data);
       const attendanceData = Array.isArray(monthlyRes.data) ? monthlyRes.data : [];
-      setMonthlyData(attendanceData.map((d: Record<string, string | number>) => {
+      setMonthlyData(attendanceData.map((d: { date?: string; present?: number; absent?: number; late?: number }) => {
         const present = Number(d.present) || 0;
         const absent = Number(d.absent) || 0;
         const late = Number(d.late) || 0;
@@ -77,7 +77,7 @@ const DashboardPage: React.FC = () => {
       }));
       const yData = Array.isArray(yearlyRes.data) ? yearlyRes.data : [];
       setYearlyRawData(yData);
-      const normalized = yData.slice(-6).map((d: Record<string, string | number>) => {
+      const normalized = yData.slice(-6).map((d: { month?: string; present?: number; absent?: number; late?: number }) => {
         const total = (Number(d.present) || 0) + (Number(d.absent) || 0) + (Number(d.late) || 0);
         const t = total === 0 ? 1 : total;
         return {
@@ -115,9 +115,9 @@ const DashboardPage: React.FC = () => {
   ];
 
   const deptData = Array.isArray(stats?.byDepartment)
-    ? stats.byDepartment.map((d: any, i: number) => ({
+    ? stats.byDepartment.map((d: DepartmentStat, i: number) => ({
         name: d.department || 'Unknown',
-        value: Number.parseInt(d.count, 10),
+        value: Number.parseInt(String(d.count), 10),
         fill: COLORS[i % COLORS.length],
       }))
     : [];

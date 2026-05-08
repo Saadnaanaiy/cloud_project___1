@@ -18,8 +18,7 @@ export class LoginAuditInterceptor implements NestInterceptor {
     const ipAddress = request.ip;
 
     return next.handle().pipe(
-      tap(async (response) => {
-        // If login was successful, the response will contain the user data
+      tap(async (response: { user?: { id: number } }) => {
         if (response?.user?.id) {
           await this.auditService.log(
             response.user.id,

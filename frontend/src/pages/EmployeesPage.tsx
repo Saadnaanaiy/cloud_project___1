@@ -1,5 +1,5 @@
 import { Download, Edit2, Eye, FileText, Filter, Lock, Plus, Search, Trash2, Unlock, UserX } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -35,9 +35,9 @@ const EmployeesPage: React.FC = () => {
   const [form, setForm] = useState<any>(initForm);
   const [saving, setSaving] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (search) params.search = search;
       if (filterStatus) params.status = filterStatus;
       if (filterDept) params.departmentId = filterDept;
@@ -46,9 +46,9 @@ const EmployeesPage: React.FC = () => {
       setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
     } catch { toast.error('Failed to load employees'); }
     finally { setLoading(false); }
-  };
+  }, [search, filterStatus, filterDept]);
 
-  useEffect(() => { load(); }, [search, filterStatus, filterDept]);
+  useEffect(() => { load(); }, [load]);
 
   const openAdd = () => { setForm(initForm); setSelected(null); setModal('add'); };
   const openEdit = (emp: Employee) => {

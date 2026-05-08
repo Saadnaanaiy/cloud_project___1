@@ -42,7 +42,7 @@ export class MessagesController {
       'with the count of unread messages per contact.',
   })
   @ApiOkResponse({ description: 'Array of contact objects with unread count' })
-  async getContacts(@Request() req) {
+  async getContacts(@Request() req: { user: { id: number; role: string } }) {
     return this.messagesService.getContacts(req.user.id, req.user.role);
   }
 
@@ -62,7 +62,7 @@ export class MessagesController {
     description: 'Array of message objects ordered by date ascending',
   })
   async getConversation(
-    @Request() req,
+    @Request() req: { user: { id: number } },
     @Param('contactId', ParseIntPipe) contactId: number,
   ) {
     return this.messagesService.getConversation(req.user.id, contactId);

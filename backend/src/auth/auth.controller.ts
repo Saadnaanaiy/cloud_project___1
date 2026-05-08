@@ -112,7 +112,7 @@ export class AuthController {
     },
   })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
-  getProfile(@Request() req) {
+  getProfile(@Request() req: { user: { id: number } }) {
     return this.authService.getProfile(req.user.id);
   }
 
@@ -127,7 +127,7 @@ export class AuthController {
   @ApiBody({ type: UpdateProfileDto })
   @ApiOkResponse({ description: 'Updated user profile object' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
-  async updateProfile(@Request() req, @Body() body: UpdateProfileDto) {
+  async updateProfile(@Request() req: { user: { id: number } }, @Body() body: UpdateProfileDto) {
     return this.authService.updateProfile(req.user.id, body);
   }
 

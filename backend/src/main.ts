@@ -111,4 +111,4 @@ async function bootstrap() {
   console.log(`📚 Swagger UI    → http://localhost:${port}/docs`);
   console.log(`📄 OpenAPI JSON  → http://localhost:${port}/docs-json`);
 }
-bootstrap();
+void bootstrap();

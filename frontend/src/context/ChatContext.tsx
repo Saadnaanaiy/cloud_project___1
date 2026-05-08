@@ -197,7 +197,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     typingStatus,
     sendTyping,
     uploadFile,
-  }), [socket, contacts, unreadTotal, messages, activeContactId, typingStatus]);
+  }), [socket, contacts, unreadTotal, messages, activeContactId, typingStatus, sendMessage, sendTyping, fetchContacts, markAsRead, fetchConversation, uploadFile]);
 
   return (
     <ChatContext.Provider value={value}>

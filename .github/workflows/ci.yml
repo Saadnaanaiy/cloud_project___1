@@ -23,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -52,6 +52,8 @@ jobs:
         working-directory: frontend
         run: npm run lint || true
 
+
+
   # ─────────────────────────────────────────────
   # JOB 2 — SonarCloud Scan
   # ─────────────────────────────────────────────
@@ -62,12 +64,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -81,21 +83,14 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      # Backend has Jest but no test files yet — passWithNoTests avoids exit code 1
       - name: Run backend tests with coverage
         working-directory: backend
         run: npx jest --coverage --watchAll=false --ci --passWithNoTests
         continue-on-error: true
 
-      # Frontend has no test script at all — check first before running
       - name: Run frontend tests with coverage
         working-directory: frontend
-        run: |
-          if npm run | grep -q " test"; then
-            npm test -- --coverage --watchAll=false --ci --passWithNoTests || true
-          else
-            echo "No test script found in frontend — skipping coverage"
-          fi
+        run: npx vitest run --watchAll=false --ci
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
@@ -124,7 +119,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -191,7 +186,7 @@ jobs:
         run: echo "${{ steps.tag.outputs.TAG }}" > image-tag.txt
 
       - name: Upload image tag artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: image-tag
           path: image-tag.txt
