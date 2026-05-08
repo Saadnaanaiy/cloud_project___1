@@ -41,14 +41,14 @@ export class AuditController {
   })
   @ApiOkResponse({
     description: 'Array of audit log entries ordered by timestamp descending',
-      schema: {
-        example: [
-          {
-            id: 1,
-            action: 'LOGIN',
-            ipAddress: '192.0.2.1',
-            userAgent: 'Mozilla/5.0...',
-            location: 'Casablanca, MA',
+    schema: {
+      example: [
+        {
+          id: 1,
+          action: 'LOGIN',
+          ipAddress: '192.0.2.1',
+          userAgent: 'Mozilla/5.0...',
+          location: 'Casablanca, MA',
           timestamp: '2025-05-04T11:30:00.000Z',
           user: { id: 1, name: 'Admin User', email: 'admin@company.com' },
         },

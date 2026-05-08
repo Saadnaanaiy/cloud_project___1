@@ -46,27 +46,33 @@ export class MessagesGateway
     private readonly configService: ConfigService,
   ) {}
 
-  async handleConnection(client: Socket) {
+  handleConnection(client: Socket) {
     try {
-      const token =
-        client.handshake.auth.token ||
+      const rawToken: unknown = client.handshake.auth.token;
+      const token: string | undefined =
+        (rawToken as string | undefined) ||
         client.handshake.headers['authorization']?.split(' ')[1];
       if (!token) {
         client.disconnect();
         return;
       }
       const secret = this.configService.get<string>('JWT_SECRET');
-      if (!secret) { client.disconnect(); return; }
-      const payload = this.jwtService.verify(token, { secret });
+      if (!secret) {
+        client.disconnect();
+        return;
+      }
+      const verifiedPayload: unknown = this.jwtService.verify(token, {
+        secret,
+      });
+      const payload = verifiedPayload as { sub: number; role: string };
       const userId = payload.sub;
       client.data = { userId, role: payload.role };
 
       this.connectedUsers.set(userId, client.id);
 
-      // Optionally broadcast that user is online
       this.server.emit('userStatus', { userId, status: 'online' });
     } catch (error) {
-      console.warn('Socket connection failed:', error?.message);
+      console.warn('Socket connection failed:', (error as Error)?.message);
       client.disconnect();
     }
   }
@@ -114,7 +120,7 @@ export class MessagesGateway
     if (!senderId) return;
 
     // Restrict sending to admin and hr only
-    const role = client.data.role;
+    const role = (client.data as { role: string }).role;
     if (
       role !== 'admin' &&
       role !== 'hr' &&
@@ -160,7 +166,7 @@ export class MessagesGateway
     if (!senderId) return;
 
     // Restrict typing indicator to admin and hr only
-    const role = client.data.role;
+    const role = (client.data as { role: string }).role;
     if (
       role !== 'admin' &&
       role !== 'hr' &&

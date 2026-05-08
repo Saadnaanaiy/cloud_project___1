@@ -30,7 +30,8 @@ import { AuditModule } from './audit/audit.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const password = config.get<string>('DB_PASSWORD');
-        if (!password) throw new Error('DB_PASSWORD environment variable is required');
+        if (!password)
+          throw new Error('DB_PASSWORD environment variable is required');
         return {
           type: 'mysql' as const,
           host: config.get<string>('DB_HOST', 'localhost'),

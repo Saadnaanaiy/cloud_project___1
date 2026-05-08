@@ -13,14 +13,17 @@ export class LoginAuditInterceptor implements NestInterceptor {
   constructor(private readonly auditService: AuditService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<{
+      headers: Record<string, string | undefined>;
+      ip: string;
+    }>();
     const userAgent = request.headers['user-agent'] || 'Unknown';
     const ipAddress = request.ip;
 
     return next.handle().pipe(
-      tap(async (response: { user?: { id: number } }) => {
+      tap((response: { user?: { id: number } }) => {
         if (response?.user?.id) {
-          await this.auditService.log(
+          void this.auditService.log(
             response.user.id,
             'LOGIN',
             String(ipAddress),

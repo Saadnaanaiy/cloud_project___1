@@ -16,9 +16,10 @@ export class EmployeesService implements OnModuleInit {
     const count = await this.repo.count();
     if (count === 0) {
       try {
-        const depts = await this.repo.query(
+        const rawDepts: unknown = await this.repo.query(
           'SELECT id FROM departments ORDER BY id ASC LIMIT 6',
         );
+        const depts = rawDepts as { id: number }[];
         if (depts && depts.length >= 6) {
           const d1 = depts[0].id;
           const d2 = depts[1].id;

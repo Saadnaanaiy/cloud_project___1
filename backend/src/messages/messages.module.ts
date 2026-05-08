@@ -9,7 +9,11 @@ import { AuthModule } from '../auth/auth.module';
 import { User } from '../auth/user.entity';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([Message, User]), AuthModule],
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([Message, User]),
+    AuthModule,
+  ],
   providers: [MessagesService, MessagesGateway],
   controllers: [MessagesController],
   exports: [MessagesService],

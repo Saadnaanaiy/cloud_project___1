@@ -70,7 +70,15 @@ export class AttendanceService {
       .orderBy('a.date', 'ASC')
       .getRawMany();
 
-    return (rows as Array<{ date: string; lastUpdateAt: string; present: string; absent: string; late: string }>).map((row) => ({
+    return (
+      rows as Array<{
+        date: string;
+        lastUpdateAt: string;
+        present: string;
+        absent: string;
+        late: string;
+      }>
+    ).map((row) => ({
       date: row.date,
       lastUpdateAt: row.lastUpdateAt,
       present: Number(row.present) || 0,
@@ -107,7 +115,14 @@ export class AttendanceService {
       'Nov',
       'Dec',
     ];
-    return (rows as Array<{ month: string; present: string; absent: string; late: string }>).map((row) => {
+    return (
+      rows as Array<{
+        month: string;
+        present: string;
+        absent: string;
+        late: string;
+      }>
+    ).map((row) => {
       const monthIndex = Number.parseInt(row.month.split('-')[1], 10) - 1;
       return {
         month: monthNames[monthIndex],

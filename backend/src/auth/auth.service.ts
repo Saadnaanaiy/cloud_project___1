@@ -219,7 +219,10 @@ export class AuthService implements OnModuleInit {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `secret=${secretKey}&response=${token}`,
       });
-      const captchaData = await captchaRes.json();
+      const captchaData = (await captchaRes.json()) as {
+        success: boolean;
+        'error-codes'?: string[];
+      };
 
       if (!captchaData.success) {
         console.error('Turnstile verification failed:', captchaData);

@@ -20,7 +20,8 @@ import { AuditModule } from '../audit/audit.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const secret = config.get<string>('JWT_SECRET');
-        if (!secret) throw new Error('JWT_SECRET environment variable is required');
+        if (!secret)
+          throw new Error('JWT_SECRET environment variable is required');
         return {
           secret,
           signOptions: {

@@ -62,8 +62,15 @@ export class MessagesService {
   private initContactData(
     contactId: number,
     msg: Message,
-    contactUser: any,
-    contactsMap: Map<number, any>,
+    contactUser: { id: number; name: string; email: string; role: string },
+    contactsMap: Map<
+      number,
+      {
+        user: { id: number; name: string; email: string; role: string };
+        lastMessage: Message | null;
+        unreadCount: number;
+      }
+    >,
   ) {
     if (!contactsMap.has(contactId) && contactUser) {
       contactsMap.set(contactId, {
@@ -83,7 +90,14 @@ export class MessagesService {
     msg: Message,
     userId: number,
     contactId: number,
-    contactsMap: Map<number, any>,
+    contactsMap: Map<
+      number,
+      {
+        user: { id: number; name: string; email: string; role: string };
+        lastMessage: Message | null;
+        unreadCount: number;
+      }
+    >,
   ) {
     if (msg.receiverId === userId && !msg.isRead) {
       const contactData = contactsMap.get(contactId);
@@ -96,7 +110,14 @@ export class MessagesService {
   private processContactsFromMessages(
     messages: Message[],
     userId: number,
-    contactsMap: Map<number, any>,
+    contactsMap: Map<
+      number,
+      {
+        user: { id: number; name: string; email: string; role: string };
+        lastMessage: Message | null;
+        unreadCount: number;
+      }
+    >,
   ) {
     for (const msg of messages) {
       const contactId = msg.senderId === userId ? msg.receiverId : msg.senderId;
@@ -109,7 +130,14 @@ export class MessagesService {
   private async addAllUsersForPrivilegedRoles(
     role: string | undefined,
     userId: number,
-    contactsMap: Map<number, any>,
+    contactsMap: Map<
+      number,
+      {
+        user: { id: number; name: string; email: string; role: string };
+        lastMessage: Message | null;
+        unreadCount: number;
+      }
+    >,
   ) {
     const privilegedRoles = ['ADMIN', 'HR', 'admin', 'hr'];
     if (role && privilegedRoles.includes(role)) {
@@ -131,14 +159,30 @@ export class MessagesService {
     }
   }
 
-  async getContacts(userId: number, role?: string): Promise<any[]> {
+  async getContacts(
+    userId: number,
+    role?: string,
+  ): Promise<
+    {
+      user: { id: number; name: string; email: string; role: string };
+      lastMessage: Message | null;
+      unreadCount: number;
+    }[]
+  > {
     const messages = await this.messagesRepository.find({
       where: [{ senderId: userId }, { receiverId: userId }],
       relations: ['sender', 'receiver'],
       order: { createdAt: 'DESC' },
     });
 
-    const contactsMap = new Map<number, any>();
+    const contactsMap = new Map<
+      number,
+      {
+        user: { id: number; name: string; email: string; role: string };
+        lastMessage: Message | null;
+        unreadCount: number;
+      }
+    >();
 
     this.processContactsFromMessages(messages, userId, contactsMap);
     await this.addAllUsersForPrivilegedRoles(role, userId, contactsMap);

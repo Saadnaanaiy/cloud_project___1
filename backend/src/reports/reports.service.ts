@@ -5,7 +5,24 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Repository } from 'typeorm';
 import { Attendance } from '../attendance/attendance.entity';
-import { Employee } from '../employees/employee.entity';
+import { Employee, EmployeeStatus } from '../employees/employee.entity';
+
+interface Stats {
+  total: number;
+  active: number;
+  blocked: number;
+  onLeave: number;
+}
+
+interface PDFColors {
+  INK: [number, number, number];
+  MUTED: [number, number, number];
+  LINE: [number, number, number];
+  PRIMARY: [number, number, number];
+  GREEN: [number, number, number];
+  RED: [number, number, number];
+  AMBER: [number, number, number];
+}
 
 @Injectable()
 export class ReportsService {
@@ -89,21 +106,21 @@ export class ReportsService {
       }
 
       const statusCell = row.getCell('status');
-      if (e.status === 'active')
+      if (e.status === EmployeeStatus.ACTIVE)
         statusCell.font = {
           color: { argb: '059669' },
           bold: true,
           size: 10,
           name: 'Calibri',
         };
-      else if (e.status === 'blocked')
+      else if (e.status === EmployeeStatus.BLOCKED)
         statusCell.font = {
           color: { argb: 'DC2626' },
           bold: true,
           size: 10,
           name: 'Calibri',
         };
-      else if (e.status === 'on_leave')
+      else if (e.status === EmployeeStatus.ON_LEAVE)
         statusCell.font = {
           color: { argb: 'D97706' },
           bold: true,
@@ -241,7 +258,7 @@ export class ReportsService {
 
     // ══════════════════════════════════ PAGE 1 ════════════════════════════════
     this.drawPDFHeader(doc, PW, colors.PRIMARY, genDate);
-    this.drawPDFKPIs(doc, PW, stats, colors, PH);
+    this.drawPDFKPIs(doc, PW, stats, colors);
     const tableTopY = 87; // Adjusted after KPI block
 
     // ── Employee table ───────────────────────────────────────────────────────
@@ -301,13 +318,7 @@ export class ReportsService {
     doc.text(`Generated on ${genDate}  |  Strictly Confidential`, 20, 28);
   }
 
-  private drawPDFKPIs(
-    doc: jsPDF,
-    PW: number,
-    stats: any,
-    colors: any,
-    PH: number,
-  ) {
+  private drawPDFKPIs(doc: jsPDF, PW: number, stats: Stats, colors: PDFColors) {
     const kpis = [
       { label: 'Total Employees', value: String(stats.total) },
       { label: 'Active Personnel', value: String(stats.active) },
@@ -324,18 +335,18 @@ export class ReportsService {
       const x = 20 + i * (kpiW + gap);
       doc.setFillColor(248, 250, 252);
       doc.roundedRect(x, kpiY, kpiW, kpiH, 3, 3, 'F');
-      doc.setDrawColor(...(colors.LINE as [number, number, number]));
+      doc.setDrawColor(...colors.LINE);
       doc.setLineWidth(0.5);
       doc.roundedRect(x, kpiY, kpiW, kpiH, 3, 3, 'S');
 
-      doc.setTextColor(...(colors.INK as [number, number, number]));
+      doc.setTextColor(...colors.INK);
       doc.setFontSize(22);
       doc.setFont('helvetica', 'bold');
       doc.text(k.value, x + kpiW / 2, kpiY + 12, { align: 'center' });
 
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...(colors.MUTED as [number, number, number]));
+      doc.setTextColor(...colors.MUTED);
       doc.text(k.label.toUpperCase(), x + kpiW / 2, kpiY + 19, {
         align: 'center',
       });
@@ -345,7 +356,7 @@ export class ReportsService {
   private drawPDFTable(
     doc: jsPDF,
     employees: Employee[],
-    colors: any,
+    colors: PDFColors,
     startY: number,
   ) {
     autoTable(doc, {
@@ -430,7 +441,7 @@ export class ReportsService {
     PH: number,
     MUTED: [number, number, number],
   ) {
-    const totalPages = (doc as any).internal.getNumberOfPages();
+    const totalPages = doc.getNumberOfPages();
     for (let p = 1; p <= totalPages; p++) {
       doc.setPage(p);
       doc.setFontSize(8);
@@ -448,16 +459,16 @@ export class ReportsService {
   }
 
   // ─────────────────────────────── helpers ────────────────────────────────────
-  private async getStats() {
+  private async getStats(): Promise<Stats> {
     const total = await this.empRepo.count();
     const active = await this.empRepo.count({
-      where: { status: 'active' as any },
+      where: { status: EmployeeStatus.ACTIVE },
     });
     const blocked = await this.empRepo.count({
-      where: { status: 'blocked' as any },
+      where: { status: EmployeeStatus.BLOCKED },
     });
     const onLeave = await this.empRepo.count({
-      where: { status: 'on_leave' as any },
+      where: { status: EmployeeStatus.ON_LEAVE },
     });
     return { total, active, blocked, onLeave };
   }
