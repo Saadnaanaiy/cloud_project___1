@@ -12,3 +12,4 @@ data:
   PORT: "3001"
   # Public HTTPS URL — used for backend CORS and frontend API calls
   FRONTEND_URL: "https://empmanager.duckdns.org"
+  DISABLE_TURNSTILE: "true"
