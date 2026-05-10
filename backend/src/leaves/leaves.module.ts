@@ -1,0 +1,13 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Leave } from './leave.entity';
+import { LeavesService } from './leaves.service';
+import { LeavesController } from './leaves.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Leave])],
+  providers: [LeavesService],
+  controllers: [LeavesController],
+  exports: [LeavesService],
+})
+export class LeavesModule {}

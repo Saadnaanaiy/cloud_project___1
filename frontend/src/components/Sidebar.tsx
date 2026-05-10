@@ -1,11 +1,15 @@
 import {
     Building2,
     CalendarCheck,
+    CalendarDays,
     ChevronRight,
     FileText,
+    GitBranch,
     LayoutDashboard,
     LogOut,
+    Megaphone,
     Menu,
+    Timer,
     UserCheck,
     Users,
     X,
@@ -35,9 +39,25 @@ const Sidebar: React.FC<{
         { to: "/dashboard", icon: LayoutDashboard, label: t("dashboard") },
         { to: "/employees", icon: Users, label: t("employees") },
         { to: "/attendance", icon: CalendarCheck, label: t("attendance") },
+        { to: "/my-leaves", icon: CalendarDays, label: "My Leaves" },
+        { to: "/leave-balance", icon: Timer, label: "Leave Balance" },
+        { to: "/announcements", icon: Megaphone, label: "Announcements" },
+        { to: "/org-chart", icon: GitBranch, label: "Org Chart" },
         { to: "/reports", icon: FileText, label: t("reports") },
         { to: "/departments", icon: Building2, label: t("departments") },
     ]
+
+    if (user?.role === "admin" || user?.role === "hr" || user?.role === "manager") {
+        navItems = [
+            ...navItems,
+            {
+                to: "/leave-approvals",
+                icon: UserCheck,
+                label: "Leave Approvals",
+            },
+            { to: "/shift-schedule", icon: CalendarCheck, label: "Shifts" },
+        ]
+    }
 
     if (user?.role === "admin") {
         navItems = [

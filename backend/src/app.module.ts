@@ -4,6 +4,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'node:path';
+import { Announcement } from './announcements/announcement.entity';
+import { AnnouncementsModule } from './announcements/announcements.module';
 import { Attendance } from './attendance/attendance.entity';
 import { AttendanceModule } from './attendance/attendance.module';
 import { AuthModule } from './auth/auth.module';
@@ -13,8 +15,11 @@ import { DepartmentsModule } from './departments/departments.module';
 import { Employee } from './employees/employee.entity';
 import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
+import { Leave } from './leaves/leave.entity';
+import { LeavesModule } from './leaves/leaves.module';
 import { Message } from './messages/message.entity';
 import { MessagesModule } from './messages/messages.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
 import { AuditLog } from './audit/audit-log.entity';
 import { AuditModule } from './audit/audit.module';
@@ -39,7 +44,7 @@ import { AuditModule } from './audit/audit.module';
           username: config.get<string>('DB_USERNAME', 'root'),
           password,
           database: config.get<string>('DB_NAME', 'employee_db'),
-          entities: [User, Employee, Department, Attendance, Message, AuditLog],
+          entities: [User, Employee, Department, Attendance, Message, AuditLog, Leave, Announcement],
           synchronize: config.get<string>('NODE_ENV') !== 'production',
           logging: false,
         };
@@ -59,6 +64,9 @@ import { AuditModule } from './audit/audit.module';
     HealthModule,
     MessagesModule,
     AuditModule,
+    LeavesModule,
+    AnnouncementsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

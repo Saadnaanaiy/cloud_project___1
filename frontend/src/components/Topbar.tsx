@@ -1,6 +1,7 @@
 import { Bell, LogOut, Menu, MessageCircle, Moon, Settings, Sun, User } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 import { useLang } from '../context/LanguageContext';
@@ -15,12 +16,29 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const dropRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
   const now = new Date();
   const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Fetch unread announcements count
+  useEffect(() => {
+    const lastSeen = localStorage.getItem('lastAnnouncementSeen');
+    if (lastSeen) {
+      (async () => {
+        try {
+          const { data } = await api.get('/announcements');
+          const count = Array.isArray(data)
+            ? data.filter((a: any) => new Date(a.createdAt) > new Date(lastSeen)).length
+            : 0;
+          setUnreadAnnouncements(count);
+        } catch { /* ignore */ }
+      })();
+    }
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -133,8 +151,13 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
           )}
         </button>
 
-        <button className="btn btn-ghost btn-icon" style={{ position: 'relative', color: 'var(--text-secondary)' }} title="Notifications">
+        <button className="btn btn-ghost btn-icon" onClick={() => { navigate('/announcements'); localStorage.setItem('lastAnnouncementSeen', new Date().toISOString()); setUnreadAnnouncements(0); }} style={{ position: 'relative', color: 'var(--text-secondary)' }} title="Announcements">
           <Bell size={18} />
+          {unreadAnnouncements > 0 && (
+            <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '16px', height: '16px', borderRadius: '10px', background: 'var(--red)', color: '#fff', fontSize: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg-surface)' }}>
+              {unreadAnnouncements}
+            </span>
+          )}
         </button>
 
         {/* Profile dropdown */}
