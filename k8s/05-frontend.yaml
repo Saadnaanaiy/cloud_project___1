@@ -23,7 +23,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: frontend
-          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:ca088b30
+          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:85d185f0
           ports:
             - containerPort: 80
           readinessProbe:
