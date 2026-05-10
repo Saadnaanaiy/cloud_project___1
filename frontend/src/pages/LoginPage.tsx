@@ -16,13 +16,9 @@ const LoginPage: React.FC = () => {
 
     const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault()
-        if (!captchaToken) {
-            toast.error("Please complete the CAPTCHA")
-            return
-        }
         setLoading(true)
         try {
-            await login(email, password, captchaToken)
+            await login(email, password, captchaToken || '')
             toast.success("Welcome back!")
             navigate("/")
         } catch (err: any) {
@@ -132,7 +128,7 @@ const LoginPage: React.FC = () => {
                                     import.meta.env.VITE_TURNSTILE_SITE_KEY || ""
                                 }
                                 onSuccess={(token) => setCaptchaToken(token)}
-                                options={{ theme: "dark" }}
+                                options={{ theme: "dark", size: "normal" }}
                             />
                         </div>
 
