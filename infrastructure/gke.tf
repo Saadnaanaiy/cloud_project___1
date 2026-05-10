@@ -39,6 +39,12 @@ resource "google_container_node_pool" "primary_nodes" {
   cluster    = google_container_cluster.main.name
   node_count = var.gke_node_count
 
+  node_locations = [
+    "${var.region}-a",
+    "${var.region}-b",
+    "${var.region}-c",
+  ]
+
   node_config {
     machine_type = var.gke_machine_type
     oauth_scopes = [

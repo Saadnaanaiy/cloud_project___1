@@ -75,11 +75,15 @@ jobs:
       - name: Apply namespace & config
         run: |
           kubectl apply -f k8s/00-namespace.yaml
-          # Inject Secrets from GitHub Secrets (using | as delimiter to handle slashes in the key)
+          # Inject ALL Secrets from GitHub Secrets
+          sed -i "s|changeme-root|${{ secrets.MYSQL_ROOT_PASSWORD }}|g" k8s/01-secrets.yaml
+          sed -i "s|changeme-db|${{ secrets.DB_PASSWORD }}|g" k8s/01-secrets.yaml
+          sed -i "s|changeme-jwt-secret-minimum-32-chars!!|${{ secrets.JWT_SECRET }}|g" k8s/01-secrets.yaml
           sed -i "s|TURNSTILE_SECRET_KEY_PLACEHOLDER|${{ secrets.TURNSTILE_SECRET_KEY }}|g" k8s/01-secrets.yaml
           sed -i "s|admin-password-placeholder|${{ secrets.DEFAULT_ADMIN_PASSWORD }}|g" k8s/01-secrets.yaml
           sed -i "s|hr-password-placeholder|${{ secrets.DEFAULT_HR_PASSWORD }}|g" k8s/01-secrets.yaml
           sed -i "s|manager-password-placeholder|${{ secrets.DEFAULT_MANAGER_PASSWORD }}|g" k8s/01-secrets.yaml
+          sed -i "s|changeme-backup-bucket|${{ secrets.GCS_BACKUP_BUCKET }}|g" k8s/01-secrets.yaml
           kubectl apply -f k8s/01-secrets.yaml
           kubectl apply -f k8s/02-configmap.yaml
 
@@ -115,6 +119,14 @@ jobs:
       # ─────────────────────────────────────────────
       # STEP 3 — Apply SSL cert-manager + Ingress
       # ─────────────────────────────────────────────
+      - name: Apply security & monitoring manifests
+        run: |
+          kubectl apply -f k8s/10-networkpolicy.yaml
+          kubectl apply -f k8s/11-alerts.yaml
+          kubectl apply -f k8s/12-mysql-backup.yaml
+          kubectl apply -f k8s/13-grafana-dashboard.yaml
+          kubectl apply -f k8s/08-monitoring-ingress.yaml
+
       - name: Apply cert-manager ClusterIssuers
         run: kubectl apply -f k8s/07-cert-manager-issuer.yaml
 

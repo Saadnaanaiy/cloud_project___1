@@ -85,7 +85,7 @@ jobs:
 
       - name: Run backend tests with coverage
         working-directory: backend
-        run: npx jest --coverage --watchAll=false --ci --passWithNoTests
+        run: npx jest --coverage --watchAll=false --ci
         continue-on-error: true
 
       - name: Run frontend tests with coverage
@@ -151,7 +151,7 @@ jobs:
         with:
           image-ref: "${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:${{ steps.tag.outputs.TAG }}"
           format: "table"
-          exit-code: "0"
+          exit-code: "1"
           severity: "CRITICAL"
 
       - name: Push backend image
@@ -174,7 +174,7 @@ jobs:
         with:
           image-ref: "${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:${{ steps.tag.outputs.TAG }}"
           format: "table"
-          exit-code: "0"
+          exit-code: "1"
           severity: "CRITICAL"
 
       - name: Push frontend image

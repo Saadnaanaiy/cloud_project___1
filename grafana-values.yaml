@@ -31,3 +31,31 @@ prometheus:
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     probeSelectorNilUsesHelmValues: false
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['namespace', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'default-receiver'
+    receivers:
+      - name: 'default-receiver'
+        email_configs:
+          - to: 'admin@empmanager.io'
+            from: 'alertmanager@empmanager.io'
+            smarthost: 'smtp.gmail.com:587'
+            auth_username: 'alertmanager@empmanager.io'
+            auth_identity: 'alertmanager@empmanager.io'
+            auth_password: 'changeme-alertmanager-password'
+            send_resolved: true
+            headers:
+              subject: '⚠️ [AlertManager] {{ .GroupLabels.severity | toUpper }} - {{ .GroupLabels.namespace }}'
+    inhibit_rules:
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['namespace', 'alertname']

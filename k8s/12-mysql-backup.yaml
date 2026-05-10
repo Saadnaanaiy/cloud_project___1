@@ -40,9 +40,20 @@ data:
     echo "Backup completed: ${BACKUP_FILE}"
     echo "Size: $(du -h "${BACKUP_FILE}" | cut -f1)"
 
-    # Keep only last 7 backups
+    # Upload to GCS for off-site storage
+    if [ -n "${GCS_BACKUP_BUCKET}" ]; then
+      echo "Uploading to GCS bucket: ${GCS_BACKUP_BUCKET}..."
+      gsutil cp "${BACKUP_FILE}" "gs://${GCS_BACKUP_BUCKET}/mysql/${TIMESTAMP}.sql.gz" && \
+        echo "GCS upload successful" || \
+        echo "GCS upload failed — backup kept locally"
+      # Clean old GCS backups (keep 30 days)
+      gsutil ls "gs://${GCS_BACKUP_BUCKET}/mysql/" 2>/dev/null | \
+        sort | head -n -30 | xargs -r gsutil rm
+    fi
+
+    # Keep only last 7 local backups
     ls -t ${BACKUP_DIR}/mysql_backup_*.sql.gz | tail -n +8 | xargs -r rm
-    echo "Old backups cleaned. Remaining: $(ls ${BACKUP_DIR}/mysql_backup_*.sql.gz | wc -l)"
+    echo "Old backups cleaned. Remaining local: $(ls ${BACKUP_DIR}/mysql_backup_*.sql.gz | wc -l)"
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -78,6 +89,11 @@ spec:
                     secretKeyRef:
                       name: mysql-secret
                       key: MYSQL_DATABASE
+                - name: GCS_BACKUP_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-secret
+                      key: GCS_BACKUP_BUCKET
               volumeMounts:
                 - name: backup-storage
                   mountPath: /backups

@@ -7,4 +7,62 @@ metadata:
     grafana_dashboard: "1"
 data:
   employee-platform.json: |
-{{ .Files.Get "dashboards/employee-platform.json" | indent 4 }}
+    {
+      "annotations": { "list": [ { "builtIn": 1, "datasource": "-- Grafana --", "enable": true, "hide": true, "iconColor": "rgba(0, 211, 255, 1)", "name": "Annotations & Alerts", "type": "dashboard" } ] },
+      "editable": true, "gnetId": null, "graphTooltip": 0, "id": null, "links": [],
+      "panels": [
+        { "title": "Employee Platform Overview", "type": "row", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }, "id": 1, "collapsed": false },
+        { "title": "Pod Status", "type": "stat", "id": 2, "datasource": "Prometheus", "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+          "targets": [
+            { "expr": "sum(kube_pod_status_phase{namespace=\"employee-platform\", phase=\"Running\"})", "legendFormat": "Running" },
+            { "expr": "sum(kube_pod_status_phase{namespace=\"employee-platform\", phase=\"Pending\"})", "legendFormat": "Pending" },
+            { "expr": "sum(kube_pod_status_phase{namespace=\"employee-platform\", phase=\"Failed\"})", "legendFormat": "Failed" }
+          ],
+          "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 80 } ] } } } },
+        { "title": "Total API Requests (5m)", "type": "stat", "id": 3, "datasource": "Prometheus", "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+          "targets": [ { "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"employee-platform\"}[5m])) * 300", "instant": true } ],
+          "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [ { "color": "blue", "value": null } ] } } } },
+        { "title": "5xx Error Rate", "type": "stat", "id": 4, "datasource": "Prometheus", "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+          "targets": [ { "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"employee-platform\", status=~\"5..\"}[5m])) / sum(rate(nginx_ingress_controller_requests{namespace=\"employee-platform\"}[5m])) * 100", "instant": true } ],
+          "fieldConfig": { "defaults": { "unit": "percent", "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 5 } ] } } } },
+        { "title": "Avg Response Latency (p99)", "type": "stat", "id": 5, "datasource": "Prometheus", "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+          "targets": [ { "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{namespace=\"employee-platform\"}[5m])) by (le))", "instant": true } ],
+          "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 3 } ] } } } },
+        { "title": "Application Performance", "type": "row", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }, "id": 6, "collapsed": false },
+        { "title": "Backend CPU Usage", "type": "timeseries", "id": 7, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+          "targets": [ { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"employee-platform\", container=\"backend\"}[5m])) by (pod) * 100", "legendFormat": "{{pod}}" } ],
+          "fieldConfig": { "defaults": { "unit": "percent", "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 80 } ] } } } },
+        { "title": "Backend Memory Usage", "type": "timeseries", "id": 8, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+          "targets": [ { "expr": "sum(container_memory_working_set_bytes{namespace=\"employee-platform\", container=\"backend\"}) by (pod)", "legendFormat": "{{pod}}" } ],
+          "fieldConfig": { "defaults": { "unit": "bytes" } } },
+        { "title": "API Requests by Status Code", "type": "timeseries", "id": 9, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+          "targets": [
+            { "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"employee-platform\", status=~\"2..\"}[5m]))", "legendFormat": "2xx" },
+            { "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"employee-platform\", status=~\"3..\"}[5m]))", "legendFormat": "3xx" },
+            { "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"employee-platform\", status=~\"4..\"}[5m]))", "legendFormat": "4xx" },
+            { "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"employee-platform\", status=~\"5..\"}[5m]))", "legendFormat": "5xx" }
+          ] },
+        { "title": "Active Connections", "type": "timeseries", "id": 10, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+          "targets": [ { "expr": "sum(nginx_ingress_controller_nginx_process_connections{namespace=\"employee-platform\"})", "legendFormat": "Active Connections" } ] },
+        { "title": "Database & Infrastructure", "type": "row", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 }, "id": 11, "collapsed": false },
+        { "title": "MySQL CPU Usage", "type": "timeseries", "id": 12, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+          "targets": [ { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"employee-platform\", container=\"mysql\"}[5m])) by (pod) * 100", "legendFormat": "{{pod}}" } ],
+          "fieldConfig": { "defaults": { "unit": "percent", "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 80 } ] } } } },
+        { "title": "MySQL Memory Usage", "type": "timeseries", "id": 13, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+          "targets": [ { "expr": "sum(container_memory_working_set_bytes{namespace=\"employee-platform\", container=\"mysql\"}) by (pod)", "legendFormat": "{{pod}}" } ],
+          "fieldConfig": { "defaults": { "unit": "bytes" } } },
+        { "title": "Pod Restarts (24h)", "type": "bargauge", "id": 14, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 0, "y": 31 },
+          "targets": [ { "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"employee-platform\"}[24h])) by (container)", "legendFormat": "{{container}}" } ],
+          "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 5 } ] } } } },
+        { "title": "Persistent Volume Usage", "type": "gauge", "id": 15, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 12, "x": 12, "y": 31 },
+          "targets": [ { "expr": "(kubelet_volume_stats_capacity_bytes{namespace=\"employee-platform\"} - kubelet_volume_stats_available_bytes{namespace=\"employee-platform\"}) / kubelet_volume_stats_capacity_bytes{namespace=\"employee-platform\"} * 100", "legendFormat": "{{persistentvolumeclaim}}" } ],
+          "fieldConfig": { "defaults": { "unit": "percent", "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 85 } ] } } } }
+      ],
+      "refresh": "30s", "schemaVersion": 30, "style": "dark",
+      "tags": ["employee-platform", "kubernetes"],
+      "templating": { "list": [] },
+      "time": { "from": "now-6h", "to": "now" },
+      "timepicker": {}, "timezone": "browser",
+      "title": "Employee Platform Dashboard",
+      "uid": "employee-platform", "version": 1
+    }

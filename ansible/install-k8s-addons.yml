@@ -84,23 +84,58 @@
         --namespace monitoring
         --create-namespace
         --version {{ prometheus_stack_version }}
-        --set grafana.adminPassword=Admin123!
-        --set prometheus.prometheusSpec.retention=15d
+        -f grafana-values.yaml
         --wait --timeout=10m
+      args:
+        chdir: "{{ playbook_dir }}/.."
       register: prom_result
       changed_when: "'deployed' in prom_result.stdout"
+
+    - name: Apply monitoring ingress
+      ansible.builtin.command: kubectl apply -f k8s/08-monitoring-ingress.yaml
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      changed_when: false
 
     - name: Show Grafana access info
       ansible.builtin.debug:
         msg: |
           ============================================
-          📊 Grafana is now installed!
-          
-          To access Grafana locally, run:
-            kubectl port-forward svc/kube-prometheus-stack-grafana \
-              3000:80 -n monitoring
-          
-          Then open: http://localhost:3000
-          Username: admin
-          Password: Admin123!
-          ============================================
+
+    # ── ArgoCD (GitOps) ───────────────────────────────────────
+    - name: Install ArgoCD
+      ansible.builtin.command: >
+        helm upgrade --install argocd argo/argo-cd
+        --namespace argocd
+        --create-namespace
+        --set server.service.type=LoadBalancer
+        --wait
+      register: argocd_result
+      changed_when: "'deployed' in argocd_result.stdout"
+
+    - name: Apply ArgoCD Application manifest (GitOps sync)
+      ansible.builtin.command: kubectl apply -f argocd/application.yaml
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      changed_when: false
+
+    # ── External Secrets Operator ─────────────────────────────
+    - name: Add External Secrets Helm repo
+      ansible.builtin.command: helm repo add external-secrets https://charts.external-secrets.io --force-update
+      changed_when: false
+
+    - name: Install External Secrets Operator
+      ansible.builtin.command: >
+        helm upgrade --install external-secrets external-secrets/external-secrets
+        --namespace external-secrets
+        --create-namespace
+        --set installCRDs=true
+        --wait
+      register: es_result
+      changed_when: "'deployed' in es_result.stdout"
+
+    - name: Apply External Secrets SecretStore
+      ansible.builtin.command: kubectl apply -f k8s/external-secrets/02-secret-store.yaml
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      changed_when: false

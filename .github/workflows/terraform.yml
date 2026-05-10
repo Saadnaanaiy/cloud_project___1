@@ -45,6 +45,11 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
       - name: Terraform Init
         run: |
           terraform init \
@@ -53,6 +58,9 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+
+      - name: TFLint
+        run: tflint --format compact --var-file=terraform.tfvars
 
       - name: Terraform Plan
         if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply'

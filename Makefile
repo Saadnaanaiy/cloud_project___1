@@ -136,6 +136,11 @@ k8s-deploy: ## Deploy ALL manifests to GKE (ordered)
 	kubectl rollout status statefulset/mysql -n $(NAMESPACE) --timeout=180s
 	kubectl apply -f k8s/04-backend.yaml
 	kubectl apply -f k8s/05-frontend.yaml
+	kubectl apply -f k8s/09-pdb.yaml
+	kubectl apply -f k8s/10-networkpolicy.yaml
+	kubectl apply -f k8s/11-alerts.yaml
+	kubectl apply -f k8s/12-mysql-backup.yaml
+	kubectl apply -f k8s/13-grafana-dashboard.yaml
 	kubectl apply -f k8s/07-cert-manager-issuer.yaml
 	kubectl apply -f k8s/06-ingress.yaml
 	@echo "✅ All manifests applied!"
@@ -212,8 +217,7 @@ monitoring-install: ## Install Prometheus + Grafana (kube-prometheus-stack)
 	helm upgrade --install kube-prometheus-stack \
 		prometheus-community/kube-prometheus-stack \
 		--namespace monitoring --create-namespace \
-		--set grafana.adminPassword=Admin123! \
-		--set prometheus.prometheusSpec.retention=15d \
+		-f grafana-values.yaml \
 		--wait --timeout=10m
 	@echo "✅ Monitoring installed!"
 	@echo "📊 Apply Grafana Ingress: kubectl apply -f k8s/08-monitoring-ingress.yaml"
@@ -251,3 +255,44 @@ pentest-attack: ## Run web attack tests (requires Kali)
 
 pentest-k8s: ## Run K8s security audit
 	bash scripts/pentest/03-k8s-audit.sh
+
+# ─── ArgoCD ──────────────────────────────────────────────────
+argocd-install: ## Install ArgoCD on the cluster
+	kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+	helm repo add argo https://argoproj.github.io/argo-helm --force-update
+	helm upgrade --install argocd argo/argo-cd \
+		--namespace argocd --create-namespace \
+		--set server.service.type=LoadBalancer \
+		--wait
+	@echo "✅ ArgoCD installed!"
+	@echo "🌐 Access: https://$(DOMAIN)/argocd"
+	@echo "🔑 Get password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"
+
+argocd-apply: ## Apply ArgoCD Application manifest
+	kubectl apply -f argocd/application.yaml
+	@echo "✅ ArgoCD Application synced — GitOps is active!"
+
+# ─── External Secrets Operator ─────────────────────────────
+external-secrets-install: ## Install External Secrets Operator
+	bash k8s/external-secrets/01-install-operator.sh
+	kubectl apply -f k8s/external-secrets/02-secret-store.yaml
+	@echo "✅ External Secrets Operator installed!"
+
+# ─── Cloud CDN ────────────────────────────────────────────────
+cdn-sync-frontend: ## Sync frontend build to CDN bucket
+	@echo "📦 Building frontend for CDN..."
+	cd frontend && npm run build
+	@echo "📤 Uploading to GCS bucket $(PROJECT_ID)-frontend-cdn..."
+	gsutil -m rsync -r frontend/dist "gs://$(PROJECT_ID)-frontend-cdn/static/"
+	gsutil setmeta -h "Cache-Control:public,max-age=31536000" "gs://$(PROJECT_ID)-frontend-cdn/static/**"
+	@echo "✅ Frontend assets uploaded to Cloud CDN!"
+	@echo "🌐 CDN URL: https://storage.googleapis.com/$(PROJECT_ID)-frontend-cdn/static/index.html"
+
+# ─── SonarQube ────────────────────────────────────────────────
+sonar-scan: ## Run SonarCloud scan locally
+	@echo "🔬 Running SonarCloud scan..."
+	cd backend && npx sonar-scanner \
+		-Dsonar.projectKey=Saadnaanaiy_cloud_project___1 \
+		-Dsonar.organization=saadnaanaiy \
+		-Dsonar.host.url=https://sonarcloud.io \
+		-Dsonar.login=$(SONAR_TOKEN)

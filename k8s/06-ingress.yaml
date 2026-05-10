@@ -19,8 +19,12 @@ metadata:
     # Body size for file uploads
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
     # Rate limiting: prevent brute-force
-    nginx.ingress.kubernetes.io/limit-connections: "10"
-    nginx.ingress.kubernetes.io/limit-rps: "5"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+    nginx.ingress.kubernetes.io/limit-rps: "30"
+    # Retry upstream on failure (503 from backend) — 3 tries
+    nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "3"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
 spec:
   # TLS block — cert-manager auto-creates the Secret "employee-tls"
   tls:

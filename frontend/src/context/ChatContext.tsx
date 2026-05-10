@@ -72,6 +72,21 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const fetchWithRetry = async (fn: () => Promise<void>, retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await fn();
+        return;
+      } catch (error: any) {
+        if (i < retries - 1 && error?.response?.status >= 500) {
+          await new Promise(r => setTimeout(r, delay * (i + 1)));
+        } else {
+          throw error;
+        }
+      }
+    }
+  };
+
   const fetchConversation = async (contactId: number) => {
     try {
       const res = await api.get(`/messages/history/${contactId}`);
@@ -146,7 +161,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
-        reconnectionAttempts: 5,
+        reconnectionAttempts: 10,
+        transports: ['websocket'],
         path: '/ws/chat/',
       });
 

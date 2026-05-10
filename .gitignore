@@ -34,3 +34,8 @@ lerna-debug.log*
 *.tfstate.*
 infrastructure/backend.hcl
 infrastructure/terraform.tfvars
+
+# Jupyter / Python
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
