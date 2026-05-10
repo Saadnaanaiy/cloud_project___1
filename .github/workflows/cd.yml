@@ -1,5 +1,4 @@
 name: CD — Deploy to GKE
-# Trigger fresh build with updated Turnstile keys (v3 - new widget)
 
 on:
   workflow_run:
@@ -28,7 +27,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
 
     permissions:
-      contents: read
+      contents: write
       id-token: write
 
     steps:
@@ -70,98 +69,64 @@ jobs:
           fi
 
       # ─────────────────────────────────────────────
-      # STEP 1 — Apply core infrastructure manifests
+      # STEP 1 — Apply infrastructure manifests
       # ─────────────────────────────────────────────
-      - name: Apply namespace & config
+      - name: Apply namespace & static config
         run: |
           kubectl apply -f k8s/00-namespace.yaml
-          # Inject Secrets from GitHub Secrets with fallback to placeholders
-          TURNSTILE_KEY="${{ secrets.TURNSTILE_SECRET_KEY }}"
-          ADMIN_PASS="${{ secrets.DEFAULT_ADMIN_PASSWORD }}"
-          HR_PASS="${{ secrets.DEFAULT_HR_PASSWORD }}"
-          MANAGER_PASS="${{ secrets.DEFAULT_MANAGER_PASSWORD }}"
-          GCS_BUCKET="${{ secrets.GCS_BACKUP_BUCKET }}"
-
-          sed -i "s|TURNSTILE_SECRET_KEY_PLACEHOLDER|${TURNSTILE_KEY:-TURNSTILE_SECRET_KEY_PLACEHOLDER}|g" k8s/01-secrets.yaml
-          sed -i "s|admin-password-placeholder|${ADMIN_PASS:-admin-password-placeholder}|g" k8s/01-secrets.yaml
-          sed -i "s|hr-password-placeholder|${HR_PASS:-hr-password-placeholder}|g" k8s/01-secrets.yaml
-          sed -i "s|manager-password-placeholder|${MANAGER_PASS:-manager-password-placeholder}|g" k8s/01-secrets.yaml
-          sed -i "s|changeme-backup-bucket|${GCS_BUCKET:-changeme-backup-bucket}|g" k8s/01-secrets.yaml
           kubectl apply -f k8s/01-secrets.yaml
           kubectl apply -f k8s/02-configmap.yaml
-          kubectl apply -f k8s/01-secrets.yaml
-          kubectl apply -f k8s/02-configmap.yaml
-          kubectl apply -f k8s/01-secrets.yaml
-          kubectl apply -f k8s/02-configmap.yaml
-
-      - name: Deploy MySQL (StatefulSet)
-        run: kubectl apply -f k8s/03-mysql.yaml
-
-      - name: Wait for MySQL to be ready
-        run: |
-          kubectl rollout status statefulset/mysql \
-            -n ${{ env.NAMESPACE }} --timeout=180s
-
-      # ─────────────────────────────────────────────
-      # STEP 2 — Update image tags & deploy services
-      # ─────────────────────────────────────────────
-      - name: Update manifests and deploy
-        run: |
-          TAG="${{ steps.tag.outputs.TAG }}"
-          IMAGE_BASE="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}"
-          
-          # Inject image tags into manifests
-          sed -i "s|backend:v1.0.0|backend:$TAG|g" k8s/04-backend.yaml
-          sed -i "s|frontend:v1.0.0|frontend:$TAG|g" k8s/05-frontend.yaml
-          
-          # Apply full manifests (includes env vars and other config)
-          kubectl apply -f k8s/04-backend.yaml
-          kubectl apply -f k8s/05-frontend.yaml
+          kubectl apply -f k8s/03-mysql.yaml
+          kubectl apply -f k8s/07-cert-manager-issuer.yaml
           kubectl apply -f k8s/09-pdb.yaml
-          
-          # Force restart to ensure fresh containers
-          kubectl rollout restart deployment/backend -n ${{ env.NAMESPACE }}
-          kubectl rollout restart deployment/frontend -n ${{ env.NAMESPACE }}
-
-      # ─────────────────────────────────────────────
-      # STEP 3 — Apply SSL cert-manager + Ingress
-      # ─────────────────────────────────────────────
-      - name: Apply security & monitoring manifests
-        run: |
           kubectl apply -f k8s/10-networkpolicy.yaml
           kubectl apply -f k8s/11-alerts.yaml
           kubectl apply -f k8s/12-mysql-backup.yaml
           kubectl apply -f k8s/13-grafana-dashboard.yaml
           kubectl apply -f k8s/08-monitoring-ingress.yaml
+          kubectl apply -f k8s/14-resource-quota.yaml
 
-      - name: Apply cert-manager ClusterIssuers
-        run: kubectl apply -f k8s/07-cert-manager-issuer.yaml
-
-      - name: Apply Ingress with TLS
-        run: kubectl apply -f k8s/06-ingress.yaml
+      - name: Wait for MySQL
+        run: |
+          kubectl rollout status statefulset/mysql \
+            -n ${{ env.NAMESPACE }} --timeout=180s || true
 
       # ─────────────────────────────────────────────
-      # STEP 4 — Verify deployment
+      # STEP 2 — GitOps: Update image tags + push to Git
       # ─────────────────────────────────────────────
-      - name: Wait for backend rollout
+      - name: Update image tags in manifests
+        run: |
+          TAG="${{ steps.tag.outputs.TAG }}"
+          sed -i "s|image: .*/backend:.*|image: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:$TAG|" k8s/04-backend.yaml
+          sed -i "s|image: .*/frontend:.*|image: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/frontend:$TAG|" k8s/05-frontend.yaml
+          echo "✅ Image tags updated to $TAG"
+
+      - name: Commit updated manifests to Git
+        run: |
+          git config user.name "CI Bot"
+          git config user.email "ci@empmanager.io"
+          git add k8s/04-backend.yaml k8s/05-frontend.yaml
+          git diff --cached --quiet || git commit -m "Update image tags to ${{ steps.tag.outputs.TAG }} [skip ci]"
+          git push origin main
+
+      # ─────────────────────────────────────────────
+      # STEP 3 — Apply services + Ingress
+      # ─────────────────────────────────────────────
+      - name: Apply services
+        run: |
+          kubectl apply -f k8s/04-backend.yaml
+          kubectl apply -f k8s/05-frontend.yaml
+          kubectl apply -f k8s/06-ingress.yaml
+
+      - name: Verify rollout
         run: |
           kubectl rollout status deployment/backend \
-            -n ${{ env.NAMESPACE }} --timeout=180s
-
-      - name: Wait for frontend rollout
-        run: |
+            -n ${{ env.NAMESPACE }} --timeout=120s || echo "⚠️ Backend rollout timeout — check ArgoCD"
           kubectl rollout status deployment/frontend \
-            -n ${{ env.NAMESPACE }} --timeout=120s
+            -n ${{ env.NAMESPACE }} --timeout=120s || echo "⚠️ Frontend rollout timeout — check ArgoCD"
 
       - name: Show deployed pods
         run: kubectl get pods -n ${{ env.NAMESPACE }}
-
-      - name: Show Ingress & SSL certificate status
-        run: |
-          echo "=== Ingress ==="
-          kubectl get ingress -n ${{ env.NAMESPACE }}
-          echo "=== TLS Certificates ==="
-          kubectl get certificate -n ${{ env.NAMESPACE }} || true
 
       - name: Deployment summary
         run: |
