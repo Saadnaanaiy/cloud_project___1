@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, MoreThan } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Announcement } from './announcement.entity';
 import { CreateAnnouncementDto, UpdateAnnouncementDto } from './dto/announcement.dto';
 import { UserRole } from '../auth/user.entity';
@@ -12,18 +12,19 @@ export class AnnouncementsService {
   constructor(
     @InjectRepository(Announcement)
     private readonly repo: Repository<Announcement>,
-    private readonly notifications: NotificationsService,
-    private readonly employees: EmployeesService,
+    @Optional() private readonly notifications?: NotificationsService,
+    @Optional() private readonly employees?: EmployeesService,
   ) {}
 
   findAll(userRole: string) {
     if (userRole === UserRole.ADMIN || userRole === UserRole.HR) {
       return this.repo.find({ order: { createdAt: 'DESC' } });
     }
-    return this.repo.find({
-      where: { publishedAt: LessThanOrEqual(new Date()) },
-      order: { createdAt: 'DESC' },
-    });
+    return this.repo
+      .createQueryBuilder('a')
+      .where('a.publishedAt <= :now', { now: new Date() })
+      .orderBy('a.createdAt', 'DESC')
+      .getMany();
   }
 
   findOne(id: number) {
@@ -38,13 +39,12 @@ export class AnnouncementsService {
       publishedAt,
     });
 
-    const allEmployees = await this.employees.findAll();
-    for (const emp of allEmployees) {
-      await this.notifications.sendAnnouncementEmail(
-        emp.email,
-        dto.title,
-        dto.content,
-      );
+    if (this.employees && this.notifications) {
+      this.employees.findAll().then(all => {
+        for (const emp of all) {
+          this.notifications!.sendAnnouncementEmail(emp.email, dto.title, dto.content);
+        }
+      }).catch(() => {});
     }
 
     return announcement;
@@ -65,6 +65,9 @@ export class AnnouncementsService {
   }
 
   async getUnreadCount(after: Date) {
-    return this.repo.count({ where: { createdAt: MoreThan(after) } });
+    return this.repo
+      .createQueryBuilder('a')
+      .where('a.createdAt > :after', { after })
+      .getCount();
   }
 }
