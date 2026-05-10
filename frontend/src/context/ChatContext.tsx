@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import api from '../api/axios';
 import { useAuth } from './AuthContext';
@@ -60,54 +60,42 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [activeContactId, setActiveContactId] = useState<number | null>(null);
   const [typingStatus, setTypingStatus] = useState<Record<number, boolean>>({});
 
+  const activeContactIdRef = useRef(activeContactId);
+  activeContactIdRef.current = activeContactId;
+
   const unreadTotal = Array.isArray(contacts) ? contacts.reduce((sum, contact) => sum + contact.unreadCount, 0) : 0;
 
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     try {
       const res = await api.get('/messages/contacts');
       setContacts(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error('Failed to fetch contacts', error);
+    } catch {
       setContacts([]);
     }
-  };
+  }, []);
 
-  const fetchConversation = async (contactId: number, retries = 3) => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const res = await api.get(`/messages/history/${contactId}`);
-        setMessages(Array.isArray(res.data) ? res.data : []);
-        return;
-      } catch (error: any) {
-        if (i < retries - 1 && error?.response?.status >= 500) {
-          await new Promise(r => setTimeout(r, 1000 * (i + 1)));
-        } else {
-          console.error('Failed to fetch conversation', error);
-          setMessages([]);
-          return;
-        }
-      }
+  const fetchConversation = useCallback(async (contactId: number) => {
+    try {
+      const res = await api.get(`/messages/history/${contactId}`);
+      setMessages(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      setMessages([]);
     }
-  };
+  }, []);
 
-  const markAsRead = async (contactId: number, retries = 3) => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        await api.post(`/messages/read/${contactId}`);
-        setContacts((prev) =>
-          Array.isArray(prev) ? prev.map((c) => (c.user.id === contactId ? { ...c, unreadCount: 0 } : c)) : []
-        );
-        return;
-      } catch (error: any) {
-        if (i < retries - 1 && error?.response?.status >= 500) {
-          await new Promise(r => setTimeout(r, 1000 * (i + 1)));
-        } else {
-          console.error('Failed to mark as read', error);
-          return;
-        }
-      }
+  const markAsRead = useCallback(async (contactId: number) => {
+    try {
+      await api.post(`/messages/read/${contactId}`);
+      setContacts((prev) =>
+        Array.isArray(prev) ? prev.map((c) => (c.user.id === contactId ? { ...c, unreadCount: 0 } : c)) : []
+      );
+    } catch {
+      // Not critical for UX - silently fail
     }
-  };
+  }, []);
+
+  const markAsReadTimer = useRef<number | undefined>(undefined);
+  const fetchContactsTimer = useRef<number | undefined>(undefined);
 
   const sendMessage = (
     receiverId: number,
@@ -171,16 +159,16 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       fetchContacts();
 
       const handleNewMessage = (message: Message) => {
-        setActiveContactId((currentActiveId) => {
-          if (currentActiveId === message.senderId || currentActiveId === message.receiverId) {
-            setMessages(appendMessage(message));
-            if (message.receiverId === user.id && message.senderId === currentActiveId) {
-              markAsRead(currentActiveId);
-            }
+        const currentActiveId = activeContactIdRef.current;
+        if (currentActiveId === message.senderId || currentActiveId === message.receiverId) {
+          setMessages(appendMessage(message));
+          if (message.receiverId === user.id && message.senderId === currentActiveId) {
+            clearTimeout(markAsReadTimer.current);
+            markAsReadTimer.current = setTimeout(() => markAsRead(currentActiveId), 500);
           }
-          return currentActiveId;
-        });
-        fetchContacts();
+        }
+        clearTimeout(fetchContactsTimer.current);
+        fetchContactsTimer.current = setTimeout(() => fetchContacts(), 1000);
       };
 
       const handleUserTyping = ({ senderId, isTyping }: { senderId: number; isTyping: boolean }) => {
