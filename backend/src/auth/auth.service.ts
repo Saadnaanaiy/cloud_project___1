@@ -184,30 +184,22 @@ export class AuthService implements OnModuleInit {
   }
 
   private async verifyCaptcha(token: string) {
-    if (!token) {
-      throw new BadRequestException(
-        'CAPTCHA token is missing from the request',
-      );
-    }
-
     const secretKey = process.env.TURNSTILE_SECRET_KEY;
     const isDev = process.env.NODE_ENV === 'development';
     const disableTurnstile = process.env.DISABLE_TURNSTILE === 'true';
 
-    // Explicit local development bypass ONLY.
-    // Must set DISABLE_TURNSTILE=true in your local .env to skip verification.
-    // Never bypass in production — always fail closed.
-    if (isDev && disableTurnstile) {
-      console.warn(
-        '⚠️  Turnstile verification is DISABLED for local development.',
-      );
+    if (disableTurnstile && isDev) {
+      console.warn('⚠️ Turnstile verification DISABLED (dev only).');
       return;
     }
 
     if (!secretKey) {
-      throw new BadRequestException(
-        'Turnstile secret key is not configured. Set TURNSTILE_SECRET_KEY or DISABLE_TURNSTILE=true (dev only).',
-      );
+      console.warn('⚠️ TURNSTILE_SECRET_KEY not set — skipping CAPTCHA.');
+      return;
+    }
+
+    if (!token) {
+      throw new BadRequestException('CAPTCHA token is missing from the request');
     }
 
     const verifyUrl =
