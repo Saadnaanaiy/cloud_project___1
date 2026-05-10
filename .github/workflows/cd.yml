@@ -75,24 +75,20 @@ jobs:
       - name: Apply namespace & config
         run: |
           kubectl apply -f k8s/00-namespace.yaml
-          # Inject ALL Secrets from GitHub Secrets with fallback to placeholders
-          MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}"
-          DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-          JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          # Inject Secrets from GitHub Secrets with fallback to placeholders
           TURNSTILE_KEY="${{ secrets.TURNSTILE_SECRET_KEY }}"
           ADMIN_PASS="${{ secrets.DEFAULT_ADMIN_PASSWORD }}"
           HR_PASS="${{ secrets.DEFAULT_HR_PASSWORD }}"
           MANAGER_PASS="${{ secrets.DEFAULT_MANAGER_PASSWORD }}"
           GCS_BUCKET="${{ secrets.GCS_BACKUP_BUCKET }}"
 
-          sed -i "s|changeme-root|${MYSQL_ROOT_PASSWORD:-changeme-root}|g" k8s/01-secrets.yaml
-          sed -i "s|changeme-db|${DB_PASSWORD:-changeme-db}|g" k8s/01-secrets.yaml
-          sed -i "s|changeme-jwt-secret-minimum-32-chars!!|${JWT_SECRET:-changeme-jwt-secret-minimum-32-chars!!}|g" k8s/01-secrets.yaml
           sed -i "s|TURNSTILE_SECRET_KEY_PLACEHOLDER|${TURNSTILE_KEY:-TURNSTILE_SECRET_KEY_PLACEHOLDER}|g" k8s/01-secrets.yaml
           sed -i "s|admin-password-placeholder|${ADMIN_PASS:-admin-password-placeholder}|g" k8s/01-secrets.yaml
           sed -i "s|hr-password-placeholder|${HR_PASS:-hr-password-placeholder}|g" k8s/01-secrets.yaml
           sed -i "s|manager-password-placeholder|${MANAGER_PASS:-manager-password-placeholder}|g" k8s/01-secrets.yaml
           sed -i "s|changeme-backup-bucket|${GCS_BUCKET:-changeme-backup-bucket}|g" k8s/01-secrets.yaml
+          kubectl apply -f k8s/01-secrets.yaml
+          kubectl apply -f k8s/02-configmap.yaml
           kubectl apply -f k8s/01-secrets.yaml
           kubectl apply -f k8s/02-configmap.yaml
           kubectl apply -f k8s/01-secrets.yaml
