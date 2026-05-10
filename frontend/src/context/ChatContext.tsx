@@ -72,39 +72,40 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const fetchWithRetry = async (fn: () => Promise<void>, retries = 3, delay = 1000) => {
+  const fetchConversation = async (contactId: number, retries = 3) => {
     for (let i = 0; i < retries; i++) {
       try {
-        await fn();
+        const res = await api.get(`/messages/history/${contactId}`);
+        setMessages(Array.isArray(res.data) ? res.data : []);
         return;
       } catch (error: any) {
         if (i < retries - 1 && error?.response?.status >= 500) {
-          await new Promise(r => setTimeout(r, delay * (i + 1)));
+          await new Promise(r => setTimeout(r, 1000 * (i + 1)));
         } else {
-          throw error;
+          console.error('Failed to fetch conversation', error);
+          setMessages([]);
+          return;
         }
       }
     }
   };
 
-  const fetchConversation = async (contactId: number) => {
-    try {
-      const res = await api.get(`/messages/history/${contactId}`);
-      setMessages(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error('Failed to fetch conversation', error);
-      setMessages([]);
-    }
-  };
-
-  const markAsRead = async (contactId: number) => {
-    try {
-      await api.post(`/messages/read/${contactId}`);
-      setContacts((prev) =>
-        Array.isArray(prev) ? prev.map((c) => (c.user.id === contactId ? { ...c, unreadCount: 0 } : c)) : []
-      );
-    } catch (error) {
-      console.error('Failed to mark as read', error);
+  const markAsRead = async (contactId: number, retries = 3) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await api.post(`/messages/read/${contactId}`);
+        setContacts((prev) =>
+          Array.isArray(prev) ? prev.map((c) => (c.user.id === contactId ? { ...c, unreadCount: 0 } : c)) : []
+        );
+        return;
+      } catch (error: any) {
+        if (i < retries - 1 && error?.response?.status >= 500) {
+          await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+        } else {
+          console.error('Failed to mark as read', error);
+          return;
+        }
+      }
     }
   };
 
