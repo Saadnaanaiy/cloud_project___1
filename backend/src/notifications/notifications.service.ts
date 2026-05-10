@@ -62,6 +62,20 @@ export class NotificationsService {
     return this.sendMail(to, subject, html);
   }
 
+  async sendNewLeaveNotification(
+    to: string,
+    employeeName: string,
+    type: string,
+  ) {
+    const subject = `New Leave Request: ${type}`;
+    const html = `
+      <h2>New Leave Request</h2>
+      <p><strong>${employeeName}</strong> has submitted a <strong>${type}</strong> leave request.</p>
+      <p>Please review and approve/reject it in the system.</p>
+    `;
+    return this.sendMail(to, subject, html);
+  }
+
   async sendAnnouncementEmail(
     to: string,
     title: string,

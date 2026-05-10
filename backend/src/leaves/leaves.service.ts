@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Leave, LeaveStatus, LeaveType } from './leave.entity';
 import { CreateLeaveDto, UpdateLeaveStatusDto } from './dto/leave.dto';
 import { UserRole } from '../auth/user.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { EmployeesService } from '../employees/employees.service';
 
 @Injectable()
 export class LeavesService {
@@ -11,26 +13,34 @@ export class LeavesService {
 
   constructor(
     @InjectRepository(Leave) private readonly repo: Repository<Leave>,
+    private readonly notifications: NotificationsService,
+    private readonly employees: EmployeesService,
   ) {}
 
   findAll(userRole: string, employeeId?: number) {
-    if (userRole === UserRole.ADMIN || userRole === UserRole.HR) {
-      const where: any = {};
-      if (employeeId) where.employeeId = employeeId;
-      return this.repo.find({ where, order: { createdAt: 'DESC' } });
+    const where: any = {};
+    if (employeeId) where.employeeId = employeeId;
+    if (userRole !== UserRole.ADMIN && userRole !== UserRole.HR && employeeId) {
+      where.employeeId = employeeId;
     }
-    return this.repo.find({
-      where: { employeeId },
-      order: { createdAt: 'DESC' },
-    });
+    return this.repo.find({ where, order: { createdAt: 'DESC' } });
   }
 
   findOne(id: number) {
     return this.repo.findOne({ where: { id } });
   }
 
-  create(dto: CreateLeaveDto) {
-    return this.repo.save(dto);
+  async create(dto: CreateLeaveDto) {
+    const leave = await this.repo.save(dto);
+    const employee = await this.employees.findOne(dto.employeeId).catch(() => null);
+    if (employee) {
+      await this.notifications.sendNewLeaveNotification(
+        employee.email,
+        `${employee.firstName} ${employee.lastName}`,
+        dto.type,
+      );
+    }
+    return leave;
   }
 
   async updateStatus(
@@ -48,7 +58,20 @@ export class LeavesService {
     leave.status = dto.status;
     leave.approverComment = dto.comment ?? '';
     leave.approvedById = approverId;
-    return this.repo.save(leave);
+    const saved = await this.repo.save(leave);
+
+    const employee = await this.employees.findOne(leave.employeeId).catch(() => null);
+    if (employee) {
+      await this.notifications.sendLeaveStatusEmail(
+        employee.email,
+        `${employee.firstName} ${employee.lastName}`,
+        leave.type,
+        dto.status,
+        dto.comment,
+      );
+    }
+
+    return saved;
   }
 
   async getBalance(employeeId: number) {

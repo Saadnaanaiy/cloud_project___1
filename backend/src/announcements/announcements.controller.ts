@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -38,6 +39,14 @@ import { CreateAnnouncementDto, UpdateAnnouncementDto } from './dto/announcement
 @Controller('announcements')
 export class AnnouncementsController {
   constructor(private readonly service: AnnouncementsService) {}
+
+  @Get('unread-count')
+  @ApiOperation({ summary: 'Get count of announcements since a date' })
+  @ApiOkResponse({ description: 'Number of unread announcements' })
+  getUnreadCount(@Query('after') after?: string) {
+    const date = after ? new Date(after) : new Date(0);
+    return this.service.getUnreadCount(date);
+  }
 
   @Get()
   @ApiOperation({ summary: 'List all announcements' })

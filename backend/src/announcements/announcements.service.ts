@@ -1,15 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThanOrEqual, MoreThan } from 'typeorm';
 import { Announcement } from './announcement.entity';
 import { CreateAnnouncementDto, UpdateAnnouncementDto } from './dto/announcement.dto';
 import { UserRole } from '../auth/user.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { EmployeesService } from '../employees/employees.service';
 
 @Injectable()
 export class AnnouncementsService {
   constructor(
     @InjectRepository(Announcement)
     private readonly repo: Repository<Announcement>,
+    private readonly notifications: NotificationsService,
+    private readonly employees: EmployeesService,
   ) {}
 
   findAll(userRole: string) {
@@ -17,7 +21,7 @@ export class AnnouncementsService {
       return this.repo.find({ order: { createdAt: 'DESC' } });
     }
     return this.repo.find({
-      where: { publishedAt: new Date() },
+      where: { publishedAt: LessThanOrEqual(new Date()) },
       order: { createdAt: 'DESC' },
     });
   }
@@ -26,13 +30,24 @@ export class AnnouncementsService {
     return this.repo.findOne({ where: { id } });
   }
 
-  create(dto: CreateAnnouncementDto, authorId: number) {
+  async create(dto: CreateAnnouncementDto, authorId: number) {
     const publishedAt = dto.publishedAt ? new Date(dto.publishedAt) : new Date();
-    return this.repo.save({
+    const announcement = await this.repo.save({
       ...dto,
       authorId,
       publishedAt,
     });
+
+    const allEmployees = await this.employees.findAll();
+    for (const emp of allEmployees) {
+      await this.notifications.sendAnnouncementEmail(
+        emp.email,
+        dto.title,
+        dto.content,
+      );
+    }
+
+    return announcement;
   }
 
   async update(id: number, dto: UpdateAnnouncementDto) {
@@ -49,7 +64,7 @@ export class AnnouncementsService {
     return { message: 'Deleted' };
   }
 
-  getUnreadCount(after: Date) {
-    return this.repo.count({ where: { createdAt: after } });
+  async getUnreadCount(after: Date) {
+    return this.repo.count({ where: { createdAt: MoreThan(after) } });
   }
 }

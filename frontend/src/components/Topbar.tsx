@@ -27,17 +27,13 @@ const Topbar: React.FC<{ title: string, setMobileMenuOpen: (open: boolean) => vo
   // Fetch unread announcements count
   useEffect(() => {
     const lastSeen = localStorage.getItem('lastAnnouncementSeen');
-    if (lastSeen) {
-      (async () => {
-        try {
-          const { data } = await api.get('/announcements');
-          const count = Array.isArray(data)
-            ? data.filter((a: any) => new Date(a.createdAt) > new Date(lastSeen)).length
-            : 0;
-          setUnreadAnnouncements(count);
-        } catch { /* ignore */ }
-      })();
-    }
+    (async () => {
+      try {
+        const params = lastSeen ? { after: lastSeen } : {};
+        const { data } = await api.get('/announcements/unread-count', { params });
+        setUnreadAnnouncements(typeof data === 'number' ? data : 0);
+      } catch { /* ignore */ }
+    })();
   }, []);
 
   // Close dropdown when clicking outside
