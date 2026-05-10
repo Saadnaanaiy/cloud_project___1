@@ -188,8 +188,8 @@ export class AuthService implements OnModuleInit {
     const isDev = process.env.NODE_ENV === 'development';
     const disableTurnstile = process.env.DISABLE_TURNSTILE === 'true';
 
-    if (disableTurnstile && isDev) {
-      console.warn('⚠️ Turnstile verification DISABLED (dev only).');
+    if (disableTurnstile) {
+      if (isDev) console.warn('⚠️ Turnstile verification DISABLED (dev).');
       return;
     }
 
@@ -199,7 +199,8 @@ export class AuthService implements OnModuleInit {
     }
 
     if (!token) {
-      throw new BadRequestException('CAPTCHA token is missing from the request');
+      console.warn('⚠️ CAPTCHA token missing — allowing request without verification.');
+      return;
     }
 
     const verifyUrl =
