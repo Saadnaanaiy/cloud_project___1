@@ -15,8 +15,6 @@ import { DepartmentsModule } from './departments/departments.module';
 import { Employee } from './employees/employee.entity';
 import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
-import { Leave } from './leaves/leave.entity';
-import { LeavesModule } from './leaves/leaves.module';
 import { Message } from './messages/message.entity';
 import { MessagesModule } from './messages/messages.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -44,7 +42,7 @@ import { AuditModule } from './audit/audit.module';
           username: config.get<string>('DB_USERNAME', 'root'),
           password,
           database: config.get<string>('DB_NAME', 'employee_db'),
-          entities: [User, Employee, Department, Attendance, Message, AuditLog, Leave, Announcement],
+          entities: [User, Employee, Department, Attendance, Message, AuditLog, Announcement],
           synchronize: config.get<string>('NODE_ENV') !== 'production',
           logging: false,
         };
@@ -64,7 +62,6 @@ import { AuditModule } from './audit/audit.module';
     HealthModule,
     MessagesModule,
     AuditModule,
-    LeavesModule,
     AnnouncementsModule,
     NotificationsModule,
   ],

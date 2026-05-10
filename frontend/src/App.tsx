@@ -11,15 +11,10 @@ import DashboardPage from './pages/DashboardPage';
 import EmployeesPage from './pages/EmployeesPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import AttendancePage from './pages/AttendancePage';
-import LeaveApprovalsPage from './pages/LeaveApprovalsPage';
-import LeaveBalancePage from './pages/LeaveBalancePage';
-import MyLeavesPage from './pages/MyLeavesPage';
-import OrgChartPage from './pages/OrgChartPage';
 import ReportsPage from './pages/ReportsPage';
 import DepartmentsPage from './pages/DepartmentsPage';
 import ProfilePage from './pages/ProfilePage';
 import PendingApprovalsPage from './pages/PendingApprovalsPage';
-import ShiftSchedulePage from './pages/ShiftSchedulePage';
 
 import NotFoundPage from './pages/NotFoundPage';
 import SecurityLogsPage from './pages/SecurityLogsPage';
@@ -69,12 +64,7 @@ const App: React.FC = () => {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
                 <Route path="/security-logs" element={<SecurityLogsPage />} />
-                <Route path="/my-leaves" element={<MyLeavesPage />} />
-                <Route path="/leave-approvals" element={<LeaveApprovalsPage />} />
-                <Route path="/leave-balance" element={<LeaveBalancePage />} />
                 <Route path="/announcements" element={<AnnouncementsPage />} />
-                <Route path="/shift-schedule" element={<ShiftSchedulePage />} />
-                <Route path="/org-chart" element={<OrgChartPage />} />
               </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
