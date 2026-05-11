@@ -23,7 +23,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: backend
-          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:d1027c8c
+          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:103bd28f
           ports:
             - containerPort: 3001
           envFrom:
