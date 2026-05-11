@@ -8,19 +8,22 @@ export class NotificationsService {
   private transporter: nodemailer.Transporter;
 
   constructor(private readonly config: ConfigService) {
-    const smtpKey = this.config.get<string>('BREVO_SMTP_KEY');
-    const fromEmail = this.config.get<string>('BREVO_FROM_EMAIL');
+    const host = this.config.get<string>('SMTP_HOST');
+    const port = this.config.get<number>('SMTP_PORT', 587);
+    const user = this.config.get<string>('SMTP_USER');
+    const pass = this.config.get<string>('SMTP_PASS');
+    const fromEmail = this.config.get<string>('SMTP_FROM_EMAIL');
 
-    if (smtpKey && fromEmail) {
+    if (host && user && pass && fromEmail) {
       this.transporter = nodemailer.createTransport({
-        host: 'smtp-relay.brevo.com',
-        port: 587,
-        secure: false,
-        auth: { user: fromEmail, pass: smtpKey },
+        host,
+        port,
+        secure: port === 465,
+        auth: { user, pass },
       });
     } else {
       this.logger.warn(
-        'BREVO_SMTP_KEY / BREVO_FROM_EMAIL not set — emails disabled',
+        'SMTP_HOST / SMTP_USER / SMTP_PASS / SMTP_FROM_EMAIL not set — emails disabled',
       );
     }
   }
@@ -32,7 +35,7 @@ export class NotificationsService {
     }
     try {
       await this.transporter.sendMail({
-        from: this.config.get<string>('BREVO_FROM_EMAIL'),
+        from: this.config.get<string>('SMTP_FROM_EMAIL'),
         to,
         subject,
         html,

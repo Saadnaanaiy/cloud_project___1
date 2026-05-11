@@ -13,3 +13,5 @@ data:
   # Public HTTPS URL — used for backend CORS and frontend API calls
   FRONTEND_URL: "https://empmanager.duckdns.org"
   DISABLE_TURNSTILE: "true"
+  SMTP_HOST: "smtp.mailtrap.io"
+  SMTP_PORT: "587"
