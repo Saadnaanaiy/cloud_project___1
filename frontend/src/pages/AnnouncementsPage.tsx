@@ -147,8 +147,8 @@ const AnnouncementsPage: React.FC = () => {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Publish Date</label>
-                  <input className="form-control" type="datetime-local" value={form.publishedAt} onChange={e => setForm({ ...form, publishedAt: e.target.value })} />
+                  <label className="form-label" htmlFor="ann-publish">Publish Date</label>
+                  <input id="ann-publish" className="form-control" type="datetime-local" value={form.publishedAt} onChange={e => setForm({ ...form, publishedAt: e.target.value })} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
