@@ -17,7 +17,6 @@ import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
 import { Message } from './messages/message.entity';
 import { MessagesModule } from './messages/messages.module';
-import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
 import { AuditLog } from './audit/audit-log.entity';
 import { AuditModule } from './audit/audit.module';
@@ -71,7 +70,6 @@ import { AuditModule } from './audit/audit.module';
     MessagesModule,
     AuditModule,
     AnnouncementsModule,
-    NotificationsModule,
   ],
 })
 export class AppModule {}
