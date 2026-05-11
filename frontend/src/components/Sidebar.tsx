@@ -32,7 +32,7 @@ const Sidebar: React.FC<{
     const navigate = useNavigate()
     const [collapsed, setCollapsed] = useState(false)
 
-    let navItems = [
+    let navItems = [          
         { to: "/dashboard", icon: LayoutDashboard, label: t("dashboard") },
         { to: "/employees", icon: Users, label: t("employees") },
         { to: "/attendance", icon: CalendarCheck, label: t("attendance") },
