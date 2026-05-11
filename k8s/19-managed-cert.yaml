@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: employee-cert
+  namespace: employee-platform
+spec:
+  domains:
+    - empmanager.duckdns.org

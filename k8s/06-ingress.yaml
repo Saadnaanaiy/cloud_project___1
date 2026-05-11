@@ -43,6 +43,14 @@ spec:
                 name: backend-service
                 port:
                   number: 3001
+          # Swagger API documentation
+          - path: /docs
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 3001
           # WebSocket route for real-time chat
           - path: /ws
             pathType: ImplementationSpecific
