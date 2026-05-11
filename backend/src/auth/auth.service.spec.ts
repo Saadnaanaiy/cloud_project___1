@@ -7,7 +7,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   BadRequestException,
   ConflictException,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -15,6 +14,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { User, UserRole } from './user.entity';
+import { testNotFoundScenarios } from '../test-utils/not-found-scenarios';
 
 const mockUser = {
   id: 1,
@@ -53,7 +53,6 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -61,7 +60,6 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
-
     service = module.get<AuthService>(AuthService);
   });
 
@@ -72,16 +70,12 @@ describe('AuthService', () => {
         password: 'correctPassword',
         captchaToken: 'valid-captcha-token',
       };
-
       mockUserRepo.findOne.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-
       globalThis.fetch = jest.fn().mockResolvedValue({
         json: jest.fn().mockResolvedValue({ success: true }),
       });
-
       const result = await service.login(loginDto);
-
       expect(result).toHaveProperty('access_token', 'mock-jwt-token');
       expect(result.user).toEqual({
         id: mockUser.id,
@@ -93,7 +87,6 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for invalid email', async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
-
       await expect(
         service.login({
           email: 'wrong@company.com',
@@ -106,7 +99,6 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for invalid password', async () => {
       mockUserRepo.findOne.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-
       await expect(
         service.login({
           email: 'test@company.com',
@@ -122,7 +114,6 @@ describe('AuthService', () => {
         isApproved: false,
       });
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-
       await expect(
         service.login({
           email: 'test@company.com',
@@ -152,20 +143,16 @@ describe('AuthService', () => {
         role: UserRole.HR,
         captchaToken: 'valid-captcha-token',
       };
-
       mockUserRepo.findOne.mockResolvedValue(null);
       mockUserRepo.save.mockResolvedValue({
         id: 2,
         ...registerDto,
         isApproved: false,
       });
-
       globalThis.fetch = jest.fn().mockResolvedValue({
         json: jest.fn().mockResolvedValue({ success: true }),
       });
-
       const result = await service.register(registerDto);
-
       expect(mockUserRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           email: registerDto.email,
@@ -178,7 +165,6 @@ describe('AuthService', () => {
 
     it('should throw ConflictException when email already exists', async () => {
       mockUserRepo.findOne.mockResolvedValue(mockUser);
-
       await expect(
         service.register({
           name: 'Duplicate',
@@ -197,9 +183,7 @@ describe('AuthService', () => {
         { id: 2, name: 'Pending User', email: 'pending@company.com' },
       ];
       mockUserRepo.find.mockResolvedValue(pendingUsers);
-
       const result = await service.getPendingUsers();
-
       expect(mockUserRepo.find).toHaveBeenCalledWith({
         where: { isApproved: false },
         select: ['id', 'name', 'email', 'role', 'createdAt'],
@@ -217,35 +201,19 @@ describe('AuthService', () => {
         ...userToApprove,
         isApproved: true,
       });
-
       const result = await service.approveUser(2);
-
       expect(result.isApproved).toBe(true);
       expect(mockUserRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({ isApproved: true }),
       );
-    });
-
-    it('should throw NotFoundException when user does not exist', async () => {
-      mockUserRepo.findOne.mockResolvedValue(null);
-
-      await expect(service.approveUser(999)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('getProfile', () => {
     it('should return user profile', async () => {
       mockUserRepo.findOne.mockResolvedValue(mockUser);
-
       const result = await service.getProfile(1);
-
       expect(result).toEqual(mockUser);
-    });
-
-    it('should throw NotFoundException when user not found', async () => {
-      mockUserRepo.findOne.mockResolvedValue(null);
-
-      await expect(service.getProfile(999)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -256,9 +224,7 @@ describe('AuthService', () => {
         ...mockUser,
         name: 'Updated Name',
       });
-
       const result = await service.updateProfile(1, { name: 'Updated Name' });
-
       expect(result.name).toBe('Updated Name');
     });
 
@@ -268,18 +234,19 @@ describe('AuthService', () => {
         id: 2,
         email: 'new@company.com',
       });
-
       await expect(
         service.updateProfile(1, { email: 'new@company.com' }),
       ).rejects.toThrow(ConflictException);
     });
-
-    it('should throw NotFoundException when user not found', async () => {
-      mockUserRepo.findOne.mockResolvedValue(null);
-
-      await expect(
-        service.updateProfile(999, { name: 'New Name' }),
-      ).rejects.toThrow(NotFoundException);
-    });
   });
+
+  testNotFoundScenarios(mockUserRepo.findOne, [
+    ['approveUser', 'user does not exist', () => service.approveUser(999)],
+    ['getProfile', 'user not found', () => service.getProfile(999)],
+    [
+      'updateProfile',
+      'user not found',
+      () => service.updateProfile(999, { name: 'New Name' }),
+    ],
+  ]);
 });

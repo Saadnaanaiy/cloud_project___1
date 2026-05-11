@@ -43,7 +43,7 @@ import { AuditModule } from './audit/audit.module';
           password,
           database: config.get<string>('DB_NAME', 'employee_db'),
           entities: [User, Employee, Department, Attendance, Message, AuditLog, Announcement],
-          synchronize: config.get<string>('NODE_ENV') !== 'production',
+          synchronize: true, // always sync so new tables (e.g. announcements) are created
           logging: false,
         };
       },
@@ -51,7 +51,7 @@ import { AuditModule } from './audit/audit.module';
     ThrottlerModule.forRoot([
       {
         ttl: 30000,
-        limit: 10,
+        limit: 100,
       },
     ]),
     AuthModule,

@@ -36,7 +36,7 @@ export class Announcement {
   @Column({ nullable: true })
   authorId: number;
 
-  @ManyToOne(() => User, { eager: true, nullable: true })
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'authorId' })
   author: User;
 

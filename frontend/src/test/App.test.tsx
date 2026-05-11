@@ -6,13 +6,6 @@ beforeAll(() => {
   vi.stubGlobal('import', { meta: { env: { VITE_API_URL: '/api' } } })
 })
 
-vi.mock('motion/react', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
-  },
-}))
-
 vi.mock('../api/axios', () => ({
   default: {
     defaults: { headers: { common: {} } },

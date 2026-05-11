@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Announcement } from './announcement.entity';
@@ -16,45 +16,85 @@ export class AnnouncementsService {
     @Optional() private readonly employees?: EmployeesService,
   ) {}
 
-  findAll(userRole: string) {
-    if (userRole === UserRole.ADMIN || userRole === UserRole.HR) {
-      return this.repo.find({ order: { createdAt: 'DESC' } });
+  async findAll(userRole: string) {
+    try {
+      const qb = this.repo
+        .createQueryBuilder('a')
+        .leftJoinAndSelect('a.author', 'author')
+        .orderBy('a.createdAt', 'DESC');
+
+      if (userRole !== UserRole.ADMIN && userRole !== UserRole.HR) {
+        qb.where('a.publishedAt <= :now', { now: new Date() });
+      }
+
+      return await qb.getMany();
+    } catch {
+      return [];
     }
-    return this.repo
-      .createQueryBuilder('a')
-      .where('a.publishedAt <= :now', { now: new Date() })
-      .orderBy('a.createdAt', 'DESC')
-      .getMany();
   }
 
-  findOne(id: number) {
-    return this.repo.findOne({ where: { id } });
+  async findOne(id: number) {
+    try {
+      return await this.repo
+        .createQueryBuilder('a')
+        .leftJoinAndSelect('a.author', 'author')
+        .where('a.id = :id', { id })
+        .getOne();
+    } catch {
+      return null;
+    }
   }
 
   async create(dto: CreateAnnouncementDto, authorId: number) {
-    const publishedAt = dto.publishedAt ? new Date(dto.publishedAt) : new Date();
-    const announcement = await this.repo.save({
-      ...dto,
-      authorId,
-      publishedAt,
-    });
+    try {
+      const publishedAt = dto.publishedAt ? new Date(dto.publishedAt) : new Date();
+      const announcement = await this.repo.save({
+        title: dto.title,
+        content: dto.content,
+        priority: dto.priority,
+        authorId,
+        publishedAt,
+      });
 
-    if (this.employees && this.notifications) {
-      this.employees.findAll().then(all => {
-        for (const emp of all) {
-          this.notifications!.sendAnnouncementEmail(emp.email, dto.title, dto.content);
-        }
-      }).catch(() => {});
+      if (this.employees && this.notifications) {
+        this.employees.findAll().then(all => {
+          for (const emp of all) {
+            this.notifications!.sendAnnouncementEmail(emp.email, dto.title, dto.content);
+          }
+        }).catch(() => {});
+      }
+
+      return this.repo
+        .createQueryBuilder('a')
+        .leftJoinAndSelect('a.author', 'author')
+        .where('a.id = :id', { id: announcement.id })
+        .getOne();
+    } catch (err) {
+      throw new InternalServerErrorException('Failed to create announcement');
     }
-
-    return announcement;
   }
 
   async update(id: number, dto: UpdateAnnouncementDto) {
     const announcement = await this.repo.findOne({ where: { id } });
     if (!announcement) throw new NotFoundException('Announcement not found');
-    await this.repo.update(id, dto);
-    return this.repo.findOne({ where: { id } });
+
+    try {
+      const updateData: Record<string, unknown> = {};
+      if (dto.title !== undefined) updateData.title = dto.title;
+      if (dto.content !== undefined) updateData.content = dto.content;
+      if (dto.priority !== undefined) updateData.priority = dto.priority;
+      if (dto.publishedAt !== undefined) updateData.publishedAt = new Date(dto.publishedAt);
+
+      await this.repo.update(id, updateData);
+
+      return this.repo
+        .createQueryBuilder('a')
+        .leftJoinAndSelect('a.author', 'author')
+        .where('a.id = :id', { id })
+        .getOne();
+    } catch {
+      throw new InternalServerErrorException('Failed to update announcement');
+    }
   }
 
   async remove(id: number) {
@@ -65,9 +105,13 @@ export class AnnouncementsService {
   }
 
   async getUnreadCount(after: Date) {
-    return this.repo
-      .createQueryBuilder('a')
-      .where('a.createdAt > :after', { after })
-      .getCount();
+    try {
+      return await this.repo
+        .createQueryBuilder('a')
+        .where('a.createdAt > :after', { after })
+        .getCount();
+    } catch {
+      return 0;
+    }
   }
 }

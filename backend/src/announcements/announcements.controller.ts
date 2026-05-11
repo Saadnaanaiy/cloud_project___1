@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
   Param,
   ParseIntPipe,
   Post,
@@ -43,32 +44,48 @@ export class AnnouncementsController {
   @Get('unread-count')
   @ApiOperation({ summary: 'Get count of announcements since a date' })
   @ApiOkResponse({ description: 'Number of unread announcements' })
-  getUnreadCount(@Query('after') after?: string) {
-    const date = after ? new Date(after) : new Date(0);
-    return this.service.getUnreadCount(date);
+  async getUnreadCount(@Query('after') after?: string) {
+    try {
+      const date = after ? new Date(after) : new Date(0);
+      return await this.service.getUnreadCount(date);
+    } catch {
+      return 0;
+    }
   }
 
   @Get()
   @ApiOperation({ summary: 'List all announcements' })
   @ApiOkResponse({ description: 'Array of announcement objects' })
-  findAll(@CurrentUser() user: any) {
-    return this.service.findAll(user.role);
+  async findAll(@CurrentUser() user: any) {
+    try {
+      return await this.service.findAll(user?.role ?? '');
+    } catch {
+      return [];
+    }
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get an announcement by ID' })
   @ApiOkResponse({ description: 'Announcement object' })
   @ApiNotFoundResponse({ description: 'Announcement not found' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    try {
+      return await this.service.findOne(id);
+    } catch {
+      throw new InternalServerErrorException('Failed to fetch announcement');
+    }
   }
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.HR)
   @ApiOperation({ summary: 'Create an announcement', description: 'Requires admin or hr role.' })
   @ApiCreatedResponse({ description: 'Announcement created successfully' })
-  create(@Body() body: CreateAnnouncementDto, @CurrentUser() user: any) {
-    return this.service.create(body, user.id);
+  async create(@Body() body: CreateAnnouncementDto, @CurrentUser() user: any) {
+    try {
+      return await this.service.create(body, user.id);
+    } catch {
+      throw new InternalServerErrorException('Failed to create announcement');
+    }
   }
 
   @Put(':id')
@@ -76,11 +93,15 @@ export class AnnouncementsController {
   @ApiOperation({ summary: 'Update an announcement', description: 'Requires admin or hr role.' })
   @ApiOkResponse({ description: 'Updated announcement object' })
   @ApiNotFoundResponse({ description: 'Announcement not found' })
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateAnnouncementDto,
   ) {
-    return this.service.update(id, body);
+    try {
+      return await this.service.update(id, body);
+    } catch {
+      throw new InternalServerErrorException('Failed to update announcement');
+    }
   }
 
   @Delete(':id')
@@ -89,7 +110,11 @@ export class AnnouncementsController {
   @ApiOperation({ summary: 'Delete an announcement', description: 'Requires admin role.' })
   @ApiNoContentResponse({ description: 'Announcement deleted' })
   @ApiNotFoundResponse({ description: 'Announcement not found' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    try {
+      return await this.service.remove(id);
+    } catch {
+      throw new InternalServerErrorException('Failed to delete announcement');
+    }
   }
 }

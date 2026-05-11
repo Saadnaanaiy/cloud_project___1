@@ -39,7 +39,12 @@ const AnnouncementsPage: React.FC = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.post('/announcements', form);
+      const body: Record<string, unknown> = {};
+      if (form.title) body.title = form.title;
+      if (form.content) body.content = form.content;
+      if (form.priority) body.priority = form.priority;
+      if (form.publishedAt) body.publishedAt = form.publishedAt;
+      await api.post('/announcements', body);
       toast.success('Announcement published!');
       setShowForm(false);
       setForm({ title: '', content: '', priority: 'low', publishedAt: '' });

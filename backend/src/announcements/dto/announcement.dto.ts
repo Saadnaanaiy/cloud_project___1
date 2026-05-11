@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsDateString,
   IsEnum,
@@ -28,6 +29,7 @@ export class CreateAnnouncementDto {
 
   @ApiPropertyOptional({ example: '2026-06-01T09:00:00Z' })
   @IsOptional()
+  @Transform(({ value }) => value || undefined)
   @IsDateString()
   publishedAt?: string;
 }
@@ -51,6 +53,7 @@ export class UpdateAnnouncementDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(({ value }) => value || undefined)
   @IsDateString()
   publishedAt?: string;
 }

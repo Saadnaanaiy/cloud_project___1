@@ -1,18 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { translations } from '../context/translations'
 
-describe('translations', () => {
-  it('has all keys in French', () => {
-    const enKeys = Object.keys(translations.en)
-    const frKeys = Object.keys(translations.fr)
-    expect(frKeys.toSorted((a, b) => a.localeCompare(b))).toEqual(enKeys.toSorted((a, b) => a.localeCompare(b)))
-  })
+function expectMatchingKeys(lang: 'fr' | 'ar') {
+  const enKeys = Object.keys(translations.en).toSorted((a, b) => a.localeCompare(b))
+  const langKeys = Object.keys(translations[lang]).toSorted((a, b) => a.localeCompare(b))
+  expect(langKeys).toEqual(enKeys)
+}
 
-  it('has all keys in Arabic', () => {
-    const enKeys = Object.keys(translations.en)
-    const arKeys = Object.keys(translations.ar)
-    expect(arKeys.toSorted((a, b) => a.localeCompare(b))).toEqual(enKeys.toSorted((a, b) => a.localeCompare(b)))
-  })
+describe('translations', () => {
+  it('has all keys in French', () => expectMatchingKeys('fr'))
+
+  it('has all keys in Arabic', () => expectMatchingKeys('ar'))
 
   it('returns the correct English value for a key', () => {
     expect(translations.en.dashboard).toBe('Dashboard')
