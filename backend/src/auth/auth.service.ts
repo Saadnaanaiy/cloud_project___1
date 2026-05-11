@@ -56,7 +56,9 @@ export class AuthService implements OnModuleInit {
 
     for (const u of defaultUsers) {
       const hashed = await bcrypt.hash(u.password, 10);
-      const existing = await this.userRepo.findOne({ where: { email: u.email } });
+      const existing = await this.userRepo.findOne({
+        where: { email: u.email },
+      });
       if (!existing) {
         await this.userRepo.save({ ...u, password: hashed, isApproved: true });
         console.log(`✅ Default user created: ${u.email}`);
@@ -196,7 +198,9 @@ export class AuthService implements OnModuleInit {
     }
 
     if (!token) {
-      console.warn('⚠️ CAPTCHA token missing — allowing request without verification.');
+      console.warn(
+        '⚠️ CAPTCHA token missing — allowing request without verification.',
+      );
       return;
     }
 

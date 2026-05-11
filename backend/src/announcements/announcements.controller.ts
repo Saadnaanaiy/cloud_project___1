@@ -27,10 +27,13 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { UserRole } from '../auth/user.entity';
+import { User, UserRole } from '../auth/user.entity';
 import { CurrentUser } from '../auth/user.decorator';
 import { AnnouncementsService } from './announcements.service';
-import { CreateAnnouncementDto, UpdateAnnouncementDto } from './dto/announcement.dto';
+import {
+  CreateAnnouncementDto,
+  UpdateAnnouncementDto,
+} from './dto/announcement.dto';
 
 @ApiTags('Announcements')
 @ApiBearerAuth('access-token')
@@ -56,9 +59,9 @@ export class AnnouncementsController {
   @Get()
   @ApiOperation({ summary: 'List all announcements' })
   @ApiOkResponse({ description: 'Array of announcement objects' })
-  async findAll(@CurrentUser() user: any) {
+  async findAll(@CurrentUser() user: Pick<User, 'role'>) {
     try {
-      return await this.service.findAll(user?.role ?? '');
+      return await this.service.findAll(user.role);
     } catch {
       return [];
     }
@@ -78,9 +81,15 @@ export class AnnouncementsController {
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.HR)
-  @ApiOperation({ summary: 'Create an announcement', description: 'Requires admin or hr role.' })
+  @ApiOperation({
+    summary: 'Create an announcement',
+    description: 'Requires admin or hr role.',
+  })
   @ApiCreatedResponse({ description: 'Announcement created successfully' })
-  async create(@Body() body: CreateAnnouncementDto, @CurrentUser() user: any) {
+  async create(
+    @Body() body: CreateAnnouncementDto,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
     try {
       return await this.service.create(body, user.id);
     } catch {
@@ -90,7 +99,10 @@ export class AnnouncementsController {
 
   @Put(':id')
   @Roles(UserRole.ADMIN, UserRole.HR)
-  @ApiOperation({ summary: 'Update an announcement', description: 'Requires admin or hr role.' })
+  @ApiOperation({
+    summary: 'Update an announcement',
+    description: 'Requires admin or hr role.',
+  })
   @ApiOkResponse({ description: 'Updated announcement object' })
   @ApiNotFoundResponse({ description: 'Announcement not found' })
   async update(
@@ -107,7 +119,10 @@ export class AnnouncementsController {
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete an announcement', description: 'Requires admin role.' })
+  @ApiOperation({
+    summary: 'Delete an announcement',
+    description: 'Requires admin role.',
+  })
   @ApiNoContentResponse({ description: 'Announcement deleted' })
   @ApiNotFoundResponse({ description: 'Announcement not found' })
   async remove(@Param('id', ParseIntPipe) id: number) {

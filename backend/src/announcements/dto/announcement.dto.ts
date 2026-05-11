@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, TransformFnParams } from 'class-transformer';
 import {
   IsDateString,
   IsEnum,
@@ -22,14 +22,17 @@ export class CreateAnnouncementDto {
   @IsString()
   content: string;
 
-  @ApiPropertyOptional({ enum: AnnouncementPriority, example: AnnouncementPriority.MEDIUM })
+  @ApiPropertyOptional({
+    enum: AnnouncementPriority,
+    example: AnnouncementPriority.MEDIUM,
+  })
   @IsOptional()
   @IsEnum(AnnouncementPriority)
   priority?: AnnouncementPriority;
 
   @ApiPropertyOptional({ example: '2026-06-01T09:00:00Z' })
   @IsOptional()
-  @Transform(({ value }) => value || undefined)
+  @Transform(({ value }: TransformFnParams) => (value as string) || undefined)
   @IsDateString()
   publishedAt?: string;
 }
@@ -53,7 +56,7 @@ export class UpdateAnnouncementDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Transform(({ value }) => value || undefined)
+  @Transform(({ value }: TransformFnParams) => (value as string) || undefined)
   @IsDateString()
   publishedAt?: string;
 }

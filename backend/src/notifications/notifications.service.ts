@@ -76,11 +76,7 @@ export class NotificationsService {
     return this.sendMail(to, subject, html);
   }
 
-  async sendAnnouncementEmail(
-    to: string,
-    title: string,
-    content: string,
-  ) {
+  async sendAnnouncementEmail(to: string, title: string, content: string) {
     const subject = `New Announcement: ${title}`;
     const html = `
       <h2>${title}</h2>

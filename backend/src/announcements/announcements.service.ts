@@ -1,9 +1,16 @@
-import { Injectable, InternalServerErrorException, NotFoundException, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Announcement } from './announcement.entity';
-import { CreateAnnouncementDto, UpdateAnnouncementDto } from './dto/announcement.dto';
-import { UserRole } from '../auth/user.entity';
+import {
+  CreateAnnouncementDto,
+  UpdateAnnouncementDto,
+} from './dto/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmployeesService } from '../employees/employees.service';
 
@@ -23,7 +30,7 @@ export class AnnouncementsService {
         .leftJoinAndSelect('a.author', 'author')
         .orderBy('a.createdAt', 'DESC');
 
-      if (userRole !== UserRole.ADMIN && userRole !== UserRole.HR) {
+      if (userRole !== 'admin' && userRole !== 'hr') {
         qb.where('a.publishedAt <= :now', { now: new Date() });
       }
 
@@ -47,7 +54,9 @@ export class AnnouncementsService {
 
   async create(dto: CreateAnnouncementDto, authorId: number) {
     try {
-      const publishedAt = dto.publishedAt ? new Date(dto.publishedAt) : new Date();
+      const publishedAt = dto.publishedAt
+        ? new Date(dto.publishedAt)
+        : new Date();
       const announcement = await this.repo.save({
         title: dto.title,
         content: dto.content,
@@ -57,11 +66,18 @@ export class AnnouncementsService {
       });
 
       if (this.employees && this.notifications) {
-        this.employees.findAll().then(all => {
-          for (const emp of all) {
-            this.notifications!.sendAnnouncementEmail(emp.email, dto.title, dto.content);
-          }
-        }).catch(() => {});
+        void this.employees
+          .findAll()
+          .then((all) => {
+            for (const emp of all) {
+              void this.notifications!.sendAnnouncementEmail(
+                emp.email,
+                dto.title,
+                dto.content,
+              );
+            }
+          })
+          .catch(() => {});
       }
 
       return this.repo
@@ -69,7 +85,7 @@ export class AnnouncementsService {
         .leftJoinAndSelect('a.author', 'author')
         .where('a.id = :id', { id: announcement.id })
         .getOne();
-    } catch (err) {
+    } catch {
       throw new InternalServerErrorException('Failed to create announcement');
     }
   }
@@ -83,7 +99,8 @@ export class AnnouncementsService {
       if (dto.title !== undefined) updateData.title = dto.title;
       if (dto.content !== undefined) updateData.content = dto.content;
       if (dto.priority !== undefined) updateData.priority = dto.priority;
-      if (dto.publishedAt !== undefined) updateData.publishedAt = new Date(dto.publishedAt);
+      if (dto.publishedAt !== undefined)
+        updateData.publishedAt = new Date(dto.publishedAt);
 
       await this.repo.update(id, updateData);
 

@@ -93,14 +93,12 @@ describe('EmployeesController', () => {
         'id',
         () => mockEmployeesService.findOne.mockResolvedValue({ id: 1 }),
         () => controller.findOne(1),
-        1,
       ],
       [
         'remove',
         'id',
         () => mockEmployeesService.remove.mockResolvedValue({ message: 'ok' }),
         () => controller.remove(1),
-        1,
       ],
       [
         'block',
@@ -111,7 +109,6 @@ describe('EmployeesController', () => {
             status: 'blocked',
           }),
         () => controller.block(1),
-        1,
       ],
       [
         'unblock',
@@ -122,7 +119,6 @@ describe('EmployeesController', () => {
             status: 'active',
           }),
         () => controller.unblock(1),
-        1,
       ],
     ])('%s should call service.%s with id', (_method, _desc, setup, action) => {
       setup();

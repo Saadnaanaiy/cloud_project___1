@@ -42,7 +42,15 @@ import { AuditModule } from './audit/audit.module';
           username: config.get<string>('DB_USERNAME', 'root'),
           password,
           database: config.get<string>('DB_NAME', 'employee_db'),
-          entities: [User, Employee, Department, Attendance, Message, AuditLog, Announcement],
+          entities: [
+            User,
+            Employee,
+            Department,
+            Attendance,
+            Message,
+            AuditLog,
+            Announcement,
+          ],
           synchronize: true, // always sync so new tables (e.g. announcements) are created
           logging: false,
         };
