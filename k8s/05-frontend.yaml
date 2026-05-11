@@ -6,12 +6,12 @@ metadata:
   labels:
     app: frontend
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: frontend
@@ -21,6 +21,18 @@ spec:
         app: frontend
     spec:
       automountServiceAccountToken: false
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - frontend
+                topologyKey: topology.kubernetes.io/zone
       containers:
         - name: frontend
           image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:dbf81ccc
@@ -54,6 +66,9 @@ kind: Service
 metadata:
   name: frontend-service
   namespace: employee-platform
+  annotations:
+    cloud.google.com/neg: '{"exposed_ports":{"80":{}}}'
+    cloud.google.com/backend-config: '{"ports":{"80":"frontend-cdn-config"}}'
 spec:
   selector:
     app: frontend
@@ -72,7 +87,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: frontend
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 5
   metrics:
     - type: Resource
