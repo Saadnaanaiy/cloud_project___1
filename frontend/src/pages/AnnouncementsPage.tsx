@@ -24,7 +24,7 @@ const AnnouncementsPage: React.FC = () => {
   const [form, setForm] = useState({ title: '', content: '', priority: 'low', publishedAt: '' });
   const [saving, setSaving] = useState(false);
 
-  const canManage = user?.role === 'admin' || user?.role === 'hr';
+  const canManage = user?.role === 'admin';
 
   const load = async () => {
     try {

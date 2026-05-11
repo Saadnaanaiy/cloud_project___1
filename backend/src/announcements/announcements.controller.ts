@@ -80,10 +80,10 @@ export class AnnouncementsController {
   }
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.HR)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Create an announcement',
-    description: 'Requires admin or hr role.',
+    description: 'Requires admin role.',
   })
   @ApiCreatedResponse({ description: 'Announcement created successfully' })
   async create(
@@ -98,10 +98,10 @@ export class AnnouncementsController {
   }
 
   @Put(':id')
-  @Roles(UserRole.ADMIN, UserRole.HR)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Update an announcement',
-    description: 'Requires admin or hr role.',
+    description: 'Requires admin role.',
   })
   @ApiOkResponse({ description: 'Updated announcement object' })
   @ApiNotFoundResponse({ description: 'Announcement not found' })
