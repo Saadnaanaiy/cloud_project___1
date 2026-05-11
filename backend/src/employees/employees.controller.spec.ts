@@ -124,7 +124,7 @@ describe('EmployeesController', () => {
       ],
     ])('%s should call service.%s with id', (_method, _desc, setup, action) => {
       setup();
-      void action();
+      action();
       expect(
         mockEmployeesService[_method as keyof typeof mockEmployeesService],
       ).toHaveBeenCalledWith(1);

@@ -130,17 +130,17 @@ const AnnouncementsPage: React.FC = () => {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div className="form-group">
-                <label className="form-label">Title *</label>
-                <input className="form-control" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Announcement title" />
+                <label className="form-label" htmlFor="ann-title">Title *</label>
+                <input id="ann-title" className="form-control" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Announcement title" />
               </div>
               <div className="form-group">
-                <label className="form-label">Content *</label>
-                <textarea className="form-control" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} rows={5} placeholder="Write your announcement..." />
+                <label className="form-label" htmlFor="ann-content">Content *</label>
+                <textarea id="ann-content" className="form-control" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} rows={5} placeholder="Write your announcement..." />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
-                  <label className="form-label">Priority</label>
-                  <select className="form-control" value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })}>
+                  <label className="form-label" htmlFor="ann-priority">Priority</label>
+                  <select id="ann-priority" className="form-control" value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })}>
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>

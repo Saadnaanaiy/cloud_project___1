@@ -59,14 +59,14 @@ export class AuthService implements OnModuleInit {
       const existing = await this.userRepo.findOne({
         where: { email: u.email },
       });
-      if (!existing) {
-        await this.userRepo.save({ ...u, password: hashed, isApproved: true });
-        console.log(`✅ Default user created: ${u.email}`);
-      } else {
+      if (existing) {
         existing.password = hashed;
         existing.isApproved = true;
         await this.userRepo.save(existing);
         console.log(`✅ Default user synced: ${u.email}`);
+      } else {
+        await this.userRepo.save({ ...u, password: hashed, isApproved: true });
+        console.log(`✅ Default user created: ${u.email}`);
       }
     }
   }
