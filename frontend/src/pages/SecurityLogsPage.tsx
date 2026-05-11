@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Shield, Clock, Monitor, Globe, RefreshCcw, User, Plus, Trash2, Edit, FileText, Ban, CheckCircle, LogIn, Radio } from "lucide-react"
+import { Shield, Clock, Monitor, Globe, RefreshCcw, Plus, Trash2, Edit, FileText, Ban, CheckCircle, LogIn, Radio } from "lucide-react"
 import { io, Socket } from "socket.io-client"
 import api from "../api/axios"
 import { useLang } from "../context/LanguageContext"
@@ -17,7 +17,7 @@ interface AuditLog {
   user: { name: string; email: string; role: string }
 }
 
-const actionConfig: Record<string, { icon: React.FC<{ size?: number; className?: string }>; color: string; label: string }> = {
+const actionConfig: Record<string, { icon: React.FC<{ size?: number; className?: string; color?: string }>; color: string; label: string }> = {
   LOGIN: { icon: LogIn, color: "#3b82f6", label: "Login" },
   CREATE: { icon: Plus, color: "#10b981", label: "Create" },
   UPDATE: { icon: Edit, color: "#f59e0b", label: "Update" },
