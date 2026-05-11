@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Saadnaanaiy/cloud_project___1.git
-    targetRevision: HEAD
+    targetRevision: main
     path: k8s
   destination:
     server: https://kubernetes.default.svc
