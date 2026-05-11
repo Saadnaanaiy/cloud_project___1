@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -15,6 +16,8 @@ async function bootstrap() {
   }
 
   const app = await NestFactory.create(AppModule);
+
+  app.use(helmet());
 
   // CORS — supports multiple origins (comma-separated in FRONTEND_URL)
   const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
