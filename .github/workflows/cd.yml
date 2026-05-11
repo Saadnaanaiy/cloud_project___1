@@ -107,7 +107,7 @@ jobs:
           git config user.email "ci@empmanager.io"
           git add k8s/04-backend.yaml k8s/05-frontend.yaml
           git diff --cached --quiet || git commit -m "Update image tags to ${{ steps.tag.outputs.TAG }} [skip ci]"
-          git push origin main
+          git pull --rebase origin main && git push origin main
 
       # ─────────────────────────────────────────────
       # STEP 3 — Apply services + Ingress
