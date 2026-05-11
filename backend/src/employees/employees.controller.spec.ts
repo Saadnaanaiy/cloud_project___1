@@ -100,7 +100,7 @@ describe('EmployeesController', () => {
         'remove',
         'id',
         () => mockEmployeesService.remove.mockResolvedValue({ message: 'ok' }),
-        () => controller.remove(1),
+        () => controller.remove(1, { id: 1 }),
       ],
       [
         'block',
@@ -110,7 +110,7 @@ describe('EmployeesController', () => {
             id: 1,
             status: 'blocked',
           }),
-        () => controller.block(1),
+        () => controller.block(1, { id: 1 }),
       ],
       [
         'unblock',
@@ -120,7 +120,7 @@ describe('EmployeesController', () => {
             id: 1,
             status: 'active',
           }),
-        () => controller.unblock(1),
+        () => controller.unblock(1, { id: 1 }),
       ],
     ])('%s should call service.%s with id', (_method, _desc, setup, action) => {
       setup();

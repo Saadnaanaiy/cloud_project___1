@@ -66,7 +66,7 @@ describe('EmployeesService', () => {
       };
       mockRepo.create.mockReturnValue({ ...createDto, id: 2 });
       mockRepo.save.mockResolvedValue({ ...createDto, id: 2 });
-      const result = await service.create(createDto);
+      const result = await service.create(createDto, 1);
       expect(mockRepo.create).toHaveBeenCalledWith(createDto);
       expect(mockRepo.save).toHaveBeenCalled();
       expect(result).toEqual({ ...createDto, id: 2 });
@@ -82,7 +82,7 @@ describe('EmployeesService', () => {
       mockRepo.findOne
         .mockResolvedValueOnce(mockEmployee)
         .mockResolvedValueOnce(updatedEmployee);
-      const result = await service.update(1, updateData);
+      const result = await service.update(1, updateData, 1);
       expect(mockRepo.update).toHaveBeenCalledWith(1, updateData);
       expect(result).toEqual(updatedEmployee);
     });
@@ -92,7 +92,7 @@ describe('EmployeesService', () => {
     it('should delete an existing employee', async () => {
       mockRepo.findOne.mockResolvedValue(mockEmployee);
       mockRepo.delete.mockResolvedValue({ affected: 1 });
-      const result = await service.remove(1);
+      const result = await service.remove(1, 1);
       expect(mockRepo.delete).toHaveBeenCalledWith(1);
       expect(result).toEqual({ message: 'Employee deleted successfully' });
     });
@@ -106,7 +106,7 @@ describe('EmployeesService', () => {
         ...mockEmployee,
         status: EmployeeStatus.BLOCKED,
       });
-      const result = await service.block(1);
+      const result = await service.block(1, 1);
       expect(mockRepo.update).toHaveBeenCalledWith(1, {
         status: EmployeeStatus.BLOCKED,
       });
@@ -126,7 +126,7 @@ describe('EmployeesService', () => {
         ...mockEmployee,
         status: EmployeeStatus.ACTIVE,
       });
-      const result = await service.unblock(1);
+      const result = await service.unblock(1, 1);
       expect(mockRepo.update).toHaveBeenCalledWith(1, {
         status: EmployeeStatus.ACTIVE,
       });
@@ -165,9 +165,9 @@ describe('EmployeesService', () => {
     [
       'update',
       'updating non-existent employee',
-      () => service.update(999, { salary: 50000 }),
+      () => service.update(999, { salary: 50000 }, 1),
     ],
-    ['remove', 'deleting non-existent employee', () => service.remove(999)],
-    ['block', 'blocking non-existent employee', () => service.block(999)],
+    ['remove', 'deleting non-existent employee', () => service.remove(999, 1)],
+    ['block', 'blocking non-existent employee', () => service.block(999, 1)],
   ]);
 });
