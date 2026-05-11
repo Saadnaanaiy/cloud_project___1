@@ -59,9 +59,9 @@ export class AnnouncementsController {
   @Get()
   @ApiOperation({ summary: 'List all announcements' })
   @ApiOkResponse({ description: 'Array of announcement objects' })
-  async findAll(@CurrentUser() user: Pick<User, 'role'>) {
+  async findAll() {
     try {
-      return await this.service.findAll(user.role);
+      return await this.service.findAll();
     } catch {
       return [];
     }

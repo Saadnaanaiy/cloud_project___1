@@ -20,18 +20,13 @@ export class AnnouncementsService {
     private readonly audit: AuditService,
   ) {}
 
-  async findAll(userRole: string) {
+  async findAll() {
     try {
-      const qb = this.repo
+      return await this.repo
         .createQueryBuilder('a')
         .leftJoinAndSelect('a.author', 'author')
-        .orderBy('a.createdAt', 'DESC');
-
-      if (userRole !== 'admin' && userRole !== 'hr') {
-        qb.where('a.publishedAt <= :now', { now: new Date() });
-      }
-
-      return await qb.getMany();
+        .orderBy('a.createdAt', 'DESC')
+        .getMany();
     } catch {
       return [];
     }
