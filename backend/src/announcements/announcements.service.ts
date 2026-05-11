@@ -2,7 +2,6 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  Optional,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,16 +10,14 @@ import {
   CreateAnnouncementDto,
   UpdateAnnouncementDto,
 } from './dto/announcement.dto';
-import { NotificationsService } from '../notifications/notifications.service';
-import { EmployeesService } from '../employees/employees.service';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class AnnouncementsService {
   constructor(
     @InjectRepository(Announcement)
     private readonly repo: Repository<Announcement>,
-    @Optional() private readonly notifications?: NotificationsService,
-    @Optional() private readonly employees?: EmployeesService,
+    private readonly audit: AuditService,
   ) {}
 
   async findAll(userRole: string) {
@@ -65,20 +62,12 @@ export class AnnouncementsService {
         publishedAt,
       });
 
-      if (this.employees && this.notifications) {
-        void this.employees
-          .findAll()
-          .then((all) => {
-            for (const emp of all) {
-              void this.notifications!.sendAnnouncementEmail(
-                emp.email,
-                dto.title,
-                dto.content,
-              );
-            }
-          })
-          .catch(() => {});
-      }
+      void this.audit.log(
+        authorId,
+        'CREATE',
+        'ANNOUNCEMENT',
+        `Created announcement "${dto.title}"`,
+      );
 
       return this.repo
         .createQueryBuilder('a')
@@ -90,7 +79,7 @@ export class AnnouncementsService {
     }
   }
 
-  async update(id: number, dto: UpdateAnnouncementDto) {
+  async update(id: number, dto: UpdateAnnouncementDto, userId: number) {
     const announcement = await this.repo.findOne({ where: { id } });
     if (!announcement) throw new NotFoundException('Announcement not found');
 
@@ -104,6 +93,13 @@ export class AnnouncementsService {
 
       await this.repo.update(id, updateData);
 
+      void this.audit.log(
+        userId,
+        'UPDATE',
+        'ANNOUNCEMENT',
+        `Updated announcement "${announcement.title}"`,
+      );
+
       return this.repo
         .createQueryBuilder('a')
         .leftJoinAndSelect('a.author', 'author')
@@ -114,10 +110,17 @@ export class AnnouncementsService {
     }
   }
 
-  async remove(id: number) {
-    const result = await this.repo.delete(id);
-    if (result.affected === 0)
-      throw new NotFoundException('Announcement not found');
+  async remove(id: number, userId: number) {
+    const announcement = await this.repo.findOne({ where: { id } });
+    if (!announcement) throw new NotFoundException('Announcement not found');
+
+    await this.repo.delete(id);
+    void this.audit.log(
+      userId,
+      'DELETE',
+      'ANNOUNCEMENT',
+      `Deleted announcement "${announcement.title}"`,
+    );
     return { message: 'Deleted' };
   }
 

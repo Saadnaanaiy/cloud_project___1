@@ -19,16 +19,22 @@ export class AuditLog {
   user: User;
 
   @Column()
-  action: string; // e.g., 'LOGIN', 'LOGOUT'
+  action: string;
 
-  @Column()
+  @Column({ nullable: true })
+  entity: string;
+
+  @Column({ type: 'text', nullable: true })
+  details: string;
+
+  @Column({ nullable: true })
   ipAddress: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   userAgent: string;
 
   @Column({ nullable: true })
-  location: string; // Optional: could be filled by a geo-ip service later
+  location: string;
 
   @CreateDateColumn()
   timestamp: Date;

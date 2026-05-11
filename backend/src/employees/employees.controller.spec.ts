@@ -61,6 +61,8 @@ describe('EmployeesController', () => {
     });
   });
 
+  const mockUser = { id: 1 };
+
   describe('create', () => {
     it('should call service.create with employee data', () => {
       const createDto = {
@@ -72,8 +74,8 @@ describe('EmployeesController', () => {
         salary: 60000,
       };
       mockEmployeesService.create.mockResolvedValue(createDto);
-      void controller.create(createDto);
-      expect(mockEmployeesService.create).toHaveBeenCalledWith(createDto);
+      void controller.create(createDto, mockUser);
+      expect(mockEmployeesService.create).toHaveBeenCalledWith(createDto, 1);
     });
   });
 
@@ -81,8 +83,8 @@ describe('EmployeesController', () => {
     it('should call service.update with id and data', () => {
       const updateDto = { salary: 70000 };
       mockEmployeesService.update.mockResolvedValue({ id: 1, ...updateDto });
-      void controller.update(1, updateDto);
-      expect(mockEmployeesService.update).toHaveBeenCalledWith(1, updateDto);
+      void controller.update(1, updateDto, mockUser);
+      expect(mockEmployeesService.update).toHaveBeenCalledWith(1, updateDto, 1);
     });
   });
 

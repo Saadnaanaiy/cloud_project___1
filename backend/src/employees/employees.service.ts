@@ -2,15 +2,16 @@ import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee, EmployeeStatus } from './employee.entity';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class EmployeesService implements OnModuleInit {
   constructor(
     @InjectRepository(Employee) private readonly repo: Repository<Employee>,
+    private readonly audit: AuditService,
   ) {}
 
   async onModuleInit() {
-    // Wait for Departments to be seeded to avoid foreign key constraint errors
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const count = await this.repo.count();
@@ -25,75 +26,63 @@ export class EmployeesService implements OnModuleInit {
           const d2 = depts[1].id;
           const d3 = depts[2].id;
           const d4 = depts[3].id;
-          const d5 = depts[4].id;
           const d6 = depts[5].id;
 
           await this.repo.save([
             {
               firstName: 'Alice',
-              lastName: 'Martin',
-              email: 'alice.martin@company.com',
+              lastName: 'Dubois',
+              email: 'alice.d@company.com',
               phone: '+212 6 11 22 33 44',
-              position: 'Lead Developer',
+              position: 'CTO',
               departmentId: d1,
-              hireDate: '2023-03-15',
-              salary: 75000,
+              hireDate: '2021-01-15',
+              salary: 120000,
               status: EmployeeStatus.ACTIVE,
             },
             {
               firstName: 'Bob',
-              lastName: 'Dupont',
-              email: 'bob.dupont@company.com',
+              lastName: 'Martin',
+              email: 'bob.m@company.com',
               phone: '+212 6 22 33 44 55',
-              position: 'HR Specialist',
-              departmentId: d2,
-              hireDate: '2022-07-01',
-              salary: 55000,
+              position: 'Senior Developer',
+              departmentId: d1,
+              hireDate: '2022-03-10',
+              salary: 85000,
               status: EmployeeStatus.ACTIVE,
             },
             {
-              firstName: 'Carla',
-              lastName: 'Fernandez',
-              email: 'carla.f@company.com',
+              firstName: 'Chadia',
+              lastName: 'Benali',
+              email: 'chadia.b@company.com',
               phone: '+212 6 33 44 55 66',
-              position: 'Marketing Manager',
-              departmentId: d3,
-              hireDate: '2021-01-20',
-              salary: 68000,
+              position: 'HR Manager',
+              departmentId: d2,
+              hireDate: '2020-06-01',
+              salary: 78000,
               status: EmployeeStatus.ACTIVE,
             },
             {
               firstName: 'David',
-              lastName: 'Nguyen',
-              email: 'david.n@company.com',
+              lastName: 'Cohen',
+              email: 'david.c@company.com',
               phone: '+212 6 44 55 66 77',
+              position: 'Marketing Lead',
+              departmentId: d3,
+              hireDate: '2022-09-20',
+              salary: 72000,
+              status: EmployeeStatus.ACTIVE,
+            },
+            {
+              firstName: 'Fatima',
+              lastName: 'Zahra',
+              email: 'fatima.z@company.com',
+              phone: '+212 6 55 66 77 88',
               position: 'Financial Analyst',
               departmentId: d4,
-              hireDate: '2023-09-10',
+              hireDate: '2023-02-01',
               salary: 62000,
-              status: EmployeeStatus.ACTIVE,
-            },
-            {
-              firstName: 'Emma',
-              lastName: 'Wilson',
-              email: 'emma.w@company.com',
-              phone: '+212 6 55 66 77 88',
-              position: 'Operations Lead',
-              departmentId: d5,
-              hireDate: '2020-11-05',
-              salary: 70000,
-              status: EmployeeStatus.ACTIVE,
-            },
-            {
-              firstName: 'Farid',
-              lastName: 'Benali',
-              email: 'farid.b@company.com',
-              phone: '+212 6 66 77 88 99',
-              position: 'Sales Representative',
-              departmentId: d6,
-              hireDate: '2024-01-08',
-              salary: 48000,
-              status: EmployeeStatus.ACTIVE,
+              status: EmployeeStatus.ON_LEAVE,
             },
             {
               firstName: 'Grace',
@@ -174,32 +163,63 @@ export class EmployeesService implements OnModuleInit {
     return emp;
   }
 
-  async create(data: Partial<Employee>) {
+  async create(data: Partial<Employee>, userId: number) {
     const emp = this.repo.create(data);
-    return this.repo.save(emp);
+    const saved = await this.repo.save(emp);
+    void this.audit.log(
+      userId,
+      'CREATE',
+      'EMPLOYEE',
+      `Created employee "${saved.firstName} ${saved.lastName}"`,
+    );
+    return saved;
   }
 
-  async update(id: number, data: Partial<Employee>) {
-    await this.findOne(id);
+  async update(id: number, data: Partial<Employee>, userId: number) {
+    const emp = await this.findOne(id);
     await this.repo.update(id, data);
+    void this.audit.log(
+      userId,
+      'UPDATE',
+      'EMPLOYEE',
+      `Updated employee "${emp.firstName} ${emp.lastName}"`,
+    );
     return this.findOne(id);
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(id: number, userId: number) {
+    const emp = await this.findOne(id);
     await this.repo.delete(id);
+    void this.audit.log(
+      userId,
+      'DELETE',
+      'EMPLOYEE',
+      `Deleted employee "${emp.firstName} ${emp.lastName}"`,
+    );
     return { message: 'Employee deleted successfully' };
   }
 
-  async block(id: number) {
-    await this.findOne(id);
+  async block(id: number, userId: number) {
+    const emp = await this.findOne(id);
     await this.repo.update(id, { status: EmployeeStatus.BLOCKED });
+    void this.audit.log(
+      userId,
+      'BLOCK',
+      'EMPLOYEE',
+      `Blocked employee "${emp.firstName} ${emp.lastName}"`,
+    );
     return this.findOne(id);
   }
 
-  async unblock(id: number) {
-    await this.findOne(id);
+  async unblock(id: number, userId: number) {
+    const emp = await this.findOne(id);
     await this.repo.update(id, { status: EmployeeStatus.ACTIVE });
+    void this.audit.log(
+      userId,
+      'UNBLOCK',
+      'EMPLOYEE',
+      `Unblocked employee "${emp.firstName} ${emp.lastName}"`,
+    );
     return this.findOne(id);
   }
 

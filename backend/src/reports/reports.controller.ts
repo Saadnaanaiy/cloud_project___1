@@ -12,8 +12,10 @@ import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { UserRole } from '../auth/user.entity';
+import { User, UserRole } from '../auth/user.entity';
+import { CurrentUser } from '../auth/user.decorator';
 import { ReportsService } from './reports.service';
+import { AuditService } from '../audit/audit.service';
 
 @ApiTags('Reports')
 @ApiBearerAuth('access-token')
@@ -22,7 +24,10 @@ import { ReportsService } from './reports.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('reports')
 export class ReportsController {
-  constructor(private readonly service: ReportsService) {}
+  constructor(
+    private readonly service: ReportsService,
+    private readonly audit: AuditService,
+  ) {}
 
   @Get('excel')
   @Roles(UserRole.ADMIN, UserRole.HR)
@@ -40,7 +45,10 @@ export class ReportsController {
       'Excel file download (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)',
     schema: { type: 'string', format: 'binary' },
   })
-  async downloadExcel(@Res() res: Response) {
+  async downloadExcel(
+    @Res() res: Response,
+    @CurrentUser() user: Pick<User, 'id' | 'name'>,
+  ) {
     const buffer = await this.service.generateExcel();
     const today = new Date().toISOString().split('T')[0];
     const filename = `rapport_employes_${today}.xlsx`;
@@ -51,6 +59,12 @@ export class ReportsController {
       'Content-Length': buffer.length,
     });
     res.send(buffer);
+    void this.audit.log(
+      user.id,
+      'EXPORT',
+      'REPORT',
+      `Exported employee report as Excel by ${user.name}`,
+    );
   }
 
   @Get('pdf')
@@ -66,7 +80,10 @@ export class ReportsController {
     description: 'PDF file download (application/pdf)',
     schema: { type: 'string', format: 'binary' },
   })
-  async downloadPDF(@Res() res: Response) {
+  async downloadPDF(
+    @Res() res: Response,
+    @CurrentUser() user: Pick<User, 'id' | 'name'>,
+  ) {
     const buffer = await this.service.generatePDF();
     const today = new Date().toISOString().split('T')[0];
     const filename = `rapport_employes_${today}.pdf`;
@@ -76,5 +93,11 @@ export class ReportsController {
       'Content-Length': buffer.length,
     });
     res.send(buffer);
+    void this.audit.log(
+      user.id,
+      'EXPORT',
+      'REPORT',
+      `Exported employee report as PDF by ${user.name}`,
+    );
   }
 }

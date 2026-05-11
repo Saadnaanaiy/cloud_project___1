@@ -3,15 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Announcement } from './announcement.entity';
 import { AnnouncementsService } from './announcements.service';
 import { AnnouncementsController } from './announcements.controller';
-import { NotificationsModule } from '../notifications/notifications.module';
-import { EmployeesModule } from '../employees/employees.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Announcement]),
-    NotificationsModule,
-    EmployeesModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Announcement]), AuditModule],
   providers: [AnnouncementsService],
   controllers: [AnnouncementsController],
   exports: [AnnouncementsService],

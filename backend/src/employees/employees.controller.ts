@@ -29,7 +29,8 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { UserRole } from '../auth/user.entity';
+import { User, UserRole } from '../auth/user.entity';
+import { CurrentUser } from '../auth/user.decorator';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeesService } from './employees.service';
@@ -114,8 +115,11 @@ export class EmployeesController {
     description: 'Requires **admin** or **hr** role.',
   })
   @ApiCreatedResponse({ description: 'Employee created successfully' })
-  create(@Body() body: CreateEmployeeDto) {
-    return this.service.create(body);
+  create(
+    @Body() body: CreateEmployeeDto,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
+    return this.service.create(body, user.id);
   }
 
   @Put(':id')
@@ -135,8 +139,9 @@ export class EmployeesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateEmployeeDto,
+    @CurrentUser() user: Pick<User, 'id'>,
   ) {
-    return this.service.update(id, body);
+    return this.service.update(id, body, user.id);
   }
 
   // ── DELETE / BLOCK — Admin only ──────────────────────────────────────────────
@@ -157,8 +162,11 @@ export class EmployeesController {
   })
   @ApiNoContentResponse({ description: 'Employee deleted' })
   @ApiNotFoundResponse({ description: 'Employee not found' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
+    return this.service.remove(id, user.id);
   }
 
   @Patch(':id/block')
@@ -174,8 +182,11 @@ export class EmployeesController {
     example: 1,
   })
   @ApiOkResponse({ description: 'Employee blocked' })
-  block(@Param('id', ParseIntPipe) id: number) {
-    return this.service.block(id);
+  block(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
+    return this.service.block(id, user.id);
   }
 
   @Patch(':id/unblock')
@@ -191,7 +202,10 @@ export class EmployeesController {
     example: 1,
   })
   @ApiOkResponse({ description: 'Employee unblocked' })
-  unblock(@Param('id', ParseIntPipe) id: number) {
-    return this.service.unblock(id);
+  unblock(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
+    return this.service.unblock(id, user.id);
   }
 }

@@ -108,9 +108,10 @@ export class AnnouncementsController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateAnnouncementDto,
+    @CurrentUser() user: Pick<User, 'id'>,
   ) {
     try {
-      return await this.service.update(id, body);
+      return await this.service.update(id, body, user.id);
     } catch {
       throw new InternalServerErrorException('Failed to update announcement');
     }
@@ -125,9 +126,12 @@ export class AnnouncementsController {
   })
   @ApiNoContentResponse({ description: 'Announcement deleted' })
   @ApiNotFoundResponse({ description: 'Announcement not found' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
     try {
-      return await this.service.remove(id);
+      return await this.service.remove(id, user.id);
     } catch {
       throw new InternalServerErrorException('Failed to delete announcement');
     }

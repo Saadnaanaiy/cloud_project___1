@@ -26,7 +26,8 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { UserRole } from '../auth/user.entity';
+import { User, UserRole } from '../auth/user.entity';
+import { CurrentUser } from '../auth/user.decorator';
 import { CreateDepartmentDto, UpdateDepartmentDto } from './dto/department.dto';
 import { DepartmentsService } from './departments.service';
 
@@ -75,8 +76,11 @@ export class DepartmentsController {
     description: 'Requires **admin** role.',
   })
   @ApiCreatedResponse({ description: 'Department created successfully' })
-  create(@Body() body: CreateDepartmentDto) {
-    return this.service.create(body);
+  create(
+    @Body() body: CreateDepartmentDto,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
+    return this.service.create(body, user.id);
   }
 
   @Put(':id')
@@ -96,8 +100,9 @@ export class DepartmentsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateDepartmentDto,
+    @CurrentUser() user: Pick<User, 'id'>,
   ) {
-    return this.service.update(id, body);
+    return this.service.update(id, body, user.id);
   }
 
   @Delete(':id')
@@ -115,7 +120,10 @@ export class DepartmentsController {
   })
   @ApiNoContentResponse({ description: 'Department deleted' })
   @ApiNotFoundResponse({ description: 'Department not found' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: Pick<User, 'id'>,
+  ) {
+    return this.service.remove(id, user.id);
   }
 }
