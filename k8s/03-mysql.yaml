@@ -71,6 +71,7 @@ spec:
       spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: standard-rwo
+        volumeMode: Filesystem
         resources:
           requests:
             storage: 10Gi
