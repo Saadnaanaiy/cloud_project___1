@@ -70,8 +70,6 @@ spec:
         name: mysql-data
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: standard-rwo
-        volumeMode: Filesystem
         resources:
           requests:
             storage: 10Gi
