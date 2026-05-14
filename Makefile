@@ -233,6 +233,14 @@ load-test-local: ## Run k6 load test against LOCAL backend
 load-test-k8s: ## Run k6 load test against PRODUCTION (GKE)
 	k6 run --env API_URL=https://$(DOMAIN) tests/load-test.js
 
+locust-local: ## Run Locust load test against LOCAL backend
+	pip install locust 2>/dev/null || true
+	locust -f tests/locustfile.py --host http://localhost:3001
+
+locust-k8s: ## Run Locust load test against PRODUCTION (GKE)
+	pip install locust 2>/dev/null || true
+	locust -f tests/locustfile.py --host https://$(DOMAIN)
+
 # ─── Dashboard & DR ────────────────────────────────────────────
 dashboard-deploy: ## Deploy custom Grafana dashboard
 	kubectl apply -f k8s/13-grafana-dashboard.yaml
