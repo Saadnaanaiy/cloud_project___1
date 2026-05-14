@@ -35,7 +35,7 @@ spec:
                 topologyKey: topology.kubernetes.io/zone
       containers:
         - name: frontend
-          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:206df874
+          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/frontend:7b6f04a2
           ports:
             - containerPort: 80
           readinessProbe:
