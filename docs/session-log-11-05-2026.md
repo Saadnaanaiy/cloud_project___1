@@ -41,12 +41,35 @@
 - Patched CoreDNS ConfigMap to use Google DNS (8.8.8.8, 8.8.4.4) instead of `/etc/resolv.conf`
 - Restarted CoreDNS pods
 
-### 7. Stopped GKE Cluster to Save Costs
+### 7. Deleted Load Balancer / Ingress to Save Costs
+- Deleted `employee-ingress` from the cluster to stop the GCP Load Balancer (~$0.60/day)
+- The ingress YAML is saved in the repo at `k8s/06-ingress.yaml`
+
+### 8. Stopped GKE Cluster to Save Costs
 - Resized node pool `dev-cloud-native-node-pool` to 0 nodes
 
 ---
 
+## Complete Project Structure
+
+```
+├── backend/           NestJS API (TypeScript)
+├── frontend/          React SPA (TypeScript, Vite, Tailwind)
+├── k8s/               Kubernetes manifests (17 files)
+├── infrastructure/    Terraform IaC for GCP
+├── .github/workflows/ CI/CD pipelines
+├── docs/              Documentation
+└── terraform/         GCP infrastructure as code
+```
+
+---
+
 ## How to Restart Everything for Soutenance (27/06/2026)
+
+### Prerequisites
+- Google Cloud SDK installed
+- Access to `cloudappproject-494314` project
+- This git repo cloned
 
 ### Step 1: Start the GKE node pool
 ```bash
@@ -57,50 +80,87 @@ gcloud container clusters resize dev-cloud-native-employee-gke \
   --project=cloudappproject-494314
 ```
 
-### Step 2: Wait for nodes to be ready (2-3 minutes)
+### Step 2: Get kubectl access
 ```bash
-kubectl get nodes
+gcloud container clusters get-credentials dev-cloud-native-employee-gke \
+  --region=europe-west1 --project=cloudappproject-494314
 ```
 
-### Step 3: Verify ArgoCD syncs automatically
-The application has auto-sync enabled with `targetRevision: main`.
-Wait ~3 minutes for ArgoCD to detect and sync.
+### Step 3: Recreate the Ingress / Load Balancer
+The ingress YAML is saved in `k8s/06-ingress.yaml`. Apply it:
+```bash
+kubectl apply -f k8s/06-ingress.yaml
+```
+This recreates the HTTPS load balancer + SSL certificate via cert-manager.
+Wait ~2 minutes for the SSL cert to provision.
 
-If it doesn't auto-sync, force it:
+### Step 4: Wait for ArgoCD to sync
+Auto-sync is enabled with `targetRevision: main`. Wait ~3 minutes.
+
+If it doesn't auto-sync, force a refresh:
 ```bash
 kubectl patch application employee-platform -n argocd --type=merge \
   -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
 ```
 
-### Step 4: Verify everything is running
+### Step 5: Verify everything is running
 ```bash
 kubectl get pods -n employee-platform
 kubectl get pods -n argocd
+kubectl get ingress -n employee-platform
 ```
 
-### Step 5: Access the application
-- **App**: https://empmanager.duckdns.org
-- **ArgoCD**: https://empmanager.duckdns.org/argocd (admin / password from `argocd-initial-admin-secret`)
-- **API Docs**: https://empmanager.duckdns.org/docs
+### Step 6: Access the application
+| Service | URL |
+|---------|-----|
+| **Main App** | https://empmanager.duckdns.org |
+| **API Docs** | https://empmanager.duckdns.org/docs |
+| **ArgoCD** | https://empmanager.duckdns.org/argocd |
+| **Grafana** | https://empmanager.duckdns.org/grafana |
 
 ### Default Users
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@company.com | (from env DEFAULT_ADMIN_PASSWORD) |
-| HR | hr@company.com | (from env DEFAULT_HR_PASSWORD) |
-| Manager | manager@company.com | (from env DEFAULT_MANAGER_PASSWORD) |
+| Admin | admin@company.com | (from env `DEFAULT_ADMIN_PASSWORD`) |
+| HR | hr@company.com | (from env `DEFAULT_HR_PASSWORD`) |
+| Manager | manager@company.com | (from env `DEFAULT_MANAGER_PASSWORD`) |
 
-### PostgreSQL Upgrade Note
-If the cluster was stopped for a long time, cert-manager certificates may need renewal:
+> Passwords are stored in GCP Secret Manager, not in the repo.
+
+### If ArgoCD doesn't sync
+The ArgoCD app points to `targetRevision: main` (branch). If sync fails:
+1. Check the error in ArgoCD UI → "APP CONDITIONS"
+2. Common issue: CoreDNS can't resolve external DNS
+3. Fix CoreDNS if needed:
+   ```bash
+   kubectl patch configmap coredns -n kube-system --type=merge \
+     -p '{"data":{"Corefile":".:53 {\n    errors\n    health\n    ready\n    kubernetes cluster.local in-addr.arpa ip6.arpa {\n       pods insecure\n       fallthrough in-addr.arpa ip6.arpa\n       ttl 30\n    }\n    prometheus :9153\n    forward . 8.8.8.8 8.8.4.4 {\n       max_concurrent 1000\n    }\n    cache 30\n    loop\n    reload\n    loadbalance\n}"}}'
+   kubectl delete pod -n kube-system -l k8s-app=kube-dns
+   ```
+
+### Certificate note
+If cert-manager certificates expired while the cluster was stopped:
 ```bash
 kubectl rollout restart deployment cert-manager -n cert-manager
-kubectl delete pod -n kube-system -l k8s-app=kube-dns  # restart CoreDNS
 ```
+SSL certificates auto-renew within ~5 minutes.
 
 ---
 
-## Key Commits
+## Cost Summary (after deleting ingress)
+
+| Period | Consumed | Remaining credits | Out of pocket |
+|--------|----------|-------------------|---------------|
+| Now (15 May) | $181 | $119 | $0 |
+| 27 June | **~$183** | **~$117** | **$0** ✅ |
+
+The ingress deletion saves enough to stay within the $300 free tier with zero out-of-pocket payment.
+
+---
+
+## Key Commits from This Session
 ```
+e775a2c  — Add session log documenting all changes and restore instructions
 d1027c8c — Round uptime value in health check
 9586251  — Fix ArgoCD revision: use explicit branch 'main' instead of 'HEAD'
 d10c26d7 — Fix remaining form label association for Publish Date field
