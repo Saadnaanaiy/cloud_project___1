@@ -35,7 +35,7 @@ spec:
                 topologyKey: topology.kubernetes.io/zone
       containers:
         - name: backend
-          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:4cc65322
+          image: europe-west1-docker.pkg.dev/cloudappproject-494314/dev-employee-platform/backend:648e7b96
           ports:
             - containerPort: 3001
           envFrom:
