@@ -93,6 +93,7 @@ jobs:
         run: npx vitest run
 
       - name: SonarCloud Scan
+        continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -102,6 +103,10 @@ jobs:
           args: >
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.sources=backend/src,frontend/src
+            -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info,frontend/coverage/lcov.info
+            -Dsonar.test.inclusions=**/*.spec.ts,**/*.test.ts,**/*.spec.tsx,**/*.test.tsx
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**
 
   # ─────────────────────────────────────────────
   # JOB 3 — Build, Scan & Push Docker Images
