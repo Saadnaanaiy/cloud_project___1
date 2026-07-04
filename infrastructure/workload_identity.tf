@@ -59,7 +59,7 @@ resource "google_project_iam_member" "github_sa_storage_viewer" {
 
 # Output the values needed for GitHub Secrets
 output "wif_provider" {
-  value       = "projects/${var.project_id}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github.workload_identity_pool_provider_id}"
+  value       = google_iam_workload_identity_pool_provider.github.name
   description = "WIF_PROVIDER value for GitHub Actions secret"
 }
 
