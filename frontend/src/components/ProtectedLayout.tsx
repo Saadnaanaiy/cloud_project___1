@@ -6,7 +6,7 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { ChatProvider } from '../context/ChatContext';
 import ChatDrawer from '../components/chat/ChatDrawer';
-import { AlertCircle, X } from 'lucide-react';
+import { Info, X } from 'lucide-react';
 
 const ProtectedLayout: React.FC = () => {
   const { isAuthenticated, isInitializing } = useAuth();
@@ -43,40 +43,59 @@ const ProtectedLayout: React.FC = () => {
         <div className="main-content">
           <Topbar title={title} setMobileMenuOpen={setMobileMenuOpen} setChatOpen={setChatOpen} />
 
-          {/* System Maintenance Alert */}
+          {/* Update Alert — macOS/iOS style */}
           {showAlert && (
             <div style={{
-              background: 'linear-gradient(135deg, #ff9500 0%, #ff7b00 100%)',
-              color: 'white',
-              padding: '16px 24px',
-              marginBottom: '20px',
-              borderRadius: '10px',
+              background: '#ffffff',
+              border: '1px solid #e0e0e0',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              margin: '0 20px 20px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              boxShadow: 'var(--shadow-md)',
-              margin: '0 20px 20px 20px',
+              gap: '14px',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
             }}>
-              <AlertCircle size={20} style={{ flexShrink: 0 }} />
+              <div style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: '#007aff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Info size={20} color="white" />
+              </div>
               <div style={{ flex: 1 }}>
-                <strong>System Maintenance Tomorrow</strong>
-                <p style={{ fontSize: '13px', margin: '4px 0 0 0', opacity: 0.95 }}>
-                  We will be performing system diagnostics tomorrow. If you experience any issues, our team will work on fixing them immediately!
+                <strong style={{ color: '#1d1d1f', fontSize: '14px' }}>Great News</strong>
+                <p style={{ fontSize: '13px', margin: '4px 0 0 0', color: '#6e6e73', lineHeight: 1.4 }}>
+                  The website has been successfully updated and is now running on the new infrastructure. Enjoy the improved performance and reliability!
                 </p>
               </div>
               <button
                 onClick={() => setShowAlert(false)}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
+                  background: '#f5f5f7',
                   border: 'none',
-                  color: 'white',
+                  color: '#86868b',
                   cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '4px',
+                  padding: '6px',
+                  borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'background 0.2s',
+                  flexShrink: 0,
+                }}
+                onMouseOver={e => (e.currentTarget.style.background = '#e8e8ed')}
+                onMouseOut={e => (e.currentTarget.style.background = '#f5f5f7')}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
