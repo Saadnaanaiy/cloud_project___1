@@ -21,7 +21,7 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     "attribute.repository" = "assertion.repository"
   }
 
-  attribute_condition = "assertion.repository == 'Saadn/cloud_project'"
+  attribute_condition = "assertion.repository == 'Saadnaanaiy/cloud_project___1'"
 }
 
 # Service Account for GitHub Actions
@@ -35,7 +35,7 @@ resource "google_service_account" "github_actions" {
 resource "google_service_account_iam_member" "github_wif" {
   service_account_id = google_service_account.github_actions.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/Saadn/cloud_project"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/Saadnaanaiy/cloud_project___1"
 }
 
 # Grant permissions to the GitHub Actions SA
