@@ -96,14 +96,6 @@ const ProtectedLayout: React.FC = () => {
               </button>
             </div>
           )}
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
-              >
-                <X size={18} />
-              </button>
-            </div>
-          )}
 
           <div className="page-inner animate-fade">
             <Outlet />
