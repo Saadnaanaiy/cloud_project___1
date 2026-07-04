@@ -35,7 +35,7 @@ spec:
                 topologyKey: topology.kubernetes.io/zone
       containers:
         - name: backend
-          image: europe-west1-docker.pkg.dev/empmanager-prod/dev-employee-platform/backend:3f3ec6df
+          image: europe-west1-docker.pkg.dev/empmanager-prod/dev-employee-platform/backend:99045e09
           ports:
             - containerPort: 3001
           envFrom:
