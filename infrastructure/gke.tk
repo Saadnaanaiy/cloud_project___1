@@ -1,0 +1,4 @@
+  node_config {
+    disk_type    = "pd-standard"
+    disk_size_gb = 50
+  }
