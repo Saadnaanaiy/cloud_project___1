@@ -11,6 +11,11 @@ resource "google_container_cluster" "main" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
+  node_config {
+    disk_type    = "pd-standard"
+    disk_size_gb = 50
+  }
+
   ip_allocation_policy {
     cluster_secondary_range_name  = "pods"
     services_secondary_range_name = "services"
@@ -18,7 +23,7 @@ resource "google_container_cluster" "main" {
 
   private_cluster_config {
     enable_private_nodes    = true
-    enable_private_endpoint = true
+    enable_private_endpoint = false
     master_ipv4_cidr_block  = "172.16.0.0/28"
   }
 
@@ -40,9 +45,9 @@ resource "google_container_node_pool" "primary_nodes" {
   node_count = var.gke_node_count
 
   node_locations = [
-    "${var.region}-a",
     "${var.region}-b",
     "${var.region}-c",
+    "${var.region}-d",
   ]
 
   node_config {
