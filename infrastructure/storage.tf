@@ -7,6 +7,8 @@ resource "google_storage_bucket" "backups" {
   storage_class = "NEARLINE"
   force_destroy = var.environment != "prod"
 
+  uniform_bucket_level_access = true
+
   versioning {
     enabled = true
   }
