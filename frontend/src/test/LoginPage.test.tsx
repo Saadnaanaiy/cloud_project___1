@@ -11,6 +11,8 @@ vi.mock('@marsidev/react-turnstile', () => ({
   Turnstile: () => <div data-testid="turnstile" />,
 }))
 
+process.env.VITE_TURNSTILE_SITE_KEY = '1'
+
 const renderPage = () =>
   render(
     <MemoryRouter>
