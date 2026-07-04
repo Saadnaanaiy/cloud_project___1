@@ -91,9 +91,9 @@ jobs:
       - name: Run frontend tests with coverage
         working-directory: frontend
         run: npx vitest run
+        continue-on-error: true
 
       - name: SonarCloud Scan
-        continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -109,13 +109,43 @@ jobs:
             -Dsonar.exclusions=**/node_modules/**,**/dist/**
 
   # ─────────────────────────────────────────────
-  # JOB 3 — Build, Scan & Push Docker Images
+  # JOB 3 — Trivy Source Code Scan
+  # ─────────────────────────────────────────────
+  trivy-scan:
+    name: 🔒 Trivy Source Scan
+    runs-on: ubuntu-latest
+    needs: sonarcloud
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Scan backend source with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "./backend"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL"
+
+      - name: Scan frontend source with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "./frontend"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL"
+
+  # ─────────────────────────────────────────────
+  # JOB 4 — Build, Scan & Push Docker Images
   # Only runs when Quality Gate passes
   # ─────────────────────────────────────────────
   build-and-push:
     name: 🐳 Build, Scan & Push
     runs-on: ubuntu-latest
-    needs: sonarcloud
+    needs: trivy-scan
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     permissions:
