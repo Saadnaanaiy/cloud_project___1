@@ -31,9 +31,7 @@ import { AuditModule } from './audit/audit.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const password = config.get<string>('DB_PASSWORD');
-        if (!password)
-          throw new Error('DB_PASSWORD environment variable is required');
+        const password = config.get<string>('DB_PASSWORD', '');
         return {
           type: 'mysql' as const,
           host: config.get<string>('DB_HOST', 'localhost'),

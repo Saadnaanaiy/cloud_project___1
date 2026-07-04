@@ -16,7 +16,7 @@
         load-test-local load-test-k8s
 
 # Variables
-PROJECT_ID  := cloudappproject-494314
+PROJECT_ID  := empmanager-prod
 REGION      := europe-west1
 REGISTRY    := europe-west1-docker.pkg.dev
 REPO        := dev-employee-platform

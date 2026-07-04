@@ -44,7 +44,7 @@ const SignupPage: React.FC = () => {
     const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault()
         if (!validate()) return
-        if (!captchaToken) {
+        if (!captchaToken && import.meta.env.VITE_TURNSTILE_SITE_KEY) {
             toast.error("Please complete the CAPTCHA")
             return
         }
@@ -414,16 +414,17 @@ const SignupPage: React.FC = () => {
                                         margin: "20px 0",
                                     }}
                                 >
-                                    <Turnstile
-                                        siteKey={
-                                            import.meta.env
-                                                .VITE_TURNSTILE_SITE_KEY || ""
-                                        }
-                                        onSuccess={(token) =>
-                                            setCaptchaToken(token)
-                                        }
-                                        options={{ theme: "dark" }}
-                                    />
+                                    {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
+                                        <Turnstile
+                                            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                                            onSuccess={(token) =>
+                                                setCaptchaToken(token)
+                                            }
+                                            options={{ theme: "dark" }}
+                                        />
+                                    ) : (
+                                        <input type="hidden" value="disabled" />
+                                    )}
                                 </div>
 
                                 <button

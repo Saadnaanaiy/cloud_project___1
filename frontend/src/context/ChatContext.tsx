@@ -143,9 +143,10 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (user) {
       const token = localStorage.getItem('token');
 
-      // Use globalThis.location.origin to automatically get the correct protocol (https:// or http://)
-      // Socket.IO will automatically handle ws:// vs wss://
-      const newSocket = io(globalThis.location.origin, {
+      const wsOrigin = import.meta.env.VITE_API_URL
+        ? import.meta.env.VITE_API_URL.replace(/\/api$/, '')
+        : globalThis.location.origin;
+      const newSocket = io(wsOrigin, {
         auth: { token },
         reconnection: true,
         reconnectionDelay: 1000,

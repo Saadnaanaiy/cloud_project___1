@@ -63,7 +63,10 @@ const SecurityLogsPage: React.FC = () => {
     const token = localStorage.getItem("token")
     if (!token) return
 
-    const socket = io(globalThis.location.origin, {
+    const wsOrigin = import.meta.env.VITE_API_URL
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '')
+      : globalThis.location.origin;
+    const socket = io(wsOrigin, {
       auth: { token },
       reconnection: true,
       reconnectionDelay: 1000,

@@ -19,7 +19,7 @@ error()   { local msg="$1"; echo -e "${RED}❌ ${msg}${NC}"; exit 1; }
 step()    { local msg="$1"; echo -e "\n${CYAN}══════════════════════════════════════${NC}"; echo -e "${CYAN}  STEP ${msg}${NC}"; echo -e "${CYAN}══════════════════════════════════════${NC}"; }
 
 # ─── Configuration ───────────────────────────────────────────
-PROJECT_ID="cloudappproject-494314"
+PROJECT_ID="empmanager-prod"
 REGION="europe-west1"
 CLUSTER="dev-employee-gke"
 REGISTRY="europe-west1-docker.pkg.dev"

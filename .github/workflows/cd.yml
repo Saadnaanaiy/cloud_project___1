@@ -13,7 +13,7 @@ on:
         default: 'latest'
 
 env:
-  PROJECT_ID: cloudappproject-494314
+  PROJECT_ID: empmanager-prod
   REGION: europe-west1
   GKE_CLUSTER: dev-cloud-native-employee-gke
   REGISTRY: europe-west1-docker.pkg.dev

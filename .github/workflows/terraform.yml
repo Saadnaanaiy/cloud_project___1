@@ -16,7 +16,7 @@ on:
 env:
   TF_VERSION: '1.9.0'
   WORKING_DIR: './infrastructure'
-  PROJECT_ID: cloudappproject-494314
+  PROJECT_ID: empmanager-prod
 
 jobs:
   terraform:

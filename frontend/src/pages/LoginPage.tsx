@@ -123,13 +123,15 @@ const LoginPage: React.FC = () => {
                                 margin: "20px 0",
                             }}
                         >
-                            <Turnstile
-                                siteKey={
-                                    import.meta.env.VITE_TURNSTILE_SITE_KEY || ""
-                                }
-                                onSuccess={(token) => setCaptchaToken(token)}
-                                options={{ theme: "dark", size: "normal" }}
-                            />
+                            {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
+                                <Turnstile
+                                    siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                                    onSuccess={(token) => setCaptchaToken(token)}
+                                    options={{ theme: "dark", size: "normal" }}
+                                />
+                            ) : (
+                                <input type="hidden" value="disabled" />
+                            )}
                         </div>
 
                         <button

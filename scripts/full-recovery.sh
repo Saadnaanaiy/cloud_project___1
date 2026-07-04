@@ -2,7 +2,7 @@
 # ============================================================
 # Full Automated Recovery Script
 # Rebuilds entire infrastructure from scratch
-# Run after: gcloud auth login && gcloud config set project cloudappproject-494314
+# Run after: gcloud auth login && gcloud config set project empmanager-prod
 # ============================================================
 
 set -e
