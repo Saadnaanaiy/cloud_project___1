@@ -55,7 +55,7 @@ const SignupPage: React.FC = () => {
                 form.email,
                 form.password,
                 form.role,
-                captchaToken,
+                captchaToken ?? undefined,
             )
             setShowSuccess(true)
         } catch (err: any) {
