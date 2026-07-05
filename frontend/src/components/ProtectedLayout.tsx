@@ -24,7 +24,14 @@ const ProtectedLayout: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [chatOpen, setChatOpen] = React.useState(false);
-  const [latestAnnouncement, setLatestAnnouncement] = React.useState<Announcement | null>(null);
+  const fallbackAnnouncement: Announcement = {
+    id: 0,
+    title: 'System Update Today',
+    content: 'The system has been successfully updated with new features and improvements. Enjoy the enhanced performance and reliability!',
+    priority: 'high',
+    createdAt: new Date().toISOString(),
+  };
+  const [latestAnnouncement, setLatestAnnouncement] = React.useState<Announcement>(fallbackAnnouncement);
   const [showAlert, setShowAlert] = React.useState(true);
 
   React.useEffect(() => {
