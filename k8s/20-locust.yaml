@@ -1,0 +1,207 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: locust-scripts
+  namespace: employee-platform
+data:
+  locustfile.py: |
+    import json
+    import os
+    from locust import HttpUser, task, between, tag
+
+    class EmployeePlatformUser(HttpUser):
+        wait_time = between(1, 3)
+        token = None
+
+        def on_start(self):
+            password = os.getenv("TEST_PASSWORD", "admin123")
+            res = self.client.post(
+                "/api/auth/login",
+                json={"email": "admin@company.com", "password": password},
+            )
+            if res.status_code in (200, 201):
+                self.token = res.json().get("access_token")
+
+        @tag("auth")
+        @task(1)
+        def login(self):
+            password = os.getenv("TEST_PASSWORD", "admin123")
+            res = self.client.post(
+                "/api/auth/login",
+                json={"email": "admin@company.com", "password": password},
+            )
+            if res.status_code in (200, 201):
+                self.token = res.json().get("access_token")
+
+        @tag("employees")
+        @task(3)
+        def list_employees(self):
+            if not self.token:
+                return
+            self.client.get(
+                "/api/employees",
+                headers={"Authorization": f"Bearer {self.token}"},
+            )
+
+        @tag("health")
+        @task(2)
+        def health_check(self):
+            self.client.get("/api/health")
+
+        @tag("announcements")
+        @task(2)
+        def list_announcements(self):
+            if not self.token:
+                return
+            self.client.get(
+                "/api/announcements",
+                headers={"Authorization": f"Bearer {self.token}"},
+            )
+
+        @tag("departments")
+        @task(1)
+        def list_departments(self):
+            if not self.token:
+                return
+            self.client.get(
+                "/api/departments",
+                headers={"Authorization": f"Bearer {self.token}"},
+            )
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-master
+  namespace: employee-platform
+  labels:
+    app: locust
+    role: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locust
+      role: master
+  template:
+    metadata:
+      labels:
+        app: locust
+        role: master
+    spec:
+      containers:
+        - name: locust
+          image: locustio/locust:latest
+          ports:
+            - containerPort: 8089
+              name: http-web
+            - containerPort: 5557
+              name: comm
+          env:
+            - name: LOCUST_MODE
+              value: master
+            - name: TARGET_URL
+              value: https://empmanager.duckdns.org
+            - name: TEST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: default-admin-password
+          command:
+            - locust
+            - -f
+            - /mnt/locust/locustfile.py
+            - --host
+            - $(TARGET_URL)
+            - --master
+            - --web-port
+            - "8089"
+          volumeMounts:
+            - name: locust-scripts
+              mountPath: /mnt/locust
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: locust-scripts
+          configMap:
+            name: locust-scripts
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-worker
+  namespace: employee-platform
+  labels:
+    app: locust
+    role: worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: locust
+      role: worker
+  template:
+    metadata:
+      labels:
+        app: locust
+        role: worker
+    spec:
+      containers:
+        - name: locust
+          image: locustio/locust:latest
+          env:
+            - name: LOCUST_MODE
+              value: worker
+            - name: LOCUST_MASTER_HOST
+              value: locust-master
+            - name: TARGET_URL
+              value: https://empmanager.duckdns.org
+            - name: TEST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: default-admin-password
+          command:
+            - locust
+            - -f
+            - /mnt/locust/locustfile.py
+            - --host
+            - $(TARGET_URL)
+            - --worker
+            - --master-host
+            - $(LOCUST_MASTER_HOST)
+          volumeMounts:
+            - name: locust-scripts
+              mountPath: /mnt/locust
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1
+              memory: 512Mi
+      volumes:
+        - name: locust-scripts
+          configMap:
+            name: locust-scripts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-master
+  namespace: employee-platform
+spec:
+  selector:
+    app: locust
+    role: master
+  ports:
+    - name: http-web
+      port: 8089
+      targetPort: 8089
+    - name: comm
+      port: 5557
+      targetPort: 5557

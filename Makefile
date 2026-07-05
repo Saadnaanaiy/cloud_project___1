@@ -237,9 +237,21 @@ locust-local: ## Run Locust load test against LOCAL backend
 	pip install locust 2>/dev/null || true
 	locust -f tests/locustfile.py --host http://localhost:3001
 
-locust-k8s: ## Run Locust load test against PRODUCTION (GKE)
+locust-k8s: ## Run Locust load test against PRODUCTION (GKE) from local machine
 	pip install locust 2>/dev/null || true
 	locust -f tests/locustfile.py --host https://$(DOMAIN)
+
+locust-deploy: ## Deploy Locust distributed on GKE cluster
+	kubectl apply -f k8s/20-locust.yaml
+
+locust-undeploy: ## Remove Locust from GKE cluster
+	kubectl delete -f k8s/20-locust.yaml
+
+locust-portforward: ## Port-forward Locust Web UI (http://localhost:8089)
+	kubectl port-forward svc/locust-master 8089:8089 -n $(NAMESPACE)
+
+locust-scale: ## Scale Locust workers: make locust-scale N=5
+	kubectl scale deployment/locust-worker --replicas=$(or $(N),5) -n $(NAMESPACE)
 
 # ─── Dashboard & DR ────────────────────────────────────────────
 dashboard-deploy: ## Deploy custom Grafana dashboard
