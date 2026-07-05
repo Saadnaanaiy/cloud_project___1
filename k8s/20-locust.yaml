@@ -105,7 +105,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: backend-secret
-                  key: default-admin-password
+                  key: DEFAULT_ADMIN_PASSWORD
           command:
             - locust
             - -f
@@ -164,7 +164,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: backend-secret
-                  key: default-admin-password
+                  key: DEFAULT_ADMIN_PASSWORD
           command:
             - locust
             - -f
