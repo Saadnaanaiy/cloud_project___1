@@ -22,12 +22,7 @@ data:
         { "title": "Total API Requests (5m)", "type": "stat", "id": 3, "datasource": "Prometheus", "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
           "targets": [ { "expr": "sum(rate(nginx_ingress_controller_requests{exported_namespace=\"employee-platform\"}[5m])) * 300", "instant": true } ],
           "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [ { "color": "blue", "value": null } ] } } } },
-        { "title": "5xx Error Rate", "type": "stat", "id": 4, "datasource": "Prometheus", "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
-          "targets": [ { "expr": "sum(rate(nginx_ingress_controller_requests{exported_namespace=\"employee-platform\", status=~\"5..\"}[5m])) / sum(rate(nginx_ingress_controller_requests{exported_namespace=\"employee-platform\"}[5m])) * 100", "instant": true } ],
-          "fieldConfig": { "defaults": { "unit": "percent", "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 5 } ] } } } },
-        { "title": "Avg Response Latency (p99)", "type": "stat", "id": 5, "datasource": "Prometheus", "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
-          "targets": [ { "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_namespace=\"employee-platform\"}[5m])) by (le))", "instant": true } ],
-          "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 3 } ] } } } },
+
         { "title": "Application Performance", "type": "row", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }, "id": 6, "collapsed": false },
         { "title": "Backend CPU Usage", "type": "timeseries", "id": 7, "datasource": "Prometheus", "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
           "targets": [ { "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"employee-platform\", container=\"backend\"}[5m])) by (pod) * 100", "legendFormat": "{{pod}}" } ],
@@ -81,5 +76,5 @@ data:
       "timepicker": {}, "timezone": "browser",
       "title": "Employee Platform Dashboard",
       "uid": "employee-platform",
-      "version": 2
+      "version": 3
     }
