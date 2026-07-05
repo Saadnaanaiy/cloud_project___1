@@ -6,7 +6,17 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { ChatProvider } from '../context/ChatContext';
 import ChatDrawer from '../components/chat/ChatDrawer';
-import { Info, X } from 'lucide-react';
+import { Info, X, Megaphone } from 'lucide-react';
+import api from '../api/axios';
+
+interface Announcement {
+  id: number;
+  title: string;
+  content: string;
+  priority: string;
+  author?: { firstName: string; lastName: string };
+  createdAt: string;
+}
 
 const ProtectedLayout: React.FC = () => {
   const { isAuthenticated, isInitializing } = useAuth();
@@ -14,7 +24,18 @@ const ProtectedLayout: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [chatOpen, setChatOpen] = React.useState(false);
+  const [latestAnnouncement, setLatestAnnouncement] = React.useState<Announcement | null>(null);
   const [showAlert, setShowAlert] = React.useState(true);
+
+  React.useEffect(() => {
+    api.get('/announcements')
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setLatestAnnouncement(res.data[0]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const pageTitles: Record<string, string> = {
     '/': t('dashboard'),
@@ -43,8 +64,8 @@ const ProtectedLayout: React.FC = () => {
         <div className="main-content">
           <Topbar title={title} setMobileMenuOpen={setMobileMenuOpen} setChatOpen={setChatOpen} />
 
-          {/* Update Alert — macOS/iOS style */}
-          {showAlert && (
+          {/* Announcements Banner — macOS/iOS style */}
+          {showAlert && latestAnnouncement && (
             <div style={{
               background: '#ffffff',
               border: '1px solid #e0e0e0',
@@ -60,18 +81,18 @@ const ProtectedLayout: React.FC = () => {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: '#007aff',
+                background: latestAnnouncement.priority === 'high' ? '#ff3b30' : '#007aff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                <Info size={20} color="white" />
+                {latestAnnouncement.priority === 'high' ? <Megaphone size={20} color="white" /> : <Info size={20} color="white" />}
               </div>
               <div style={{ flex: 1 }}>
-                <strong style={{ color: '#1d1d1f', fontSize: '14px' }}>Great News</strong>
+                <strong style={{ color: '#1d1d1f', fontSize: '14px' }}>{latestAnnouncement.title}</strong>
                 <p style={{ fontSize: '13px', margin: '4px 0 0 0', color: '#6e6e73', lineHeight: 1.4 }}>
-                  The website has been successfully updated and is now running on the new infrastructure. Enjoy the improved performance and reliability!
+                  {latestAnnouncement.content}
                 </p>
               </div>
               <button
