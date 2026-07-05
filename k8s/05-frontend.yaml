@@ -35,7 +35,7 @@ spec:
                 topologyKey: topology.kubernetes.io/zone
       containers:
         - name: frontend
-          image: europe-west1-docker.pkg.dev/empmanager-prod/dev-employee-platform/frontend:ef6bc465
+          image: europe-west1-docker.pkg.dev/empmanager-prod/dev-employee-platform/frontend:54531add
           ports:
             - containerPort: 80
           readinessProbe:
